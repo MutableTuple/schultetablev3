@@ -3,7 +3,7 @@ import { supabase } from "./supabase";
 export async function getAllAds() {
   const { data, error } = await supabase.from("Ads").select("*");
 
-  if (error) console.log(error);
+  if (error) console.error(error);
   return data;
 }
 async function trackGameSession(total_wrong_click, total_right_click, user) {
@@ -52,7 +52,7 @@ export async function addUsertoDB(name, id, email, username, avatarUrl, token) {
 export async function fetchUserFromDB(id) {
   const { data, error } = await supabase.from("User").select("*").eq("id", id);
 
-  if (error) console.log("cant fetch user for some reason", error);
+  if (error) console.error("cant fetch user for some reason", error);
   console.log("Data", data);
   return data;
 }
@@ -64,18 +64,18 @@ export async function updateProfile(name, social_link, bio, nationality, id) {
     .eq("id", id)
     .select();
 
-  if (error) console.log("err", error);
+  if (error) console.error("err", error);
   return data;
 }
 
 export async function getAllNotifications() {
   const { data, error } = await supabase.from("Notification").select("*");
-  if (error) console.log("cannot fetch", error);
+  if (error) console.error("cannot fetch", error);
   return data;
 }
 export async function getAllBlogs() {
   const { data, error } = await supabase.from("Blogs").select("*");
-  if (error) console.log("cannot fetch", error);
+  if (error) console.error("cannot fetch", error);
   return data;
 }
 export async function getBlogBySlugName(slug) {
@@ -83,7 +83,7 @@ export async function getBlogBySlugName(slug) {
     .from("Blogs")
     .select("*")
     .eq("slug", slug);
-  if (error) console.log("cannot fetch", error);
+  if (error) console.error("cannot fetch", error);
   return data;
 }
 
