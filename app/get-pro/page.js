@@ -1,4 +1,5 @@
 import React from "react";
+import { redirect } from "next/navigation"; // ← Import this
 import Navbar from "../_components/Navbar";
 import Pro from "../_components/Pro";
 import { getCurrentUser } from "../_utils/getCurrentUser";
@@ -33,7 +34,12 @@ export const metadata = {
 
 export default async function page() {
   const { user, error } = await getCurrentUser();
-  console.log("USER", user);
+
+  // 🔁 Check and redirect if no user
+  if (!user || !user[0]?.id) {
+    redirect("/auth/login");
+  }
+
   return (
     <>
       <Navbar />

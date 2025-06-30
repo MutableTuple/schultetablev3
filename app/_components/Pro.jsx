@@ -288,20 +288,13 @@ export default function Pro({ user }) {
             </ul>
             <div className="mt-6">
               <Link
-                href={`https://schultetable.lemonsqueezy.com/buy/f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b?checkout[custom][user_id]=${user[0]?.id}`}
+                href={`https://schultetable.lemonsqueezy.com/buy/a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e?checkout[custom][user_id]=${user[0]?.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary btn-block"
               >
                 Subscribe
               </Link>
-              {/* <button
-                className="btn btn-primary btn-block"
-                data-lemon-checkout="f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b"
-                data-custom={user[0]?.id}
-              >
-                Subscribe
-              </button> */}
             </div>
           </div>
         </div>
