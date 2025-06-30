@@ -57,7 +57,7 @@ export default function Navbar() {
         </div>
         <Link href="/" className="flex items-center gap-2 ml-2">
           <img
-            src="https://www.schultetable.com/_next/image?url=https%3A%2F%2Fhflzumrbjzkzofgzeyao.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2F%2FLogo.png&w=128&q=75"
+            src="https://hflzumrbjzkzofgzeyao.supabase.co/storage/v1/object/public/media//Logo.png"
             alt="SchulteTable"
             className="h-9 w-9"
           />
