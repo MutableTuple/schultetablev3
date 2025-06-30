@@ -15,13 +15,13 @@ export default function Pro({ user }) {
     document.body.appendChild(script);
   }, []);
   return (
-    <div className="min-h-screen bg-base-200 py-16 px-4 flex flex-col items-center text-base-content">
+    <div className="min-h-screen bg-base-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center text-base-content">
       {/* Header */}
-      <div className="text-center max-w-2xl mb-12">
-        <h1 className="text-4xl font-bold mb-4">
-          Unlock Your Brain’s Full Potential
+      <div className="text-center max-w-4xl mb-8 sm:mb-10 lg:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
+          Unlock Your Brain's Full Potential
         </h1>
-        <p className="text-lg opacity-70">
+        <p className="text-sm sm:text-base lg:text-lg opacity-70 px-2">
           Upgrade to{" "}
           <span className="text-primary font-semibold">SchulteTable Pro</span>{" "}
           for a faster, smarter, and more personalized brain training
@@ -30,20 +30,20 @@ export default function Pro({ user }) {
       </div>
 
       {/* Plans */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Free Plan */}
-        <div className="card w-96 bg-base-100 shadow">
-          <div className="card-body">
-            <span className="badge badge-xs badge-neutral">Free Plan</span>
-            <div className="flex justify-between">
-              <h2 className="text-3xl font-bold">Free</h2>
-              <span className="text-xl">$0/mo</span>
+        <div className="card w-full bg-base-100 shadow-sm border border-primary">
+          <div className="card-body p-4 sm:p-6">
+            <span className="badge badge-xs badge-neutral mb-2">Free Plan</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold">Free</h2>
+              <span className="text-lg sm:text-xl mt-1 sm:mt-0">$0/mo</span>
             </div>
-            <ul className="mt-6 flex flex-col gap-2 text-xs">
-              <li>
+            <ul className="mt-4 sm:mt-6 flex flex-col gap-3 text-xs sm:text-sm">
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -55,12 +55,12 @@ export default function Pro({ user }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                Access to basic 3x3 and 4x4 tables
+                <span>Access to basic 3x3 and 4x4 tables</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -72,12 +72,12 @@ export default function Pro({ user }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                Limited score tracking
+                <span>Limited score tracking</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -89,12 +89,12 @@ export default function Pro({ user }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                Ads shown occasionally
+                <span>Ads shown occasionally</span>
               </li>
-              <li className="opacity-50">
+              <li className="opacity-50 flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-base-content/50"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-base-content/50"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -110,10 +110,10 @@ export default function Pro({ user }) {
                   Advanced statistics & performance insights
                 </span>
               </li>
-              <li className="opacity-50">
+              <li className="opacity-50 flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-base-content/50"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-base-content/50"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -129,10 +129,10 @@ export default function Pro({ user }) {
                   Personal leaderboard tracking
                 </span>
               </li>
-              <li className="opacity-50">
+              <li className="opacity-50 flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-base-content/50"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-base-content/50"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -150,7 +150,7 @@ export default function Pro({ user }) {
               </li>
             </ul>
             <div className="mt-6">
-              <button className="btn btn-outline btn-block">
+              <button className="btn btn-outline btn-block text-sm sm:text-base">
                 Current Plan
               </button>
             </div>
@@ -158,18 +158,22 @@ export default function Pro({ user }) {
         </div>
 
         {/* Pro Plan */}
-        <div className="card w-96 bg-base-100 shadow-sm border border-primary">
-          <div className="card-body">
-            <span className="badge badge-xs badge-warning">Most Popular</span>
-            <div className="flex justify-between">
-              <h2 className="text-3xl font-bold">Premium</h2>
-              <span className="text-xl">$12.99/lifetime</span>
+        <div className="card w-full bg-base-100 shadow-sm border border-primary">
+          <div className="card-body p-4 sm:p-6">
+            <span className="badge badge-xs badge-warning mb-2">
+              Most Popular
+            </span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold">Premium</h2>
+              <span className="text-lg sm:text-xl mt-1 sm:mt-0">
+                $12.99/lifetime
+              </span>
             </div>
-            <ul className="mt-6 flex flex-col gap-2 text-xs">
-              <li>
+            <ul className="mt-4 sm:mt-6 flex flex-col gap-3 text-xs sm:text-sm">
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -183,10 +187,10 @@ export default function Pro({ user }) {
                 </svg>
                 <span>Access to all game modes</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -200,10 +204,10 @@ export default function Pro({ user }) {
                 </svg>
                 <span>Track Response time between each click</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -217,10 +221,10 @@ export default function Pro({ user }) {
                 </svg>
                 <span>Advanced statistics & performance tracking</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -234,10 +238,10 @@ export default function Pro({ user }) {
                 </svg>
                 <span>Customizable difficulty presets</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -251,10 +255,10 @@ export default function Pro({ user }) {
                 </svg>
                 <span>Ad-free uninterrupted gameplay</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -268,10 +272,10 @@ export default function Pro({ user }) {
                 </svg>
                 <span>Exclusive Pro-only leaderboard</span>
               </li>
-              <li>
+              <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 inline-block text-success"
+                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -291,7 +295,7 @@ export default function Pro({ user }) {
                 href={`https://schultetable.lemonsqueezy.com/buy/a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e?checkout[custom][user_id]=${user[0]?.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-primary btn-block"
+                className="btn btn-primary btn-block text-sm sm:text-base"
               >
                 Subscribe
               </Link>

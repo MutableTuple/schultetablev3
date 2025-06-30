@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/third-parties": "^15.3.4",
     "@supabase/supabase-js": "^2.50.0",
     "daisyui": "^5.0.43",
     "date-fns": "^4.1.0",
