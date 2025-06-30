@@ -1,6 +1,8 @@
 import React from "react";
 import Navbar from "../_components/Navbar";
 import Pro from "../_components/Pro";
+import { getCurrentUser } from "../_utils/getCurrentUser";
+
 export const metadata = {
   title: "Schulte Table Pro",
   description:
@@ -29,11 +31,13 @@ export const metadata = {
   },
 };
 
-export default function page() {
+export default async function page() {
+  const { user, error } = await getCurrentUser();
+  console.log("USER", user);
   return (
     <>
       <Navbar />
-      <Pro />
+      <Pro user={user} />
     </>
   );
 }
