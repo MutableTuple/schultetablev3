@@ -14,7 +14,7 @@ export async function POST(req) {
     const { error } = await supabase
       .from("User")
       .update({ is_pro_user: true })
-      .eq("email", email);
+      .eq("id", id);
 
     if (error) {
       console.error("Supabase update error:", error.message);

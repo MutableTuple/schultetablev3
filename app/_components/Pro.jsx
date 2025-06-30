@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 
-export default function Pro() {
+export default function Pro({ user }) {
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://app.lemonsqueezy.com/js/lemon.js";
@@ -282,12 +282,19 @@ export default function Pro() {
               </li>
             </ul>
             <div className="mt-6">
-              <Link
+              {/* <Link
                 href="https://schultetable.lemonsqueezy.com/buy/f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b?test=true"
                 className="btn btn-primary btn-block lemonsqueezy-button"
               >
                 Subscribe
-              </Link>
+              </Link> */}
+              <button
+                className="btn btn-primary btn-block"
+                data-lemon-checkout="f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b"
+                data-custom={user[0]?.id}
+              >
+                Subscribe
+              </button>
             </div>
           </div>
         </div>
