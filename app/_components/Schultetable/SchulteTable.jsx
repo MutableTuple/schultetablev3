@@ -37,9 +37,20 @@ export default function SchulteTable({
     const remaining = numbers.filter(
       (n) => !clickedNumbers.includes(getComparableValue(n))
     );
-    return typeof remaining[0] === "object"
-      ? remaining.sort((a, b) => a.value - b.value)[0]
-      : Math.min(...remaining);
+
+    if (remaining.length === 0) return null;
+
+    const first = remaining[0];
+
+    if (typeof first === "object" && typeof first.value === "number") {
+      // Number-based modes (like maths)
+      return remaining.sort((a, b) => a.value - b.value)[0];
+    }
+
+    // Non-number modes (emoji, word, alphabet)
+    return [...remaining].sort((a, b) =>
+      String(getComparableValue(a)).localeCompare(String(getComparableValue(b)))
+    )[0];
   }, [numbers, clickedNumbers]);
 
   useEffect(() => {
