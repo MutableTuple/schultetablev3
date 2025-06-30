@@ -7,6 +7,11 @@ export default function Pro({ user }) {
     const script = document.createElement("script");
     script.src = "https://app.lemonsqueezy.com/js/lemon.js";
     script.async = true;
+    script.onload = () => {
+      if (window.LemonSqueezy) {
+        window.LemonSqueezy.Setup();
+      }
+    };
     document.body.appendChild(script);
   }, []);
   return (
@@ -282,19 +287,21 @@ export default function Pro({ user }) {
               </li>
             </ul>
             <div className="mt-6">
-              {/* <Link
-                href="https://schultetable.lemonsqueezy.com/buy/f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b?test=true"
-                className="btn btn-primary btn-block lemonsqueezy-button"
+              <Link
+                href={`https://schultetable.lemonsqueezy.com/buy/f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b?checkout[custom][user_id]=${user[0]?.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary btn-block"
               >
                 Subscribe
-              </Link> */}
-              <button
+              </Link>
+              {/* <button
                 className="btn btn-primary btn-block"
                 data-lemon-checkout="f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b"
                 data-custom={user[0]?.id}
               >
                 Subscribe
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
