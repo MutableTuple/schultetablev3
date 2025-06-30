@@ -30,13 +30,10 @@ export default function NumberTile({ num, onClick, disabled }) {
       }}
       className={`
         relative aspect-square bg-base-100 border
-        ${
-          disabled
-            ? "cursor-not-allowed opacity-40"
-            : "cursor-pointer hover:border-primary/50"
-        }
+        ${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:border-primary/50"}
         border-primary/40 transition-all duration-200
-        overflow-hidden select-none flex items-center justify-center min-h-[80px]
+        overflow-hidden select-none flex items-center justify-center
+        min-h-[60px] sm:min-h-[70px] md:min-h-[80px] lg:min-h-[90px]
       `}
     >
       {/* Radial light on hover */}
@@ -68,17 +65,18 @@ export default function NumberTile({ num, onClick, disabled }) {
         }}
       />
 
-      <div className="relative z-10 font-bold text-base-content text-center break-all">
+      {/* Label */}
+      <div className="relative z-10 font-bold text-base-content text-center break-all px-1">
         {(() => {
           const label = typeof num === "object" ? num.expr : String(num);
           return (
             <span
               className={`
-          ${label.length <= 2 ? "text-2xl" : ""}
-          ${label.length === 3 ? "text-xl" : ""}
-          ${label.length === 4 ? "text-lg" : ""}
-          ${label.length >= 5 ? "text-base" : ""}
-        `}
+                ${label.length <= 2 ? "text-lg sm:text-xl md:text-2xl" : ""}
+                ${label.length === 3 ? "text-base sm:text-lg" : ""}
+                ${label.length === 4 ? "text-sm sm:text-base" : ""}
+                ${label.length >= 5 ? "text-xs sm:text-sm" : ""}
+              `}
             >
               {label}
             </span>

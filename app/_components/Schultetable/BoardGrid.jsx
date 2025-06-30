@@ -1,5 +1,6 @@
 import React from "react";
 import NumberTile from "../NumberTile";
+
 export default function BoardGrid({
   numbers,
   gridSize,
@@ -11,18 +12,20 @@ export default function BoardGrid({
   const totalTiles = gridSize * gridSize;
 
   return (
-    <div className="bg-base-100 p-4 w-fit max-w-full overflow-x-auto">
+    <div className="bg-base-100 p-4 w-full max-w-full flex justify-center">
       <div
-        className="grid gap-1"
+        className={`grid gap-2 w-full max-w-screen-sm sm:max-w-screen-md md:max-w-screen-lg`}
         style={{
-          gridTemplateColumns: `repeat(${gridSize}, minmax(2rem, 1fr))`,
+          gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
+          width: `min(${gridSize * 6}rem, 100%)`, // dynamic width with cap
+          maxWidth: "100%",
         }}
       >
         {loading
           ? Array.from({ length: totalTiles }).map((_, i) => (
               <div
                 key={i}
-                className="skeleton h-10 w-10 md:h-12 md:w-12 rounded"
+                className="skeleton aspect-square rounded w-full"
               ></div>
             ))
           : numbers
