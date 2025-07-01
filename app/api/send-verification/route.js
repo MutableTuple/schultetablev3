@@ -5,7 +5,6 @@ const resend = new Resend(process.env.RESEND_API_KEY); // Set this in .env.local
 
 export async function POST(req) {
   const { email, token } = await req.json();
-  console.log(email);
   try {
     const data = await resend.emails.send({
       from: "Schuletable <noreply@schultetable.com>", // Use a verified domain
