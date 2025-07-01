@@ -11,15 +11,15 @@ function generate6DigitToken() {
 
 // Separated for clarity and safety
 async function sendTokenToEmail(email, token) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  if (!baseUrl) {
-    console.error("Missing NEXT_PUBLIC_BASE_URL");
-    return;
-  }
+  // if (!baseUrl) {
+  //   console.error("Missing NEXT_PUBLIC_BASE_URL");
+  //   return;
+  // }
 
   try {
-    const res = await fetch(`${baseUrl}/api/send-verification`, {
+    const res = await fetch(`https://schultetable.com/api/send-verification`, {
       method: "POST",
       body: JSON.stringify({ email, token }),
       headers: {
