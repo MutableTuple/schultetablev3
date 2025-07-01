@@ -1,4 +1,3 @@
-// /app/api/send-verification/route.js or .ts
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY); // Set this in .env.local
@@ -108,6 +107,8 @@ export async function POST(req) {
 </body>
 </html>`,
     });
+
+    console.log(data);
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {
