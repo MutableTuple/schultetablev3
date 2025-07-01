@@ -64,6 +64,11 @@ export async function RegisterUser(formData) {
 
     if (error) {
       console.error("Supabase signUp error:", error.message);
+
+      if (error.message.toLowerCase().includes("user already registered")) {
+        return { error: "A user with this email already exists." };
+      }
+
       return { error: error.message };
     }
 

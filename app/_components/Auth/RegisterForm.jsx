@@ -46,18 +46,12 @@ export default function RegisterForm() {
     const response = await RegisterUser(formData);
 
     if (response.error) {
-      setStatus({ success: false, message: response.error.message });
+      setStatus({ success: false, message: response.error });
     } else {
       setStatus({ success: true, message: response.message });
-      setUserId(response.user.id); // ✅ set the user ID
-      setShowModal(true); // ✅ show modal
+      setUserId(response.user.id);
+      setShowModal(true);
     }
-    if (response.error) {
-      setStatus({ success: false, message: response.error.message });
-    } else {
-      setStatus({ success: true, message: response.message });
-    }
-
     setLoading(false);
   }
 
