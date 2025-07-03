@@ -6,6 +6,7 @@ import GridAndDifficultySelector from "./GridAndDifficultySelector";
 import UserAvatar from "./UserAvatar";
 import GoToLeaderboard from "./GoToLeaderboard";
 import FloatingMenu from "./FloatingMenu";
+import ShineButton from "./ShineButton";
 
 export default function HomeMain({ user, error }) {
   const [gridSize, setGridSize] = useState(3);
@@ -28,6 +29,7 @@ export default function HomeMain({ user, error }) {
       />
       <GoToLeaderboard />
       <UserAvatar user={user} />
+      <div></div>
       <div className="drawer-content relative p-4 flex items-center justify-center min-h-screen overflow-auto">
         <label
           htmlFor="my-drawer"
@@ -49,6 +51,7 @@ export default function HomeMain({ user, error }) {
           </svg>
         </label>
         <FloatingMenu />
+
         <SchulteTable
           gridSize={gridSize}
           difficulty={difficulty}

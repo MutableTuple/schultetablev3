@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { MdVerified } from "react-icons/md";
 import StartBtn from "../StartBtn";
 import GameTimer from "../GameTimer";
 import UserIcon from "../UserIcon";
@@ -10,6 +11,7 @@ import { calculateScore } from "./scoreUtils";
 import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
 import SmallScreenDetailsModal from "./SmallScreenDetailsModal";
+import ShineButton from "../ShineButton";
 
 export default function SchulteTable({
   gridSize,
@@ -275,9 +277,7 @@ export default function SchulteTable({
           <StartBtn />
         </div>
       )}
-
       {gameStarted && <GameTimer />}
-
       <div className="text-xl font-bold text-primary">
         {gameStarted && nextTarget && (
           <div className="text-xl font-bold text-primary">
@@ -290,7 +290,14 @@ export default function SchulteTable({
           </div>
         )}
       </div>
-
+      <div className="block lg:hidden">
+        <ShineButton
+          text="Get pro access"
+          icon={<MdVerified />}
+          variant="gold"
+          href="/get-pro"
+        />
+      </div>
       <div className="block lg:hidden">
         <UserIcon
           mode={mode}
@@ -299,7 +306,6 @@ export default function SchulteTable({
           user={user}
         />
       </div>
-
       {loadingBoard ? (
         <div className="w-full h-[300px] flex items-center justify-center text-lg font-bold text-primary">
           <span className="loading loading-infinity loading-xl"></span>
@@ -314,7 +320,6 @@ export default function SchulteTable({
           loading={loadingBoard}
         />
       )}
-
       {gameSummaryData && (
         <SmallScreenDetailsModal
           showSummaryModal={showSummaryModal}
