@@ -69,7 +69,7 @@ const ShineButton = ({
 
   const buttonContent = (
     <button
-      className={`relative flex items-center justify-between gap-2 px-3 py-1.5 rounded-md transition-all overflow-hidden hover:-translate-y-0.5 cursor-pointer ${getVariantClasses()} ${className}`}
+      className={`relative z-0 flex items-center justify-between gap-2 px-3 py-1.5 rounded-md transition-all overflow-hidden hover:-translate-y-0.5 cursor-pointer ${getVariantClasses()} ${className}`}
       onClick={onClick}
       {...props}
     >
