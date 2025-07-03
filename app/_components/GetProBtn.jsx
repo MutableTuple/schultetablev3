@@ -17,9 +17,10 @@ export default function GetProBtn() {
         />
 
         {/* Button content */}
-        <span className="relative z-20 flex items-center gap-2">
-          👑 Get Pro at<span className="text-warning">$12.99/lifetime</span>
-        </span>
+        <p className="relative z-20 flex items-center gap-1 text-xs">
+          <span className="flex items-center">👑 Get Pro at just</span>
+          <span className="text-warning">$3.99/lifetime</span>
+        </p>
 
         <style jsx>{`
           @keyframes coinShine {

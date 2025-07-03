@@ -166,7 +166,7 @@ export default function Pro({ user }) {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
               <h2 className="text-2xl sm:text-3xl font-bold">Premium</h2>
               <span className="text-lg sm:text-xl mt-1 sm:mt-0">
-                $12.99/lifetime
+                $3.99/lifetime
               </span>
             </div>
             <ul className="mt-4 sm:mt-6 flex flex-col gap-3 text-xs sm:text-sm">
@@ -297,7 +297,7 @@ export default function Pro({ user }) {
                 rel="noopener noreferrer"
                 className="btn btn-primary btn-block text-sm sm:text-base"
               >
-                Subscribe
+                Get it now! (limited time offer)
               </Link>
             </div>
           </div>
