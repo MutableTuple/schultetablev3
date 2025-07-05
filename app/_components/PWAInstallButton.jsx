@@ -20,8 +20,20 @@ export default function PWAInstallButton() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
+
     const result = await deferredPrompt.userChoice;
     console.log("Install result:", result.outcome);
+
+    if (result.outcome === "accepted") {
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "pwa_install", {
+          event_category: "engagement",
+          event_label: "Schulte Table PWA",
+          value: 1,
+        });
+      }
+    }
+
     setShowButton(false);
     setDeferredPrompt(null);
   };
