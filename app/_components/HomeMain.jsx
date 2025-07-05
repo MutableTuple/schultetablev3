@@ -7,6 +7,7 @@ import UserAvatar from "./UserAvatar";
 import GoToLeaderboard from "./GoToLeaderboard";
 import FloatingMenu from "./FloatingMenu";
 import ShineButton from "./ShineButton";
+import PWAInstallButton from "./PWAInstallButton";
 
 export default function HomeMain({ user, error }) {
   const [gridSize, setGridSize] = useState(3);
@@ -27,6 +28,7 @@ export default function HomeMain({ user, error }) {
         mode={mode}
         setMode={setMode}
       />
+      <PWAInstallButton />
       <GoToLeaderboard />
       <UserAvatar user={user} />
       <div></div>
