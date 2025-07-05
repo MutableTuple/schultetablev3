@@ -127,6 +127,8 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icons/icon-192.png" />
         <Script
           id="set-theme"
           strategy="beforeInteractive"
