@@ -6,6 +6,7 @@
   "background_color": "#fff7d1",
   "theme_color": "#ffde59",
   "description": "Train your brain with the Schulte Table!",
+  "gcm_sender_id": "482941778795",
   "icons": [
     {
       "src": "/icons/icon-192.png",

@@ -232,6 +232,10 @@ export default function SchulteTable({
         }
       } catch (err) {
         console.error("Unexpected Supabase error:", err);
+      } finally {
+        const played = Number(localStorage.getItem("gamesPlayed") || 0);
+        localStorage.setItem("gamesPlayed", played + 1);
+        window.dispatchEvent(new Event("gamesPlayedUpdated"));
       }
 
       const timeTaken = (endTime - gameStartTime.current) / 1000;
