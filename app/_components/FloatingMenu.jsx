@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoIosPaper } from "react-icons/io";
+import { MdLightbulbOutline } from "react-icons/md";
+
 import {
   MdMenu,
   MdClose,
@@ -32,6 +34,11 @@ export default function FloatingMenu() {
       href: "https://x.com/schultetableofc",
       label: "follow us on X",
     },
+    {
+      icon: <MdLightbulbOutline size={18} />,
+      href: "/features",
+      label: "What's new?",
+    },
   ];
 
   useEffect(() => {
@@ -53,7 +60,7 @@ export default function FloatingMenu() {
   }, [open]);
 
   return (
-    <div ref={menuRef} className="fixed bottom-8 left-6 z-50">
+    <div ref={menuRef} className="fixed bottom-8 left-4 z-50">
       <div className="flex flex-col items-center gap-3">
         <AnimatePresence>
           {open &&

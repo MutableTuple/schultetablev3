@@ -4,6 +4,7 @@ import { supabase } from "@/app/_lib/supabase";
 import { formatNumber } from "@/app/_utils/formatNumber";
 import BackButton from "../BackButton";
 import Link from "next/link";
+import StatisticsGlobal from "../StatisticsGlobal";
 const difficulties = ["Easy", "Medium", "Hard"];
 const gridSizes = [3, 4, 5];
 const gameModes = ["number", "word", "alphabet", "emoji"];
@@ -41,6 +42,7 @@ export default function GlobalLeaderboard() {
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
       <BackButton />
+      {/* <StatisticsGlobal /> */}
       <h1 className="text-3xl sm:text-4xl font-bold text-center">
         🏆 Global Leaderboard
       </h1>

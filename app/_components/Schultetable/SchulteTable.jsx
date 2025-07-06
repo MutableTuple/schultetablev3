@@ -6,12 +6,12 @@ import GameTimer from "../GameTimer";
 import UserIcon from "../UserIcon";
 import { supabase } from "../../_lib/supabase";
 import toast, { Toaster } from "react-hot-toast";
-import { generateNumbers } from "./numberUtils";
 import { calculateScore } from "./scoreUtils";
 import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
 import SmallScreenDetailsModal from "./SmallScreenDetailsModal";
 import ShineButton from "../ShineButton";
+import Confetti from "react-dom-confetti";
 
 export default function SchulteTable({
   gridSize,
@@ -34,6 +34,9 @@ export default function SchulteTable({
   const [gameSummaryData, setGameSummaryData] = useState(null);
   const [fastestTimeInSec, setFastestTimeInSec] = useState(null);
   const getComparableValue = (n) => (typeof n === "object" ? n.value : n);
+  const confettiRef = useRef(null);
+  const [confettiConfig, setConfettiConfig] = useState({});
+  const [confettiActive, setConfettiActive] = useState(false);
 
   const nextTarget = useMemo(() => {
     const remaining = numbers.filter(
@@ -83,6 +86,7 @@ export default function SchulteTable({
   }, [gridSize, difficulty, totalTiles, mode]);
 
   const handleStartGame = () => {
+    setConfettiActive(false);
     setGameStarted(false);
     setClickedNumbers([]);
     setClickData([]);
@@ -239,9 +243,79 @@ export default function SchulteTable({
       }
 
       const timeTaken = (endTime - gameStartTime.current) / 1000;
-      toast(`Good Job! completed it ${timeTaken.toFixed(2)}`, {
-        icon: "👏",
-      });
+
+      // 🔍 Get top 3 fastest GLOBAL times for current grid/difficulty/mode
+      const { data: timeData, error: timeError } = await supabase
+        .from("UniversalGameStats")
+        .select("time_taken")
+        .eq("grid_size", gridSize)
+        .eq("difficulty", difficulty)
+        .eq("game_mode", mode)
+        .gt("time_taken", 0)
+        .order("time_taken", { ascending: true })
+        .limit(3);
+
+      console.log("CERER", timeData);
+
+      const currentTimeTaken = timeTaken;
+      let position = null;
+
+      if (timeData?.length > 0) {
+        const topTimes = timeData.map((entry) => entry.time_taken);
+
+        if (currentTimeTaken < topTimes[0]) position = 1;
+        else if (topTimes[1] && currentTimeTaken < topTimes[1]) position = 2;
+        else if (topTimes[2] && currentTimeTaken < topTimes[2]) position = 3;
+      } else {
+        // If no times exist, you're automatically 1st!
+        position = 1;
+      }
+
+      if (position) {
+        setConfettiActive(false); // reset
+
+        let colors = ["#ccc", "#eee"]; // default fallback
+        let positionText = "";
+
+        if (position === 1) {
+          colors = ["#FFD700", "#FFFACD", "#F5DEB3"]; // Gold
+          positionText = "🔥 You're the fastest globally! #1 🥇";
+        } else if (position === 2) {
+          colors = ["#00FF00", "#FF0000", "#FFFF00"]; // Green, Red, Yellow
+          positionText = "Great job! You're ranked #2 globally! 🥈";
+        } else if (position === 3) {
+          colors = ["#800080", "#DA70D6", "#BA55D3"]; // Purple shades
+          positionText = "Nice! You're ranked #3 globally! 🥉";
+        }
+
+        const isSmallScreen = window.innerWidth < 768;
+
+        setConfettiConfig({
+          angle: 90,
+          spread: 360,
+          startVelocity: isSmallScreen ? 30 : 50,
+          elementCount: isSmallScreen ? 100 : 200,
+          dragFriction: 0.12,
+          duration: isSmallScreen ? 2000 : 3000,
+          stagger: 3,
+          width: "10px",
+          height: "10px",
+          perspective: "500px",
+          colors,
+        });
+
+        setTimeout(() => {
+          setConfettiActive(true);
+        }, 100);
+
+        // Show special toast
+        toast.success(
+          `${positionText}\n⏱️ Completed in ${timeTaken.toFixed(2)} seconds!`
+        );
+      } else {
+        // fallback normal toast if not in top 3
+        toast(`Good Job! Completed in ${timeTaken.toFixed(2)} seconds 👏`);
+      }
 
       setGameSummaryData(gameSummary);
       if (window.innerWidth < 768) setShowSummaryModal(true); // only on small screens
@@ -282,6 +356,17 @@ export default function SchulteTable({
         </div>
       )}
       {gameStarted && <GameTimer />}
+      {/* Confetti pop from center */}
+      <div
+        className="fixed z-50 pointer-events-none"
+        style={{
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Confetti active={confettiActive} config={confettiConfig} />
+      </div>
       <div className="text-xl font-bold text-primary">
         {gameStarted && nextTarget && (
           <div className="text-xl font-bold text-primary">
