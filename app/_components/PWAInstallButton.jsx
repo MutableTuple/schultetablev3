@@ -41,7 +41,7 @@ export default function PWAInstallButton() {
   if (!showButton) return null;
 
   return (
-    <div className="fixed top-44 left-4 z-30">
+    <div className="fixed top-56 left-4 z-30">
       <div className="tooltip tooltip-right" data-tip="Install App">
         <button
           onClick={handleInstallClick}

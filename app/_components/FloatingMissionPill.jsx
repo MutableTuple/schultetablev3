@@ -9,7 +9,7 @@ export default function FloatingMissionPill({ mission }) {
   if (!mission) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+    <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50">
       <div className="flex flex-col items-center gap-2">
         <AnimatePresence>
           {open && (
@@ -19,9 +19,11 @@ export default function FloatingMissionPill({ mission }) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -8 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="bg-warning text-base-100 px-4 py-2 rounded-full shadow-xl max-w-md w-fit text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-pointer hover:scale-[1.03] transition-all"
+              className="bg-gradient-to-r from-yellow-400 via-amber-500 to-pink-500 text-white px-4 py-2 rounded-full shadow-2xl max-w-md w-fit text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-pointer relative overflow-hidden"
             >
-              <FaFlagCheckered />
+              {/* Electric spark effect */}
+              <div className="absolute -inset-0.5 bg-yellow-300 opacity-20 blur-xl animate-pulse rounded-full z-[-1]" />
+              <FaFlagCheckered className="animate-wiggle-slow" />
               <span className="line-clamp-1">{mission.mission_title}</span>
             </motion.div>
           )}

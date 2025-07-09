@@ -6,6 +6,7 @@ import GameLoginPrompt from "./_components/Modals/GameLoginPrompt.jsx";
 import ThemeChangerHotkey from "./_components/ThemeChangerHotkey";
 import { getMissionByID } from "./_lib/data-service";
 import FloatingMissionPill from "./_components/FloatingMissionPill";
+import MissionButton from "./_components/MissionButton";
 
 export default async function Home() {
   const { user, error } = await getCurrentUser();
@@ -17,6 +18,7 @@ export default async function Home() {
       <HomeMain user={user} error={error} />
       <ThemeChangerHotkey user={user} />
       {/* <FloatingMissionPill mission={mission[0]} /> */}
+      <MissionButton />
     </>
   );
 }
