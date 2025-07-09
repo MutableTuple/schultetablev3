@@ -141,11 +141,14 @@ export default function GlobalLeaderboard() {
                     </Link>
                   </div>
                   <div className="text-xs text-base-content/70 truncate">
-                    Games: {player.total_games} | Accuracy:{" "}
+                    Games: {player.total_games}
+                  </div>
+                  {/* 
+                   | Accuracy:{" "}
                     {player.avg_accuracy && player.avg_accuracy > 0
                       ? `${player.avg_accuracy.toFixed(1)}%`
                       : "N/A"}
-                  </div>
+                  */}
                 </div>
 
                 {/* Score */}

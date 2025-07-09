@@ -1,5 +1,6 @@
 import React from "react";
 import GlobalLeaderboard from "../_components/Leaderboard/GlobalLeaderboard";
+import { getCurrentUser } from "../_utils/getCurrentUser";
 export const metadata = {
   title: "Global Leaderboard - Schulte Table",
   description:
@@ -25,7 +26,7 @@ export const metadata = {
   },
 };
 
-export default function page() {
+export default async function page() {
   return (
     <div>
       <GlobalLeaderboard />

@@ -12,6 +12,7 @@ import { GAME_MODES } from "./numberUtils";
 import SmallScreenDetailsModal from "./SmallScreenDetailsModal";
 import ShineButton from "../ShineButton";
 import Confetti from "react-dom-confetti";
+import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
 
 export default function SchulteTable({
   gridSize,
@@ -218,6 +219,11 @@ export default function SchulteTable({
             },
           ]);
 
+        if (!insertError && user?.[0]?.id) {
+          const missioN_data = await checkAndUpdateUserMissions(user[0].id);
+          console.log(missioN_data);
+        }
+
         if (insertError) {
           console.error("Error saving to Supabase:", insertError.message);
         } else if (user?.[0]?.id) {
@@ -254,8 +260,6 @@ export default function SchulteTable({
         .gt("time_taken", 0)
         .order("time_taken", { ascending: true })
         .limit(3);
-
-      console.log("CERER", timeData);
 
       const currentTimeTaken = timeTaken;
       let position = null;

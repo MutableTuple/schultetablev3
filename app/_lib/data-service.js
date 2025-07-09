@@ -1,4 +1,7 @@
+import toast from "react-hot-toast";
 import { supabase } from "./supabase";
+import showProgressToast from "../_components/Missions/ProgressToast";
+import showMissionCompletedToast from "../_components/Missions/MissionCompletedToast";
 
 export async function getAllAds() {
   const { data, error } = await supabase.from("Ads").select("*");
@@ -202,4 +205,159 @@ export async function getUserByUsername(username) {
   }
 
   return data;
+}
+
+export async function getMissionByID(id) {
+  const { data, error } = await supabase
+    .from("missions")
+    .select("*")
+    .eq("id", id);
+
+  if (error) {
+    console.error("Can't fetch user game data:", error);
+    return null;
+  }
+
+  return data;
+}
+export async function getUserMissionsCompletions() {
+  const { data, error } = await supabase.from("user_missions").select(`
+      *,
+      User:User(*),
+      missions(*)
+    `);
+
+  if (error) {
+    console.error("Can't fetch user game data:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function checkAndUpdateUserMissions(userId) {
+  if (!userId) return;
+
+  try {
+    const { data: allMissions, error: missionsError } = await supabase
+      .from("missions")
+      .select("*");
+
+    if (missionsError) {
+      console.error("Error fetching missions:", missionsError.message);
+      return;
+    }
+
+    for (const mission of allMissions) {
+      const goal = parseInt(mission.actual_mission_value);
+      let completed = false;
+
+      if (mission.mission_type === "global_challenge_complete_1000_games") {
+        const { count, error } = await supabase
+          .from("UniversalGameStats")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", mission.created_at)
+          .lte("created_at", mission.duration);
+
+        if (!error && typeof count === "number") {
+          if (count >= goal) {
+            completed = true;
+          } else if (count > 0) {
+            // ✅ Show animated progress toast
+            showProgressToast({
+              count,
+              goal,
+              title: "Global Mission",
+              subtitle: `Progress for "${mission.mission_title}"`,
+            });
+          }
+
+          // ✅ Insert or update participation
+          const { data: existing, error: fetchError } = await supabase
+            .from("user_missions")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("mission_id", mission.id)
+            .single();
+
+          if (fetchError && fetchError.code !== "PGRST116") {
+            // Not just a "no rows" error
+            console.error(
+              "Error checking existing user_mission:",
+              fetchError.message
+            );
+            continue;
+          }
+
+          if (!existing) {
+            // New participant
+            await supabase.from("user_missions").insert([
+              {
+                user_id: userId,
+                mission_id: mission.id,
+                is_completed: completed,
+              },
+            ]);
+            console.log("🔄 Inserted new user_mission participation");
+
+            if (completed) {
+              showMissionCompletedToast({
+                title: "Global Mission Completed!",
+                subtitle: mission.mission_title,
+                missionId: mission.id,
+              });
+            }
+          } else if (!existing.is_completed && completed) {
+            // Update to mark as completed
+            await supabase
+              .from("user_missions")
+              .update({ is_completed: true })
+              .eq("user_id", userId)
+              .eq("mission_id", mission.id);
+
+            showMissionCompletedToast({
+              title: "Global Mission Completed!",
+              subtitle: mission.mission_title,
+              missionId: mission.id,
+            });
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("checkAndUpdateUserMissions failed:", error.message);
+  }
+}
+
+export async function incrementCelebrateCount(celebratedUserId) {
+  const { data: existing, error } = await supabase
+    .from("celebrations")
+    .select("*")
+    .eq("user_id", celebratedUserId)
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    console.error("Fetch error:", error);
+    return;
+  }
+
+  if (existing) {
+    // Increment
+    await supabase
+      .from("celebrations")
+      .update({
+        count: existing.count + 1,
+        last_celebrated_at: new Date().toISOString(),
+      })
+      .eq("user_id", celebratedUserId);
+  } else {
+    // Insert new
+    await supabase.from("celebrations").insert([
+      {
+        user_id: celebratedUserId,
+        count: 1,
+        last_celebrated_at: new Date().toISOString(),
+      },
+    ]);
+  }
 }

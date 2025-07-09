@@ -48,7 +48,7 @@ export default function GameChart({
   };
 
   return (
-    <div className="mt-10 md:p-6 p-0 rounded-xl bg-base-100 border border-base-300 space-y-4">
+    <div className="mt-10  p-0 rounded-xl bg-base-100 border border-base-300 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xs p-6  font-bold text-base-content">
           Game Progress
