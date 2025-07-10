@@ -83,6 +83,8 @@ const UserProfile = ({ user }) => {
             @{user[0].username}
             {isPro && <RiVerifiedBadgeFill className="text-yellow-400" />}
           </p>
+
+          <p className="italic">{user[0].bio || "Just chilling!!"}</p>
         </div>
 
         <div className="divider">Player Stats</div>

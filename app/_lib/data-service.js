@@ -258,6 +258,7 @@ export async function checkAndUpdateUserMissions(userId) {
           .select("*", { count: "exact", head: true })
           .gte("created_at", mission.created_at)
           .lte("created_at", mission.duration);
+        // .neq("user_id", null);
 
         if (!error && typeof count === "number") {
           if (count >= goal) {

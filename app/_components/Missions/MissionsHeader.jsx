@@ -46,11 +46,10 @@ export default function MissionsHeader({ mission }) {
   // 📊 Fetch real-time progress
   useEffect(() => {
     const fetchProgress = async () => {
-      // ✅ Only count entries WITH user_id
+      // ✅ Count all games (including anonymous)
       const { count, error } = await supabase
         .from("UniversalGameStats")
         .select("*", { count: "exact", head: true })
-        .not("user_id", "is", null)
         .gte("created_at", start.toISOString())
         .lte("created_at", end.toISOString());
 
@@ -58,7 +57,7 @@ export default function MissionsHeader({ mission }) {
         setGameProgress(count);
       }
 
-      // ✅ Get contributors WITH user_id only
+      // ✅ Contributors: only real users
       const { data: contributorsData } = await supabase
         .from("UniversalGameStats")
         .select("user_id, Users!inner(image, username)")

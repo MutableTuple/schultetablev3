@@ -7,6 +7,7 @@ import ThemeChangerHotkey from "./_components/ThemeChangerHotkey";
 import { getMissionByID } from "./_lib/data-service";
 import FloatingMissionPill from "./_components/FloatingMissionPill";
 import MissionButton from "./_components/MissionButton";
+import SpinTheProWheel from "./_components/ProWheel/SpinTheProWheel";
 
 export default async function Home() {
   const { user, error } = await getCurrentUser();

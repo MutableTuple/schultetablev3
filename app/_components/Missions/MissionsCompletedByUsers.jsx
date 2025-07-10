@@ -15,44 +15,62 @@ export default function MissionsCompletedByUsers({
     if (!Array.isArray(mission_completions) || !mission[0]?.id) return;
 
     const fetchGamesPlayed = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
 
-      const missionStart = new Date(mission[0].created_at);
-      const missionEnd = new Date(mission[0].duration);
-      const userMap = new Map();
+      const missionStart = new Date(mission[0].created_at).toISOString();
+      const missionEnd = new Date(mission[0].duration).toISOString();
 
-      for (const entry of mission_completions) {
-        if (entry?.mission_id === mission[0].id && entry?.User) {
-          const userId = entry.user_id;
+      // Fetch all game stats in timeframe
+      const { data, error } = await supabase
+        .from("UniversalGameStats")
+        .select("user_id, created_at")
+        .gte("created_at", missionStart)
+        .lte("created_at", missionEnd);
 
-          if (!userMap.has(userId)) {
-            const { count, error } = await supabase
-              .from("UniversalGameStats")
-              .select("*", { count: "exact", head: true })
-              .eq("user_id", userId)
-              .gte("created_at", missionStart.toISOString())
-              .lte("created_at", missionEnd.toISOString());
+      if (error) {
+        console.error("Error fetching game stats:", error.message);
+        setLoading(false);
+        return;
+      }
 
-            if (!error) {
-              if ((count || 0) > 0) {
-                userMap.set(userId, {
-                  username: entry.User.username || "Anonymous",
-                  nationality: entry.User.nationality || "Unknown",
-                  image: entry.User.image || "",
-                  gamesPlayed: count,
-                });
-              }
-            }
+      const userGameCounts = new Map();
+
+      // Count games per user_id (including nulls)
+      for (const row of data) {
+        const id = row.user_id || "anon";
+        userGameCounts.set(id, (userGameCounts.get(id) || 0) + 1);
+      }
+
+      const users = [];
+
+      for (const [userId, count] of userGameCounts) {
+        if (userId === "anon") {
+          users.push({
+            username: "Anonymous",
+            nationality: "Global Users",
+            image: "https://api.dicebear.com/7.x/shapes/svg?seed=Anon", // you can use a placeholder image here
+            gamesPlayed: count,
+          });
+        } else {
+          const completion = mission_completions.find(
+            (entry) => entry.user_id === userId && entry?.User
+          );
+          if (completion?.User) {
+            users.push({
+              username: completion.User.username || "Anonymous",
+              nationality: completion.User.nationality || "Unknown",
+              image: completion.User.image || "",
+              gamesPlayed: count,
+              is_pro: !!completion.User.is_pro_user,
+            });
           }
         }
       }
 
-      const sortedUsers = Array.from(userMap.values()).sort(
-        (a, b) => b.gamesPlayed - a.gamesPlayed
-      );
+      const sortedUsers = users.sort((a, b) => b.gamesPlayed - a.gamesPlayed);
 
       setUserStats(sortedUsers);
-      setLoading(false); // Stop loading
+      setLoading(false);
     };
 
     fetchGamesPlayed();

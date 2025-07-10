@@ -1,8 +1,8 @@
 import { getCurrentUser } from "@/app/_utils/getCurrentUser";
 import React from "react";
 import Link from "next/link";
-import SocialLinks from "@/app/schulte-table/SocialLinks";
-import AuthOptions from "@/app/schulte-table/AuthOptions";
+import SocialLinks from "@/app/_[dev]schulte-table/SocialLinks";
+import AuthOptions from "@/app/_[dev]schulte-table/AuthOptions";
 import {
   FaSignInAlt,
   FaUserPlus,
@@ -12,7 +12,7 @@ import {
   FaMobileAlt,
   FaClock,
 } from "react-icons/fa";
-import GameModesLinks from "@/app/schulte-table/GameModesLinks";
+import GameModesLinks from "@/app/_[dev]schulte-table/GameModesLinks";
 import SchultetableAlphabet3x3Easy from "./SchultetableAlphabet3x3Easy";
 
 // ✅ SEO Meta for 3x3 Alphabet Easy Mode

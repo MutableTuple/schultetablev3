@@ -2,7 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import Confetti from "react-dom-confetti";
-
+import { MdVerified } from "react-icons/md";
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 const getConfettiColors = (index) => {
   switch (index) {
     case 0:
@@ -23,7 +24,6 @@ export default function MissionsUserCard({
   const [activeFire, setActiveFire] = useState({});
   const [celebrateCounts, setCelebrateCounts] = useState({});
   const btnRefs = useRef({});
-
   const handleCelebrate = (index) => {
     // Confetti fire
     setActiveFire((prev) => ({ ...prev, [index]: true }));
@@ -70,8 +70,13 @@ export default function MissionsUserCard({
 
               {/* Info */}
               <div className="flex-1">
-                <div className="font-semibold text-sm">
-                  {user?.username || "Mystery Player"}
+                <div className="font-semibold text-sm flex items-center gap-0.5 justify-center">
+                  {user?.username || "Mystery Player"}{" "}
+                  {user?.is_pro ? (
+                    <RiVerifiedBadgeFill className="text-yellow-400" />
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="text-xs uppercase font-semibold opacity-60">
                   {user?.nationality || "Unknown Nation"}
