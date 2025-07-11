@@ -9,6 +9,7 @@ import FloatingMissionPill from "./_components/FloatingMissionPill";
 import MissionButton from "./_components/MissionButton";
 import SpinTheProWheel from "./_components/ProWheel/SpinTheProWheel";
 import ShowProLoggedInModals from "./_components/Modals/ShowProLoggedInModals";
+import ShinyGoProButton from "./_components/ShinyGoProButton";
 
 export default async function Home() {
   const { user, error } = await getCurrentUser();
@@ -22,6 +23,9 @@ export default async function Home() {
       {/* <FloatingMissionPill mission={mission[0]} /> */}
       <MissionButton />
       <ShowProLoggedInModals user={user} />
+      <ShinyGoProButton
+        isProUser={Array.isArray(user) && user[0]?.is_pro_user}
+      />
     </>
   );
 }

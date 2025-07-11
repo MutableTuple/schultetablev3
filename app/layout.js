@@ -4,6 +4,7 @@ import Script from "next/script";
 import GlobalGameListener from "./_components/GlobalGameListener";
 import { Toaster } from "react-hot-toast";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { getCurrentUser } from "./_utils/getCurrentUser";
 
 const chakraPetch = Chakra_Petch({
   variable: "--font-chakra-petch",
@@ -107,16 +108,21 @@ export const metadata = {
   category: "Educational & brain training Tool",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { user, error } = await getCurrentUser();
+  const isProUser = user?.[0]?.is_pro_user === true;
+  console.log("isProUser", isProUser);
   return (
     <html lang="en" data-theme="">
       <head>
         <GoogleAnalytics gaId="G-66EJ7VMS98" />
-        {/* <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5879583930762494"
-          crossOrigin="anonymous"
-        /> */}
+        {isProUser && (
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5879583930762494"
+            crossOrigin="anonymous"
+          />
+        )}
         <style
           id="hide-until-theme"
           dangerouslySetInnerHTML={{
