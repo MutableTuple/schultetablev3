@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import { differenceInSeconds, intervalToDuration, parseISO } from "date-fns";
 import { FaGlobe } from "react-icons/fa";
 import { supabase } from "@/app/_lib/supabase";
+import Confetti from "react-dom-confetti";
 
 export default function MissionsHeader({ mission }) {
   const missionData = mission[0];
   const start = new Date(missionData.created_at);
   const end = new Date(missionData.duration);
   const total = Number(missionData.actual_mission_value || 0);
-
+  const [isComplete, setIsComplete] = useState(false);
   const [remaining, setRemaining] = useState({
     days: 0,
     hours: 0,
@@ -78,6 +79,12 @@ export default function MissionsHeader({ mission }) {
     fetchProgress();
   }, [mission]);
 
+  useEffect(() => {
+    if (total > 0 && gameProgress >= total) {
+      setIsComplete(true);
+    }
+  }, [gameProgress, total]);
+
   const percentage = total > 0 ? (gameProgress / total) * 100 : 0;
 
   return (
@@ -125,33 +132,47 @@ export default function MissionsHeader({ mission }) {
             style={{ width: `${percentage}%` }}
           />
         </div>
+        {isComplete && (
+          <div className="text-center mt-6 relative">
+            <h3 className="text-lg font-semibold text-green-600">
+              🎉 Mission Completed! Great work, everyone!
+            </h3>
+            <div className="absolute left-1/2 transform -translate-x-1/2 mt-2">
+              <Confetti active={isComplete} />
+            </div>
+          </div>
+        )}
         <p className="mt-2 text-xs text-base-content/60">
           {gameProgress} of {total} games completed
         </p>
       </div>
 
       {/* Countdown */}
-      <p className="text-xs text-base-content/70 mb-1">Ending in</p>
-      <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
-        {["days", "hours", "minutes", "seconds"].map((unit) => (
-          <div
-            key={unit}
-            className="flex flex-col items-center px-2 py-1 bg-base-200 rounded-lg border border-base-300"
-          >
-            <span className="countdown font-mono text-xl sm:text-3xl">
-              <span
-                style={{ "--value": remaining[unit] }}
-                aria-label={remaining[unit]}
+      {!isComplete && (
+        <>
+          <p className="text-xs text-base-content/70 mb-1">Ending in</p>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
+            {["days", "hours", "minutes", "seconds"].map((unit) => (
+              <div
+                key={unit}
+                className="flex flex-col items-center px-2 py-1 bg-base-200 rounded-lg border border-base-300"
               >
-                {remaining[unit]}
-              </span>
-            </span>
-            <span className="mt-1 capitalize text-[10px] sm:text-xs opacity-70">
-              {unit}
-            </span>
+                <span className="countdown font-mono text-xl sm:text-3xl">
+                  <span
+                    style={{ "--value": remaining[unit] }}
+                    aria-label={remaining[unit]}
+                  >
+                    {remaining[unit]}
+                  </span>
+                </span>
+                <span className="mt-1 capitalize text-[10px] sm:text-xs opacity-70">
+                  {unit}
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 }
