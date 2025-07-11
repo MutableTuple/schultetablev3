@@ -50,6 +50,15 @@ export default function ShinyGoProButton({ isProUser }) {
     },
     { icon: <FaHeadset className="text-pink-400" />, text: "Priority support" },
   ];
+  const handleClick = () => {
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "click_get_pro_button", {
+        event_category: "engagement",
+        event_label: "Shiny Get Pro Button",
+        value: 1,
+      });
+    }
+  };
 
   return (
     <div className="fixed top-56 left-4 z-50">
@@ -70,6 +79,7 @@ export default function ShinyGoProButton({ isProUser }) {
         >
           <Link href="/get-pro" passHref>
             <motion.button
+              onClick={handleClick}
               whileHover={{
                 scale: 1.1,
                 transition: { duration: 0.3 },
