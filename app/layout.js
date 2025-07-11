@@ -116,13 +116,13 @@ export default async function RootLayout({ children }) {
     <html lang="en" data-theme="">
       <head>
         <GoogleAnalytics gaId="G-66EJ7VMS98" />
-        {!isProUser && (
+        {/* {!isProUser && (
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5879583930762494"
             crossOrigin="anonymous"
           />
-        )}
+        )} */}
         <style
           id="hide-until-theme"
           dangerouslySetInnerHTML={{
