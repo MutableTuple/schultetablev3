@@ -1,51 +1,8 @@
-import { getCurrentUser } from "@/app/_utils/getCurrentUser";
-import React from "react";
-import Link from "next/link";
-import SocialLinks from "@/app/_[dev]schulte-table/SocialLinks";
-import AuthOptions from "@/app/_[dev]schulte-table/AuthOptions";
-import {
-  FaSignInAlt,
-  FaUserPlus,
-  FaCheckCircle,
-  FaEye,
-  FaBrain,
-  FaMobileAlt,
-  FaClock,
-} from "react-icons/fa";
-import GameModesLinks from "@/app/_[dev]schulte-table/GameModesLinks";
-import SchultetableAlphabet3x3Medium from "./SchultetableAlphabet3x3Medium";
+import React from 'react'
 
-// ✅ SEO Meta for 3x3 Alphabet Medium Mode
-export const metadata = {
-  title: "Play 3x3 Alphabet Schulte Table – Medium Mode Brain Game",
-  description:
-    "Train your brain with the 3x3 Alphabet Schulte Table (Medium Mode). Enhance focus, letter recognition, and scanning speed with this fun, timed challenge.",
-  keywords: [
-    "3x3 alphabet schulte table medium",
-    "alphabet brain game",
-    "letter recognition challenge",
-    "schulte table medium difficulty",
-    "alphabet order training",
-    "visual scanning speed game",
-    "focus improvement game",
-    "medium level brain exercise",
-  ],
-  alternates: {
-    canonical:
-      "https://schultetable.com/schulte-table/3x3/mode/alphabet/medium",
-  },
-};
-
-export default async function Page() {
-  const { user } = await getCurrentUser();
-
+export default function Footer() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow">
-        <SchultetableAlphabet3x3Medium />
-      </main>
-
-      {/* ✅ Responsive Footer */}
+     {/* ✅ Responsive Footer */}
       <footer className="footer grid grid-cols-1 md:grid-cols-3 gap-8 p-10 bg-base-200 text-base-content">
         {/* ✅ Benefits Column */}
         <aside>
@@ -89,6 +46,5 @@ export default async function Page() {
           <SocialLinks />
         </nav>
       </footer>
-    </div>
-  );
+  )
 }

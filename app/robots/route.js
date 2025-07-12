@@ -1,11 +1,11 @@
 export async function GET() {
   const content = `User-agent: *
-Allow: /
 Disallow: /my-profile
 Disallow: /account
 
-Sitemap: https://schultetable.com/sitemap.xml
-Host: https://schultetable.com`;
+Allow: /
+
+Sitemap: https://schultetable.com/sitemap.xml`;
 
   return new Response(content.trim(), {
     headers: {

@@ -1,7 +1,6 @@
 export async function GET() {
   const baseUrl = "https://schultetable.com";
 
-  // Public pages with optional last modified timestamps
   const pages = [
     { path: "", priority: "1.0" },
     { path: "/about", priority: "0.8" },
@@ -11,9 +10,21 @@ export async function GET() {
     { path: "/leaderboard", priority: "0.6" },
     { path: "/how-to-play-schulte-table", priority: "0.6" },
     { path: "/get-pro", priority: "0.6" },
+    { path: "/missions", priority: "0.6" },
+
+    // ✅ 3x3 routes
+    { path: "/schulte-table/3x3", priority: "0.7" },
+    { path: "/schulte-table/3x3/extreme", priority: "0.7" },
+    { path: "/schulte-table/3x3/hard", priority: "0.7" },
+    { path: "/schulte-table/3x3/impossible", priority: "0.7" },
+    { path: "/schulte-table/3x3/medium", priority: "0.7" },
+    { path: "/schulte-table/3x3/mode", priority: "0.6" },
+    { path: "/schulte-table/3x3/mode/alphabet/easy", priority: "0.6" },
+    { path: "/schulte-table/3x3/mode/alphabet/hard", priority: "0.6" },
+    { path: "/schulte-table/3x3/mode/alphabet/medium", priority: "0.6" },
   ];
 
-  const lastmod = new Date().toISOString(); // Use actual update time in real apps
+  const lastmod = new Date().toISOString();
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
