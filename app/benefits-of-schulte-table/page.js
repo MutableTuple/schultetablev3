@@ -22,7 +22,7 @@ export const metadata = {
     title: "Schulte Table Benefits - Proven Brain Training Results",
     description:
       "Unlock your cognitive potential with Schulte Table training. Backed by research, proven to improve focus, reading speed, and mental clarity.",
-    url: "https://schultetable.com/benefits",
+    url: "https://schultetable.com/benefits-of-schulte-table",
     siteName: "Schulte Table",
     type: "website",
   },
