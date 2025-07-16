@@ -9,8 +9,22 @@ const withPWA = nextPWA({
 
 const nextConfig = {
   reactStrictMode: true,
-  // add other config here if needed
+
+  async redirects() {
+    return [
+      {
+        source: "/login",
+        destination: "/auth/login",
+        permanent: true,
+      },
+      {
+        source: "/register",
+        destination: "/auth/register",
+        permanent: true,
+      },
+      // Add more redirects here if needed
+    ];
+  },
 };
 
 export default withPWA(nextConfig);
-    

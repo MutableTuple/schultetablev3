@@ -5,10 +5,11 @@ export async function GET() {
     { path: "", priority: "1.0" },
     { path: "/about", priority: "0.8" },
     { path: "/blogs", priority: "0.8" },
-    { path: "/login", priority: "0.6" },
-    { path: "/register", priority: "0.6" },
+    { path: "/auth/login", priority: "0.6" },
+    { path: "/auth/register", priority: "0.6" },
     { path: "/leaderboard", priority: "0.6" },
     { path: "/how-to-play-schulte-table", priority: "0.6" },
+    { path: "/benefits-of-schulte-table", priority: "0.6" },
     { path: "/get-pro", priority: "0.6" },
     { path: "/missions", priority: "0.6" },
 
