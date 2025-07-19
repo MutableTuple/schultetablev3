@@ -31,7 +31,8 @@ export const metadata = {
     "alphabet schulte table hard mode",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3/mode/alphabet/hard",
+    canonical:
+      "https://www.schultetable.com/schulte-table/3x3/mode/alphabet/hard",
   },
 };
 

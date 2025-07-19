@@ -1,5 +1,5 @@
 export async function GET() {
-  const baseUrl = "https://schultetable.com";
+  const baseUrl = "https://www.schultetable.com";
 
   const pages = [
     { path: "", priority: "1.0" },

@@ -32,7 +32,7 @@ export const metadata = {
   ],
   alternates: {
     canonical:
-      "https://schultetable.com/schulte-table/3x3/mode/alphabet/medium",
+      "https://www.schultetable.com/schulte-table/3x3/mode/alphabet/medium",
   },
 };
 

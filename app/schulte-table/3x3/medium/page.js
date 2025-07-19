@@ -32,7 +32,7 @@ export const metadata = {
     "schulte table timer challenge",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3/medium",
+    canonical: "https://www.schultetable.com/schulte-table/3x3/medium",
   },
 };
 

@@ -33,7 +33,7 @@ export const metadata = {
     "mental agility test",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3/extreme",
+    canonical: "https://www.schultetable.com/schulte-table/3x3/extreme",
   },
 };
 

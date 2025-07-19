@@ -33,7 +33,7 @@ export const metadata = {
     "mental performance boost",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3/hard",
+    canonical: "https://www.schultetable.com/schulte-table/3x3/hard",
   },
 };
 

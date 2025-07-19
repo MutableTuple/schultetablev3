@@ -32,7 +32,7 @@ export const metadata = {
     "attention span training",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3",
+    canonical: "https://www.schultetable.com/schulte-table/3x3",
   },
 };
 

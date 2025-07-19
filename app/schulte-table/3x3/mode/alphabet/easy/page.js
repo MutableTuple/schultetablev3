@@ -31,7 +31,8 @@ export const metadata = {
     "brain game with letters",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3/mode/alphabet",
+    canonical:
+      "https://www.schultetable.com/schulte-table/3x3/mode/alphabet/easy",
   },
 };
 

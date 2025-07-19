@@ -38,7 +38,7 @@ export const metadata = {
     "speed training impossible",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/3x3/impossible",
+    canonical: "https://www.schultetable.com/schulte-table/3x3/impossible",
   },
 };
 

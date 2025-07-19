@@ -20,13 +20,13 @@ export const metadata = {
     title: "Missions | Schulte Table",
     description:
       "Track your brain training missions and progress with SchulteTable.com.",
-    url: "https://schultetable.com/missions",
+    url: "https://www.schultetable.com/missions",
     siteName: "SchulteTable",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "https://schultetable.com/og-image.jpg", // Replace with your actual image
+        url: "https://www.schultetable.com/og-image.jpg", // Replace with your actual image
         width: 1200,
         height: 630,
         alt: "Schulte Table Missions",
