@@ -123,6 +123,11 @@ export default async function RootLayout({ children }) {
             crossOrigin="anonymous"
           />
         )} */}
+        <script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="l3eoqMcNEaSCINftYENKIw"
+          async
+        ></script>
         <style
           id="hide-until-theme"
           dangerouslySetInnerHTML={{
