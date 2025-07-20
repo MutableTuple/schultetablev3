@@ -362,3 +362,13 @@ export async function incrementCelebrateCount(celebratedUserId) {
     ]);
   }
 }
+export async function getAllUsers() {
+  const { data, error } = await supabase.from("User").select("*");
+
+  if (error) {
+    console.error("Can't Users", error);
+    return null;
+  }
+
+  return data;
+}

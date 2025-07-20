@@ -2,10 +2,29 @@
 import React, { useEffect, useState } from "react";
 import { FaTrophy, FaArrowRight, FaChartLine } from "react-icons/fa";
 import { IoMdTrendingUp } from "react-icons/io";
+import { getAllUsers } from "@/app/_lib/data-service";
+import { getRandomUsers } from "@/app/_utils/helper";
+
 export default function GameLoginPrompt({ isLoggedIn = false }) {
   const [showModal, setShowModal] = useState(false);
   const [lastScores, setLastScores] = useState([]);
   const [percentile, setPercentile] = useState(0);
+  const [users, setUsers] = useState([]);
+  const randomUsers = getRandomUsers(users);
+  const extraUsers = users.length - randomUsers.length;
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const allUsers = await getAllUsers();
+        setUsers(allUsers);
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const check = () => {
@@ -62,13 +81,11 @@ export default function GameLoginPrompt({ isLoggedIn = false }) {
               <FaTrophy />
               You’re on fire!
             </div>
-
             <p className="text-gray-700 text-sm">
-              You've played 3 games! Sign up to save progress & join the
-              leaderboard.
+              Continue your growth journey — sign up to personalize your
+              progress and stay on track.
             </p>
-
-            {lastScores.length > 0 && (
+            {lastScores.lenth > 0 && (
               <div className="mt-4 text-left text-sm">
                 <p className="text-gray-700 font-medium mb-1 flex items-center gap-1">
                   <FaChartLine /> Last Game Scores:
@@ -82,12 +99,41 @@ export default function GameLoginPrompt({ isLoggedIn = false }) {
                 </ul>
               </div>
             )}
-
             <p className="mt-4 text-green-600 font-medium text-sm flex items-center justify-center gap-1">
               <IoMdTrendingUp /> You're currently better than{" "}
               <strong>{percentile}%</strong> of players!
             </p>
+            {/* users portfolios */}
+            {users.length > 3 && (
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-600 mb-2 font-medium">
+                  🔥 People like you are training daily!
+                </p>
+                <div className="flex justify-center gap-2 items-center">
+                  {randomUsers.map((user, idx) => (
+                    <div
+                      key={idx}
+                      className="tooltip"
+                      data-tip={user?.name || "User"}
+                    >
+                      <img
+                        src={user?.image || "/default-avatar.png"}
+                        alt={user?.name || "User"}
+                        className="w-8 h-8 rounded-full border-2 border-white shadow-md hover:scale-105 transition-transform"
+                      />
+                    </div>
+                  ))}
 
+                  <div
+                    className="tooltip text-sm text-gray-700 font-medium"
+                    data-tip={`${extraUsers} more users training daily`}
+                  >
+                    <span>+{extraUsers} more</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* users portfolios */}
             <div className="modal-action justify-center mt-6 gap-4">
               <button
                 onClick={handleAccess}
