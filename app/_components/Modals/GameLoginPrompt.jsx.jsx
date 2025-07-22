@@ -104,7 +104,7 @@ export default function GameLoginPrompt({ isLoggedIn = false }) {
               <strong>{percentile}%</strong> of players!
             </p>
             {/* users portfolios */}
-            {users.length > 3 && (
+            {/* {users.length > 3 && (
               <div className="mt-4 text-center">
                 <p className="text-sm text-gray-600 mb-2 font-medium">
                   🔥 People like you are training daily!
@@ -132,7 +132,7 @@ export default function GameLoginPrompt({ isLoggedIn = false }) {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
             {/* users portfolios */}
             <div className="modal-action justify-center mt-6 gap-4">
               <button
