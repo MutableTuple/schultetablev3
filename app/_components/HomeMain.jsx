@@ -1,13 +1,30 @@
 "use client";
 import React, { useState } from "react";
-import SchulteTable from "./Schultetable/SchulteTable";
+import dynamic from "next/dynamic";
 import RightDrawer from "./RightDrawer";
-import GridAndDifficultySelector from "./GridAndDifficultySelector";
-import UserAvatar from "./UserAvatar";
-import GoToLeaderboard from "./GoToLeaderboard";
-import FloatingMenu from "./FloatingMenu";
-import ShineButton from "./ShineButton";
-import PWAInstallButton from "./PWAInstallButton";
+
+const SchulteTable = dynamic(() => import("./Schultetable/SchulteTable"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center items-center h-40">
+      <span className="loading loading-spinner loading-lg text-primary" />
+    </div>
+  ),
+});
+
+const GridAndDifficultySelector = dynamic(
+  () => import("./GridAndDifficultySelector"),
+  {
+    ssr: false,
+  }
+);
+
+const UserAvatar = dynamic(() => import("./UserAvatar"), { ssr: false });
+const GoToLeaderboard = dynamic(() => import("./GoToLeaderboard"), {
+  ssr: false,
+});
+const FloatingMenu = dynamic(() => import("./FloatingMenu"), { ssr: false });
+// const PWAInstallButton = dynamic(() => import("./PWAInstallButton"), { ssr: false });
 
 export default function HomeMain({ user, error }) {
   const [gridSize, setGridSize] = useState(3);
@@ -24,14 +41,14 @@ export default function HomeMain({ user, error }) {
         setGridSize={setGridSize}
         difficulty={difficulty}
         setDifficulty={setDifficulty}
-        gameStarted={gameStarted} // <-- Pass to selector
+        gameStarted={gameStarted}
         mode={mode}
         setMode={setMode}
       />
-      <PWAInstallButton />
+
       <GoToLeaderboard />
       <UserAvatar user={user} />
-      <div></div>
+
       <div className="drawer-content relative p-4 flex items-center justify-center min-h-screen overflow-auto">
         <label
           htmlFor="my-drawer"
@@ -52,8 +69,10 @@ export default function HomeMain({ user, error }) {
             />
           </svg>
         </label>
+
         <FloatingMenu />
 
+        {/* ✅ Lazy loaded with spinner */}
         <SchulteTable
           gridSize={gridSize}
           difficulty={difficulty}
@@ -65,7 +84,7 @@ export default function HomeMain({ user, error }) {
       </div>
 
       <div className="drawer-side">
-        <label htmlFor="my-drawer" className="drawer-overlay"></label>
+        <label htmlFor="my-drawer" className="drawer-overlay" />
         <RightDrawer
           user={user}
           gridSize={gridSize}

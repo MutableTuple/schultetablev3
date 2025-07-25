@@ -1,14 +1,17 @@
 // app/page.js
 import Image from "next/image";
-import HomeMain from "./_components/HomeMain";
 import { getCurrentUser } from "./_utils/getCurrentUser";
-import WhatsNewModal from "./_components/WhatsNewModal";
-import GameLoginPrompt from "./_components/Modals/GameLoginPrompt.jsx";
-import ThemeChangerHotkey from "./_components/ThemeChangerHotkey";
 import { getMissionByID } from "./_lib/data-service";
-import MissionButton from "./_components/MissionButton";
-import ShowProLoggedInModals from "./_components/Modals/ShowProLoggedInModals";
-import ShinyGoProButton from "./_components/ShinyGoProButton";
+import HomeMain from "./_components/HomeMain";
+import ClientShell from "./_components/ClientShell";
+
+// import WhatsNewModal from "./_components/WhatsNewModal";
+// import GameLoginPrompt from "./_components/Modals/GameLoginPrompt.jsx";
+// import ThemeChangerHotkey from "./_components/ThemeChangerHotkey";
+// import MissionButton from "./_components/MissionButton";
+// import ShowProLoggedInModals from "./_components/Modals/ShowProLoggedInModals";
+// import ShinyGoProButton from "./_components/ShinyGoProButton";
+// import ChatBox from "./_components/Chat/ChatBox";
 
 // ✅ SEO metadata export
 export const metadata = {
@@ -70,16 +73,17 @@ export default async function Home() {
         proven method to enhance visual perception, attention span, and speed
         reading abilities.
       </p>
-
+      <HomeMain user={user} error={error} />
+      {/* <ChatBox user={user} />
       <WhatsNewModal isLoggedIn={!!user} />
       <GameLoginPrompt />
-      <HomeMain user={user} error={error} />
       <ThemeChangerHotkey user={user} />
       <MissionButton />
       <ShowProLoggedInModals user={user} />
       <ShinyGoProButton
         isProUser={Array.isArray(user) && user[0]?.is_pro_user}
-      />
+      /> */}
+      <ClientShell user={user} />
     </>
   );
 }

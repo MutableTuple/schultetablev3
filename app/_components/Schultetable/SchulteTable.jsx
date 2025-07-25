@@ -11,8 +11,9 @@ import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
 import SmallScreenDetailsModal from "./SmallScreenDetailsModal";
 import ShineButton from "../ShineButton";
-import Confetti from "react-dom-confetti";
 import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
+import dynamic from "next/dynamic";
+const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
 
 export default function SchulteTable({
   gridSize,
@@ -400,8 +401,9 @@ export default function SchulteTable({
         />
       </div>
       {loadingBoard ? (
-        <div className="w-full h-[300px] flex items-center justify-center text-lg font-bold text-primary">
-          <span className="loading loading-infinity loading-xl"></span>
+        <div className="flex flex-col items-center justify-center h-[300px]">
+          <span className="loading loading-infinity loading-xl text-primary" />
+          <p className="mt-4 text-sm text-gray-500">Setting up your board...</p>
         </div>
       ) : (
         <BoardGrid
