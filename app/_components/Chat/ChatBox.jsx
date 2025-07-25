@@ -203,15 +203,15 @@ export default function ChatBox({ user }) {
                 return (
                   <div
                     key={idx}
-                    className="break-words flex items-center gap-1"
+                    className="break-words flex gap-1 items-center"
                   >
-                    <span className="font-semibold text-primary flex items-center gap-0.5">
+                    <span className="font-semibold text-primary flex  gap-0.5">
                       {msg.username}:
                     </span>{" "}
-                    {contentWithMentions}
-                    <div className="text-xs opacity-40">
+                    <span className="text-xs"> {contentWithMentions}</span>
+                    {/* <div className="text-xs opacity-40">
                       {formatMicroTime(new Date(msg.created_at))}
-                    </div>
+                    </div> */}
                   </div>
                 );
               })}
