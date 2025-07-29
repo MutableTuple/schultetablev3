@@ -26,6 +26,9 @@ export const metadata = {
     description:
       "Create your free account to access progress tracking, analytics, and competitive leaderboards.",
   },
+  alternates: {
+    canonical: "https://www.schultetable.com/auth/register",
+  },
 };
 
 export default function Page() {

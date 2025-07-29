@@ -27,6 +27,9 @@ export const metadata = {
     description:
       "Explore how Schulte Table helps users sharpen focus and improve mental performance through fun challenges.",
   },
+  alternates: {
+    canonical: "https://www.schultetable.com/about",
+  },
 };
 
 export default function Page() {

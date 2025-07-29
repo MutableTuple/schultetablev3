@@ -32,6 +32,9 @@ export const metadata = {
     description:
       "Research-backed cognitive training that improves focus, reading speed, and mental performance. Start your brain training journey today.",
   },
+  alternates: {
+    canonical: "https://www.schultetable.com/benefits-of-schulte-table",
+  },
 };
 
 export default function Page() {

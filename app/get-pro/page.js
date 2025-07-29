@@ -30,6 +30,9 @@ export const metadata = {
     description:
       "Level up your cognitive training with exclusive Schulte Table Pro features. Smarter tools, deeper insights.",
   },
+  alternates: {
+    canonical: "https://www.schultetable.com/get-pro",
+  },
 };
 
 export default async function page() {

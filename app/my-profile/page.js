@@ -7,6 +7,10 @@ export const metadata = {
   title: "My Profile",
   description: "See your Schulte Table game stats and progress.",
   keywords: ["schulte table", "brain exercise", "profile"],
+
+  alternates: {
+    canonical: "https://www.schultetable.com/my-profile",
+  },
 };
 export default async function Page() {
   const { user, error } = await getCurrentUser();

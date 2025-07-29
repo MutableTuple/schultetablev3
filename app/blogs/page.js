@@ -27,6 +27,9 @@ export const metadata = {
     description:
       "Read expert tips on focus, brain training, and productivity to sharpen your mind.",
   },
+  alternates: {
+    canonical: "https://www.schultetable.com/blogs",
+  },
 };
 
 export default function Page() {

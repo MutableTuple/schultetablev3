@@ -18,7 +18,7 @@ export const metadata = {
     title: "How to Play Schulte Table - Boost Focus Fast",
     description:
       "Step-by-step guide to mastering the Schulte Table game. Train your brain and sharpen your focus.",
-    url: "https://schultetable.com/how-to-play-schulte-table",
+    url: "https://www.schultetable.com/how-to-play-schulte-table",
     siteName: "Schulte Table",
     type: "website",
   },
@@ -27,6 +27,9 @@ export const metadata = {
     title: "How to Play Schulte Table",
     description:
       "Improve your focus and speed with our simple Schulte Table guide. Great for students and professionals.",
+  },
+  alternates: {
+    canonical: "https://www.schultetable.com/how-to-play-schulte-table",
   },
 };
 

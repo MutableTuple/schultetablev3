@@ -24,6 +24,9 @@ export const metadata = {
     title: "Global Leaderboard - Schulte Table",
     description: "Explore the top ranked Schulte Table players globally.",
   },
+  alternates: {
+    canonical: "https://www.schultetable.com/leaderboard",
+  },
 };
 
 export default async function page() {
