@@ -15,8 +15,7 @@ import ClientShell from "./_components/ClientShell";
 
 // ✅ SEO metadata export
 export const metadata = {
-  title:
-    "Play Schulte Table Online | Reboot your brain in just 30 seconds for Free!",
+  title: "Schulte Table Online | Reboot your brain in just 30 seconds!",
   description:
     "Train your brain with Schulte Table. Improve your focus, speed reading, and visual attention. Free, fun, and scientifically backed brain exercise!",
   keywords: [
@@ -58,6 +57,67 @@ export const metadata = {
   },
 };
 
+const jsonLd = [
+  // Organization
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Schulte Table",
+    url: "https://www.schultetable.com/",
+    logo: "https://hflzumrbjzkzofgzeyao.supabase.co/storage/v1/object/public/media//Logo.png",
+    sameAs: [
+      "https://www.facebook.com/schultetable",
+      "https://twitter.com/schultetable",
+      "https://www.linkedin.com/company/schultetable",
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+91-123-456-7890",
+      contactType: "Customer Support",
+      email: "support@schultetable.com",
+    },
+  },
+
+  // WebSite
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Schulte Table",
+    url: "https://www.schultetable.com/",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://www.schultetable.com/?s={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  },
+
+  // Game
+  {
+    "@context": "https://schema.org",
+    "@type": "Game",
+    name: "Schulte Table Online",
+    url: "https://www.schultetable.com/",
+    description:
+      "Train your brain with Schulte Table. Improve focus, speed reading, and peripheral vision. Free online brain game.",
+    image:
+      "https://hflzumrbjzkzofgzeyao.supabase.co/storage/v1/object/public/media//Logo.png",
+    audience: {
+      "@type": "Audience",
+      audienceType: "Everyone",
+    },
+    interactionStatistic: {
+      "@type": "InteractionCounter",
+      interactionType: "https://schema.org/PlayAction",
+      userInteractionCount: 1000000, // Optional: approximate plays/users
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Schulte Table",
+      url: "https://www.schultetable.com/",
+    },
+  },
+];
+
 export default async function Home() {
   const { user, error } = await getCurrentUser();
   const mission = await getMissionByID("7113a0c2-ce6d-4896-8260-9ca759bb512c");
@@ -68,6 +128,11 @@ export default async function Home() {
       <h1 className="sr-only">
         Schulte Table – Train Focus, Reading Speed & Peripheral Vision
       </h1>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <p className="sr-only">
         Improve your brain performance with Schulte Tables. Scientifically
         proven method to enhance visual perception, attention span, and speed

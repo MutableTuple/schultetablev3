@@ -41,6 +41,9 @@ export default function Navbar() {
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-60"
           >
+            <li className="bg-primary/60 rounded-md ">
+              <Link href="/">Play now</Link>
+            </li>
             <li>
               <Link href="/my-profile">My Profile</Link>
             </li>
@@ -52,6 +55,9 @@ export default function Navbar() {
             </li>
             <li>
               <Link href="/blogs">Blogs</Link>
+            </li>
+            <li>
+              <Link href="/faq">Faq</Link>
             </li>
           </ul>
         </div>
@@ -67,6 +73,9 @@ export default function Navbar() {
       {/* Center */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 text-sm">
+          <li className="bg-primary/60 rounded-md ">
+            <Link href="/">Play now</Link>
+          </li>
           <li>
             <Link href="/my-profile">My Profile</Link>
           </li>
@@ -78,6 +87,9 @@ export default function Navbar() {
           </li>
           <li>
             <Link href="/blogs">Blogs</Link>
+          </li>
+          <li>
+            <Link href="/faq">Faq</Link>
           </li>
         </ul>
       </div>

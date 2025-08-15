@@ -1,18 +1,8 @@
-import ProfilePage from "@/app/_components/Profile/ProfilePage";
+import PersonalizationPage from "@/app/_components/Profile/PersonalizationPage";
+import React from "react";
 import { getCurrentUser } from "@/app/_utils/getCurrentUser";
 import Link from "next/link";
-import React from "react";
-import ProfileInformation from "../_components/Profile/ProfileInformation";
-export const metadata = {
-  title: "My Profile",
-  description: "See your Schulte Table game stats and progress.",
-  keywords: ["schulte table", "brain exercise", "profile"],
-
-  alternates: {
-    canonical: "https://www.schultetable.com/my-profile",
-  },
-};
-export default async function Page() {
+export default async function page() {
   const { user, error } = await getCurrentUser();
 
   if (!user) {
@@ -34,8 +24,8 @@ export default async function Page() {
   }
 
   return (
-    <div className="">
-      <ProfileInformation user={user} />
+    <div>
+      <PersonalizationPage user={user} />
     </div>
   );
 }

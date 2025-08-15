@@ -25,13 +25,14 @@ const GoToLeaderboard = dynamic(() => import("./GoToLeaderboard"), {
 });
 const FloatingMenu = dynamic(() => import("./FloatingMenu"), { ssr: false });
 // const PWAInstallButton = dynamic(() => import("./PWAInstallButton"), { ssr: false });
+import { getRandomGameSettings } from "../_utils/randomGameSettings";
 
 export default function HomeMain({ user, error }) {
   const [gridSize, setGridSize] = useState(3);
   const [difficulty, setDifficulty] = useState("Medium");
   const [gameStarted, setGameStarted] = useState(false);
   const [mode, setMode] = useState("number");
-
+  const setting = getRandomGameSettings;
   return (
     <div className="drawer drawer-end lg:drawer-open min-h-screen">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
@@ -80,6 +81,9 @@ export default function HomeMain({ user, error }) {
           setGameStarted={setGameStarted}
           user={user}
           mode={mode}
+          setGridSize={setGridSize}
+          setDifficulty={setDifficulty}
+          setMode={setMode}
         />
       </div>
 

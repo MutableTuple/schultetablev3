@@ -20,11 +20,11 @@ export const metadata = {
     title: "🚀 What's New in Schulte Table",
     description:
       "Explore new features like global confetti rankings, performance tracking, and mobile-friendly animations.",
-    url: "https://schultetable.com/whats-new",
+    url: "https://www.schultetable.com/whats-new",
     siteName: "Schulte Table",
     images: [
       {
-        url: "https://schultetable.com/og-image.png", // Replace with your actual image URL
+        url: "https://www.schultetable.com/og-image.png", // Replace with your actual image URL
         width: 1200,
         height: 630,
         alt: "Schulte Table What's New",
@@ -37,7 +37,7 @@ export const metadata = {
     title: "🚀 What's New in Schulte Table",
     description:
       "See the latest updates: global top 3 leaderboard, smooth mobile confetti, and ranking messages.",
-    images: ["https://schultetable.com/og-image.png"], // Replace this too
+    images: ["https://www.schultetable.com/og-image.png"], // Replace this too
   },
 };
 

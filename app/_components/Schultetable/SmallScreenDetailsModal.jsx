@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { supabase } from "@/app/_lib/supabase";
 import { formatNumber } from "@/app/_utils/formatNumber";
+import Link from "next/link";
+import { getRandomGameSettings } from "@/app/_utils/randomGameSettings";
 
 export default function SmallScreenDetailsModal({
   showSummaryModal,
@@ -11,16 +13,20 @@ export default function SmallScreenDetailsModal({
   setSummaryVisible,
   setShowSummaryModal,
   fastestTimeInSec = null,
+  setGridSize,
+  setDifficulty,
+  setMode,
+  setGameStarted,
   user = [],
 }) {
   const [scorePercentile, setScorePercentile] = useState(null);
   const [accuracyPercentile, setAccuracyPercentile] = useState(null);
   const [timePercentile, setTimePercentile] = useState(null);
   const [dontShowAgain, setDontShowAgain] = useState(false);
-
+  const setting = getRandomGameSettings();
   const isPro = user?.[0]?.is_pro_user;
   const userId = user?.[0]?.id;
-
+  console.log("GSD", gameSummaryData);
   const currentTimeInSec = gameSummaryData.durationMs / 1000;
   const percentageOfBest =
     fastestTimeInSec && fastestTimeInSec > 0
@@ -168,12 +174,26 @@ export default function SmallScreenDetailsModal({
           >
             {summaryVisible ? "Hide Details" : "Show Details"}
           </button>
-          <button
-            onClick={handleDontShowAgain}
-            className="btn btn-sm btn-error w-full"
-          >
-            Don’t show again
-          </button>
+          <div className="flex gap-0.5">
+            <button
+              className="btn btn-sm btn-primary w-full"
+              onClick={() => {
+                setGridSize(setting.gridSize);
+                setMode(setting.mode);
+                setDifficulty(setting.difficulty);
+                setGameStarted(true);
+                setShowSummaryModal(false);
+              }}
+            >
+              Play again
+            </button>
+            {/* <Link
+              href={`/game-analytics/f294038c-30ba-4446-9a2e-85a1f95785eb`}
+              className="btn btn-sm btn-primary w-1/2 btn-ghost border border-base-300 bg-success"
+            >
+              View advanced data
+            </Link> */}
+          </div>
         </div>
       </div>
     </dialog>

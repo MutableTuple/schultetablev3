@@ -22,6 +22,9 @@ export default function SchulteTable({
   setGameStarted,
   user,
   mode,
+  setGridSize,
+  setDifficulty,
+  setMode,
 }) {
   const totalTiles = gridSize * gridSize;
   const [loadingBoard, setLoadingBoard] = useState(false);
@@ -423,6 +426,10 @@ export default function SchulteTable({
           setSummaryVisible={setSummaryVisible}
           setShowSummaryModal={setShowSummaryModal}
           user={user}
+          setGridSize={setGridSize}
+          setDifficulty={setDifficulty}
+          setMode={setMode}
+          setGameStarted={setGameStarted}
         />
       )}
     </div>

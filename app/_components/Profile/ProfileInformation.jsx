@@ -21,7 +21,7 @@ export default function ProfileInformation({ user }) {
       setName(user[0].name);
       setEmail(user[0].email);
       setSocialLink(user[0].social_link);
-      setBio(user[0].bio);
+      setBio(user[0].bio ?? "");
       setNationality(user[0].nationality);
     }
 
@@ -107,13 +107,20 @@ export default function ProfileInformation({ user }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Social Link</label>
-          <input
-            className="input input-bordered w-full"
-            value={socialLink}
-            onChange={(e) => setSocialLink(e.target.value)}
-            placeholder="https://twitter.com/yourhandle"
-          />
+          <label className="block text-sm font-medium mb-1">
+            Your X username
+          </label>
+
+          <label className="input w-full">
+            x.com /
+            <input
+              defaultValue={socialLink}
+              type="text"
+              className="grow "
+              placeholder="yourhandle"
+              onChange={(e) => setSocialLink(e.target.value)}
+            />
+          </label>
         </div>
 
         <Nationality

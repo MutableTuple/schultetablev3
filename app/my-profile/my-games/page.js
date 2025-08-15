@@ -1,19 +1,9 @@
-import ProfilePage from "@/app/_components/Profile/ProfilePage";
+import React from "react";
+import GamelistPage from "@/app/_components/Profile/GamelistPage";
 import { getCurrentUser } from "@/app/_utils/getCurrentUser";
 import Link from "next/link";
-import React from "react";
-import ProfileInformation from "../_components/Profile/ProfileInformation";
-export const metadata = {
-  title: "My Profile",
-  description: "See your Schulte Table game stats and progress.",
-  keywords: ["schulte table", "brain exercise", "profile"],
-
-  alternates: {
-    canonical: "https://www.schultetable.com/my-profile",
-  },
-};
-export default async function Page() {
-  const { user, error } = await getCurrentUser();
+export default async function page() {
+  const user = await getCurrentUser();
 
   if (!user) {
     return (
@@ -34,8 +24,8 @@ export default async function Page() {
   }
 
   return (
-    <div className="">
-      <ProfileInformation user={user} />
+    <div>
+      <GamelistPage user={user.user} />
     </div>
   );
 }

@@ -14,7 +14,7 @@ const chakraPetch = Chakra_Petch({
 });
 
 export const metadata = {
-  title: "Schulte Table - Improve Reading Speed & Focus Training",
+  title: "Schulte Table Online | Reboot your brain in just 30 seconds!",
   description:
     "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development.",
   keywords: [
@@ -115,7 +115,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="">
       <head>
-        <GoogleAnalytics gaId="G-66EJ7VMS98" />
+        {/* <GoogleAnalytics gaId="G-66EJ7VMS98" /> */}
         {/* {!isProUser && (
           <script
             async
