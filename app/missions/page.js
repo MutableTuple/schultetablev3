@@ -41,7 +41,7 @@ export const metadata = {
 
 export default async function page() {
   const { user, err } = await getCurrentUser();
-  const mission = await getMissionByID("7113a0c2-ce6d-4896-8260-9ca759bb512c");
+  const mission = await getMissionByID("720c2cea-2470-4706-8bd2-d0cc2eee5df1");
   const mission_completions = await getUserMissionsCompletions();
 
   return (
