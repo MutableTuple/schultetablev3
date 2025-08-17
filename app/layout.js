@@ -115,7 +115,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="">
       <head>
-        <GoogleAnalytics gaId="G-66EJ7VMS98" />
+        {/* <GoogleAnalytics gaId="G-66EJ7VMS98" /> */}
         {/* {!isProUser && (
           <script
             async

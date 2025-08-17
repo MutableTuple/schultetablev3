@@ -17,6 +17,8 @@ import { motion } from "framer-motion";
 import KeystrokeAnim from "./Profile/KeystrokeAnim";
 import BackButton from "./BackButton";
 import { formatNumber } from "../_utils/formatNumber";
+import Navbar from "./Navbar";
+import { GrAnalytics } from "react-icons/gr";
 
 export default function SingleGameAnalyticsPage({ game }) {
   if (!game)
@@ -86,85 +88,105 @@ export default function SingleGameAnalyticsPage({ game }) {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-10">
-      <BackButton />
-      <h1 className="text-3xl font-bold text-base-content">
-        🎯 Game Analytics - {game.game_mode?.toUpperCase()} MODE
-      </h1>
+    <>
+      <Navbar />
 
-      {/* Modern Stat Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-        {stats.map((item, i) => (
-          <motion.div
-            key={i}
-            className="stat bg-base-100 border border-base-300 rounded-lg shadow-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
-            <div className="stat-title text-xs">{item.label}</div>
-            <div className="stat-value text-secondary">{item.value}</div>
-          </motion.div>
-        ))}
+      <div className="max-w-6xl mx-auto p-6 space-y-10">
+        <BackButton />
+        <h1 className="md:text-3xl text-lg font-bold text-base-content flex items-center gap-2">
+          <GrAnalytics /> Game Analytics - {game.game_mode?.toUpperCase()} MODE
+        </h1>
+
+        {/* Modern Stat Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          {stats.map((item, i) => (
+            <motion.div
+              key={i}
+              className="stat bg-base-100 border border-base-300 rounded-lg shadow-sm"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <div className="stat-title text-xs">{item.label}</div>
+              <div className="stat-value text-secondary">{item.value}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Reaction Time Chart */}
+        <motion.div
+          className="bg-secondary border border-base-300 rounded-xl p-3 sm:p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2 className="text-lg font-semibold mb-3 text-base-content">
+            ⏱ Reaction Time Per Click
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={reactionTimes}>
+              <XAxis
+                dataKey="name"
+                stroke="#ffffff"
+                fontSize={12}
+                interval={0}
+              />
+              <YAxis stroke="#ffffff" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1e293b", // slate-800
+                  color: "#f1f5f9", // slate-100
+                  border: "1px solid #475569", // slate-600
+                  fontSize: "14px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+                labelStyle={{ color: "#cbd5e1" }} // slate-300
+              />
+              <Bar dataKey="time" fill="#ffffff" name="Time (ms)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* Radar Chart */}
+        <motion.div
+          className="bg-secondary border border-base-300 rounded-xl p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h2 className=" text-lg font-semibold mb-3 ">
+            🧠 Cognitive Focus Map
+          </h2>
+          <ResponsiveContainer width="100%" height={400}>
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+              <PolarGrid stroke="#ffffff" />
+              <PolarAngleAxis dataKey="subject" stroke="hsl(var(--bc))" />
+              <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#ffffff" />
+              <Radar
+                name="You"
+                dataKey="value"
+                stroke="#ffffff"
+                fill="#ffffff"
+                fillOpacity={0.6}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* Click Flow */}
+        <motion.div
+          className="bg-base-100 border border-base-300 rounded-xl p-6 cursor-pointer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <h2 className="text-lg font-semibold mb-6 text-base-content">
+            Duration between clicks
+          </h2>
+
+          <KeystrokeAnim clicks={clicks} />
+        </motion.div>
       </div>
-
-      {/* Reaction Time Chart */}
-      <motion.div
-        className="bg-secondary border border-base-300 rounded-xl p-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <h2 className="text-lg font-semibold mb-3 text-base-content">
-          ⏱ Reaction Time Per Click
-        </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={reactionTimes}>
-            <XAxis dataKey="name" stroke="#ffffff" />
-            <YAxis stroke="#ffffff" />
-            <Tooltip />
-            <Bar dataKey="time" fill="#ffffff" name="Time (ms)" />
-          </BarChart>
-        </ResponsiveContainer>
-      </motion.div>
-
-      {/* Radar Chart */}
-      <motion.div
-        className="bg-secondary border border-base-300 rounded-xl p-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-      >
-        <h2 className=" text-lg font-semibold mb-3 ">🧠 Cognitive Focus Map</h2>
-        <ResponsiveContainer width="100%" height={400}>
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-            <PolarGrid stroke="#ffffff" />
-            <PolarAngleAxis dataKey="subject" stroke="hsl(var(--bc))" />
-            <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#ffffff" />
-            <Radar
-              name="You"
-              dataKey="value"
-              stroke="#ffffff"
-              fill="#ffffff"
-              fillOpacity={0.6}
-            />
-          </RadarChart>
-        </ResponsiveContainer>
-      </motion.div>
-
-      {/* Click Flow */}
-      <motion.div
-        className="bg-base-100 border border-base-300 rounded-xl p-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <h2 className="text-lg font-semibold mb-6 text-base-content">
-          Duration between clicks
-        </h2>
-
-        <KeystrokeAnim clicks={clicks} />
-      </motion.div>
-    </div>
+    </>
   );
 }

@@ -56,7 +56,7 @@ export default function KeystrokeAnim({ clicks }) {
                   variants={keyVariants}
                 >
                   <motion.kbd
-                    className={`kbd kbd-lg bg-primary text-primary-content shadow-lg hover:shadow-xl transition-shadow duration-200 ${
+                    className={`kbd kbd-lg  hover:bg-primary  transition-all duration-300  shadow-lg hover:shadow-xl  ${
                       typeof click.expected === "string" &&
                       click.expected === "Space"
                         ? "px-8"
