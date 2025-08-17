@@ -3,21 +3,28 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HiMenu, HiHome, HiUser, HiCog } from "react-icons/hi";
-
+import { IoMdColorPalette } from "react-icons/io";
+import { VscGraph } from "react-icons/vsc";
 export default function Sidebar() {
   const pathname = usePathname();
 
   const menuItems = [
     { id: 1, label: "Profile", icon: HiHome, link: "/my-profile" },
-    { id: 2, label: "All Games", icon: HiUser, link: "/my-profile/my-games" },
     {
-      id: 3,
+      id: 2,
+      label: "Analytics",
+      icon: VscGraph,
+      link: "/my-profile/analytics",
+    },
+    { id: 3, label: "All Games", icon: HiUser, link: "/my-profile/my-games" },
+    {
+      id: 4,
       label: "Personalize",
-      icon: HiCog,
+      icon: IoMdColorPalette,
       link: "/my-profile/personalize",
     },
     {
-      id: 4,
+      id: 5,
       label: "Security & Passwords",
       icon: HiCog,
       link: "/my-profile/security",
