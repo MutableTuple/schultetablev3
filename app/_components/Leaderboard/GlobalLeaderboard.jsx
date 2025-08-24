@@ -5,6 +5,8 @@ import { formatNumber } from "@/app/_utils/formatNumber";
 import BackButton from "../BackButton";
 import Link from "next/link";
 import StatisticsGlobal from "../StatisticsGlobal";
+import { FaSquareXTwitter } from "react-icons/fa6";
+
 const difficulties = ["Easy", "Medium", "Hard"];
 const gridSizes = [3, 4, 5];
 const gameModes = ["number", "word", "alphabet", "emoji"];
@@ -137,6 +139,12 @@ export default function GlobalLeaderboard() {
                       <span className="truncate flex items-center gap-1">
                         {player.name}
                         {medal && <span>{medal}</span>}
+                        {/* ADD THIS TWITTER LINK FOR PEOPLE WHO WANTS TO LINK TO THEIR SOCIAL MEDIA */}
+                        {/* {player?.social_link != NULL ? (
+                          <FaSquareXTwitter />
+                        ) : (
+                          ""
+                        )} */}
                       </span>
                     </Link>
                   </div>

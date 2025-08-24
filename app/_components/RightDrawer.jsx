@@ -15,6 +15,8 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
       if (user && user[0]?.id) {
         const data = await getCurrentUserGameData(user[0].id);
         setUserData(data || null); // null if no data returned
+
+        console.log("GMAE DTA", data);
       }
     };
 
@@ -64,13 +66,14 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
           />
         </li>
       </ul>
-
       {/* User Stats Section */}
+
       {user && user[0]?.id ? (
         <>
           <div className="divider my-2 text-xs opacity-60">
             Your last game data
           </div>
+
           <ul className="menu w-full flex flex-col gap-1">
             {userData && userData.game_summary ? (
               <li>
@@ -86,7 +89,13 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
       ) : (
         <NotLoggedInRightDrawerNotif />
       )}
-
+      {/* {user && (
+        <Link href={`/game-analytics/${userData?.id}`} className="text-xs">
+          <div className="px-2 rounded-md py-3 bg-secondary/40 text-center">
+            Get complete data for this game
+          </div>
+        </Link>
+      )} */}
       {/* Always at the bottom */}
       <div className="mt-auto pt-4">
         <GetProBtn />

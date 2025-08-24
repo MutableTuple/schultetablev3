@@ -1,10 +1,56 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../_lib/supabase";
 
 export default function GetProBtn() {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    let timer;
+
+    const fetchCampaign = async () => {
+      const { data, error } = await supabase
+        .from("ProCampaign")
+        .select("ends_in")
+        .order("created_at", { ascending: false }) // latest campaign
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.error("Error fetching ProCampaign:", error);
+        return;
+      }
+
+      const endTime = new Date(data.ends_in);
+
+      timer = setInterval(() => {
+        const now = new Date();
+        const diff = endTime - now;
+
+        if (diff <= 0) {
+          clearInterval(timer);
+          setTimeLeft("Expired — now $5.99");
+          return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }, 1000);
+    };
+
+    fetchCampaign();
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <Link href={"/get-pro"}>
-      <button className="btn btn-neutral btn-md rounded-sm px-6 relative overflow-hidden hover:scale-105 transition-transform font-semibold tracking-wide w-full">
+      <button className="btn btn-neutral btn-md rounded-sm px-6 py-7 relative overflow-hidden hover:scale-105 transition-transform font-semibold tracking-wide w-full leading-snug">
         {/* Coin Shine Effect */}
         <div
           className="absolute inset-0 z-10"
@@ -17,10 +63,16 @@ export default function GetProBtn() {
         />
 
         {/* Button content */}
-        <p className="relative z-20 flex items-center gap-1 text-xs">
-          <span className="flex items-center">👑 Get Pro at just</span>
-          <span className="text-warning">$3.99/lifetime</span>
-        </p>
+        <div className="relative z-20 flex flex-col items-center gap-1 text-xs text-center">
+          <p className="flex items-center gap-1 text-sm">
+            <span>👑 Get Pro at just</span>
+            <span className="text-warning font-bold">$3.99/lifetime</span>
+          </p>
+          <p className="text-[11px] text-gray-400">
+            ⏳ {timeLeft} left at this price, then{" "}
+            <span className="font-semibold">$5.99</span>
+          </p>
+        </div>
 
         <style jsx>{`
           @keyframes coinShine {

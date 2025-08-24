@@ -9,38 +9,64 @@ import SingleGameCounts from "./SingleGameCounts";
 export default function AdvancedAnalyticsPage({ user }) {
   const [gameData, setGameData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState("28d"); // default preset
+  const [customRange, setCustomRange] = useState({ from: null, to: null });
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const formatMs = (ms) => `${(ms / 1000).toFixed(2)}s`;
   const formatPercent = (val) =>
     typeof val === "string" ? val : `${val.toFixed(1)}%`;
 
+  const fetchGameData = async () => {
+    if (!user?.[0]?.id) return;
+    setLoading(true);
+
+    const isPro = user[0]?.is_pro_user;
+
+    let query = supabase
+      .from("UniversalGameStats")
+      .select("*")
+      .eq("user_id", user[0].id)
+      .order("created_at", { ascending: false });
+
+    const now = new Date();
+
+    // Apply filters
+    if (dateRange === "28d") {
+      const fromDate = new Date();
+      fromDate.setDate(now.getDate() - 28);
+      query = query.gte("created_at", fromDate.toISOString());
+    } else if (dateRange === "3m") {
+      const fromDate = new Date();
+      fromDate.setMonth(now.getMonth() - 3);
+      query = query.gte("created_at", fromDate.toISOString());
+    } else if (dateRange === "6m") {
+      const fromDate = new Date();
+      fromDate.setMonth(now.getMonth() - 6);
+      query = query.gte("created_at", fromDate.toISOString());
+    } else if (dateRange === "custom" && customRange.from && customRange.to) {
+      query = query
+        .gte("created_at", customRange.from.toISOString())
+        .lte("created_at", customRange.to.toISOString());
+    }
+    // "all" → no filter
+
+    if (!isPro) query = query.limit(5); // Free users capped
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching game stats:", error);
+    } else {
+      setGameData(data);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchGameData = async () => {
-      if (!user?.[0]?.id) return;
-      setLoading(true);
-
-      const isPro = user[0]?.is_pro_user;
-      const query = supabase
-        .from("UniversalGameStats")
-        .select("*")
-        .eq("user_id", user[0].id)
-        .order("created_at", { ascending: false });
-
-      if (!isPro) query.limit(5);
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching game stats:", error);
-      } else {
-        setGameData(data);
-      }
-
-      setLoading(false);
-    };
-
     fetchGameData();
-  }, [user]);
+  }, [user, dateRange, customRange]);
 
   if (loading) {
     return (
@@ -83,6 +109,80 @@ export default function AdvancedAnalyticsPage({ user }) {
 
   return (
     <div>
+      {/* 🔽 Filter UI */}
+      <div className="flex items-center gap-4 mb-6">
+        <select
+          className="select select-bordered"
+          value={dateRange}
+          onChange={(e) => {
+            setDateRange(e.target.value);
+            if (e.target.value !== "custom") setShowCalendar(false);
+          }}
+        >
+          <option value="28d">Last 28 Days</option>
+          <option value="3m">Last 3 Months</option>
+          <option value="6m">Last 6 Months</option>
+          <option value="all">All Time</option>
+          <option value="custom">Custom Range</option>
+        </select>
+
+        {dateRange === "custom" && (
+          <div className="relative">
+            <button
+              className="btn btn-outline"
+              onClick={() => setShowCalendar(!showCalendar)}
+            >
+              {customRange.from && customRange.to
+                ? `${customRange.from.toLocaleDateString()} → ${customRange.to.toLocaleDateString()}`
+                : customRange.from
+                  ? `${customRange.from.toLocaleDateString()} → ...`
+                  : customRange.to
+                    ? `... → ${customRange.to.toLocaleDateString()}`
+                    : "Pick Date Range"}
+            </button>
+
+            {showCalendar && (
+              <div className="absolute z-50 bg-base-100 shadow-xl rounded-lg p-4 mt-2">
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    className="input input-bordered"
+                    onChange={(e) =>
+                      setCustomRange((prev) => ({
+                        ...prev,
+                        from: e.target.value ? new Date(e.target.value) : null,
+                      }))
+                    }
+                  />
+                  <input
+                    type="date"
+                    className="input input-bordered"
+                    onChange={(e) =>
+                      setCustomRange((prev) => ({
+                        ...prev,
+                        to: e.target.value ? new Date(e.target.value) : null,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="flex justify-end mt-2">
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      setShowCalendar(false);
+                      fetchGameData();
+                    }}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Analytics Components */}
       <AnalyticsData
         user={user}
         loading={loading}
