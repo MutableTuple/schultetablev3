@@ -1,6 +1,6 @@
 "use client";
 import RightDrawer from "@/app/_components/RightDrawer";
-import SchulteTable from "@/app/_components/Schultetable/SchulteTable";
+import SchulteTable from "@/app/_components/Schultetable-COPY/SchulteTable";
 import React, { useState } from "react";
 
 export default function SchultetableAlphabet3x3Easy({ user }) {

@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,6 +13,8 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
+  LineChart,
+  Line,
 } from "recharts";
 import { motion } from "framer-motion";
 import KeystrokeAnim from "./Profile/KeystrokeAnim";
@@ -19,23 +22,36 @@ import BackButton from "./BackButton";
 import { formatNumber } from "../_utils/formatNumber";
 import Navbar from "./Navbar";
 import { GrAnalytics } from "react-icons/gr";
+import BarChartAnalytics from "./Charts/BarChartAnalytics";
+import LineChartAnalytics from "./Charts/LineChartAnalytics";
 
 export default function SingleGameAnalyticsPage({ game }) {
+  const [chartType, setChartType] = useState("line");
+
   if (!game)
     return <div className="text-center py-10">Game data not found.</div>;
 
   const summary = game?.game_summary || {};
   const clicks = summary?.clicks || [];
 
-  const reactionTimes = clicks.map((c, i) => {
+  const reactionTimes = clicks.map((c, i, arr) => {
     const label =
       typeof c.number === "object"
         ? `${c.number.expr}`
         : `${c.number || i + 1}`;
 
+    const currentTime = c.timeTakenMs || 0;
+    const prevTime = i > 0 ? arr[i - 1].timeTakenMs : null;
+    const change =
+      prevTime !== null
+        ? (((currentTime - prevTime) / prevTime) * 100).toFixed(2)
+        : null;
+
     return {
       name: label,
-      time: c.timeTakenMs || 0,
+      time: currentTime,
+      prevTime,
+      change, // % diff from previous
     };
   });
 
@@ -113,37 +129,45 @@ export default function SingleGameAnalyticsPage({ game }) {
           ))}
         </div>
 
-        {/* Reaction Time Chart */}
+        {/* Reaction Time Chart (Toggleable) */}
         <motion.div
-          className="bg-secondary border border-base-300 rounded-xl p-3 sm:p-6"
+          className="bg-secondary border border-base-300 p-3 sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <h2 className="text-lg font-semibold mb-3 text-base-content">
-            ⏱ Reaction Time Per Click
-          </h2>
+          {/* Header + Switch */}
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-base-content">
+              Reaction Time
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setChartType("bar")}
+                className={`btn btn-sm ${
+                  chartType === "bar" ? "btn-primary" : "btn-outline"
+                }`}
+              >
+                Bar
+              </button>
+              <button
+                onClick={() => setChartType("line")}
+                className={`btn btn-sm ${
+                  chartType === "line" ? "btn-primary" : "btn-outline"
+                }`}
+              >
+                Line
+              </button>
+            </div>
+          </div>
+
+          {/* Chart */}
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={reactionTimes}>
-              <XAxis
-                dataKey="name"
-                stroke="#ffffff"
-                fontSize={12}
-                interval={0}
-              />
-              <YAxis stroke="#ffffff" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1e293b", // slate-800
-                  color: "#f1f5f9", // slate-100
-                  border: "1px solid #475569", // slate-600
-                  fontSize: "14px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                }}
-                labelStyle={{ color: "#cbd5e1" }} // slate-300
-              />
-              <Bar dataKey="time" fill="#ffffff" name="Time (ms)" />
-            </BarChart>
+            {chartType === "bar" ? (
+              <BarChartAnalytics reactionTimes={reactionTimes} />
+            ) : (
+              <LineChartAnalytics reactionTimes={reactionTimes} />
+            )}
           </ResponsiveContainer>
         </motion.div>
 
@@ -154,9 +178,7 @@ export default function SingleGameAnalyticsPage({ game }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <h2 className=" text-lg font-semibold mb-3 ">
-            🧠 Cognitive Focus Map
-          </h2>
+          <h2 className=" text-lg font-semibold mb-3 ">Cognitive Focus Map</h2>
           <ResponsiveContainer width="100%" height={400}>
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
               <PolarGrid stroke="#ffffff" />

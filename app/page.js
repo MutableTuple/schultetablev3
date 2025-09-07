@@ -15,17 +15,50 @@ import ClientShell from "./_components/ClientShell";
 
 // ✅ SEO metadata export
 export const metadata = {
-  title: "Schulte Table Online | Reboot your brain in just 30 seconds!",
+  title:
+    "Play Schulte Table Online – Reboot Your Brain in 30s with Interactive Grids & Progress Tracking",
   description:
-    "Train your brain with Schulte Table. Improve your focus, speed reading, and visual attention. Free, fun, and scientifically backed brain exercise!",
+    "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development with progress tracking.",
   keywords: [
-    "Schulte Table",
+    "schulte table",
+    "舒尔特方格",
+    "schulte",
     "brain training",
-    "mental focus",
     "speed reading",
-    "vision training",
-    "focus game",
-    "brain game",
+    "cognitive training",
+    "focus improvement",
+    "concentration exercises",
+    "peripheral vision",
+    "mental training",
+    "attention training",
+    "eye movement training",
+    "schulte table game",
+    "schulte table colour",
+    "schulte-table",
+    "tablica schulte",
+    "schulte tables",
+    "brain game schulte table",
+    "schulte table brain game",
+    "table schulte",
+    "shulte table",
+    "schultetable",
+    "schulte game",
+    "tabla de schulte",
+    "schule table",
+    "schutle table",
+    "the schulte table",
+    "schulte table brain exercise",
+    "schulte grid",
+    "schult table",
+    "shuttle table brain game",
+    "schulte table games",
+    "shult table",
+    "tablas schulte",
+    "tabelul lui schulte",
+    "mesa de schulte",
+    "tablas de schulte",
+    "schultz tables",
+    "brain exercise schulte table",
   ],
   alternates: {
     canonical: "https://www.schultetable.com/",
@@ -35,7 +68,7 @@ export const metadata = {
     description:
       "Train your brain with the classic Schulte Table exercise. Improve attention span and reading speed while having fun.",
     url: "https://www.schultetable.com/",
-    siteName: "SchulteTable.com",
+    siteName: "Play Schulte Table Online",
     images: [
       {
         url: "https://hflzumrbjzkzofgzeyao.supabase.co/storage/v1/object/public/media//Logo.png", // Replace with your actual image

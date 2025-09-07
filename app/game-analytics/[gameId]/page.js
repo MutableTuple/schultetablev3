@@ -1,3 +1,4 @@
+import GetAiOverviewOfThisGame from "@/app/_components/GetAiOverviewOfThisGame";
 import SingleGameAnalyticsPage from "@/app/_components/SingleGameAnalyticsPage";
 import { getGameById } from "@/app/_lib/data-service";
 import { getCurrentUser } from "@/app/_utils/getCurrentUser";
@@ -53,6 +54,8 @@ export default async function Page({ params }) {
   return (
     <div>
       <SingleGameAnalyticsPage game={gameData} />
+      {/* ⚠️! under update */}
+      {/* <GetAiOverviewOfThisGame /> */}
     </div>
   );
 }

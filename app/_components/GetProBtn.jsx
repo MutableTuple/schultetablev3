@@ -70,7 +70,7 @@ export default function GetProBtn() {
           </p>
           <p className="text-[11px] text-gray-400">
             ⏳ {timeLeft} left at this price, then{" "}
-            <span className="font-semibold">$5.99</span>
+            <span className="font-semibold">$5.99 (last chance)</span>
           </p>
         </div>
 

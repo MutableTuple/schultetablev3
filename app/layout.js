@@ -14,9 +14,10 @@ const chakraPetch = Chakra_Petch({
 });
 
 export const metadata = {
-  title: "Schulte Table Online | Reboot your brain in just 30 seconds!",
+  title:
+    "Play Schulte Table Online – Reboot Your Brain in 30s with Interactive Grids & Progress Tracking",
   description:
-    "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development.",
+    "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development with progress tracking.",
   keywords: [
     "schulte table",
     "舒尔特方格",
@@ -75,7 +76,7 @@ export const metadata = {
     description:
       "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training.",
     url: "https://schultetable.com",
-    siteName: "Schulte Table Training",
+    siteName: "Play Schulte Table Online",
     locale: "en_US",
     type: "website",
     images: [
