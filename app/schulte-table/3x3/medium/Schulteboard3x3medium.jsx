@@ -1,8 +1,7 @@
 "use client";
 import RightDrawer from "@/app/_components/RightDrawer";
-import SchulteTable from "@/app/_components/Schultetable-COPY/SchulteTable";
 import React, { useState } from "react";
-
+import SchulteTable from "@/app/_components/Schultetable/SchulteTable";
 export default function Schulteboard3x3medium({ user }) {
   const [gameStarted, setGameStarted] = useState(false);
 
