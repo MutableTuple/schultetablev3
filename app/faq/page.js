@@ -69,7 +69,7 @@ export default function FAQPage() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Schulte Table — Focus Trainer",
-    url: "https://www.schultetable.com/",
+    url: "https://www.schultetable.com/faq",
     description:
       "A fast, free Schulte Table game for improving attention, peripheral awareness, and reading speed. Play in-browser on desktop or mobile; includes timer and scoring.",
     applicationCategory: "Game",

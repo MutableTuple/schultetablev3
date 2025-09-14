@@ -104,9 +104,9 @@ export default function LoginForm() {
                 className="input input-bordered w-full"
               />
             </div>
-            <p className="text-xs text-blue-900 underline text-end">
+            {/* <p className="text-xs text-blue-900 underline text-end">
               <Link href={"/forgot-password"}>forgot password?</Link>
-            </p>
+            </p> */}
             <button
               type="submit"
               className="btn btn-soft btn-primary w-full mt-4"

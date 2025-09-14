@@ -1,0 +1,34 @@
+import React from "react";
+import { FaChartBar } from "react-icons/fa";
+
+export default function BrainProfileBtn({
+  isLoadingLastGame,
+  lastGameId,
+  user,
+}) {
+  return (
+    <button
+      className={`
+        relative inline-flex items-center px-4 py-2 text-sm font-medium text-white
+        bg-gradient-to-r from-blue-600 to-purple-600
+        hover:from-blue-700 hover:to-purple-700
+        rounded-lg shadow-md hover:shadow-lg
+        transition-all duration-200
+        overflow-hidden
+        ${isLoadingLastGame || !lastGameId ? "cursor-pointer" : "cursor-pointer"}
+        before:absolute before:top-0 before:left-[-100%] before:w-full before:h-full
+        before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent
+        before:transition-all before:duration-500 hover:before:left-[100%]
+      `}
+      disabled={isLoadingLastGame || !lastGameId}
+    >
+      <FaChartBar className="mr-2" />
+      See how your brain reacted!
+      {user?.[0] && !user[0].is_pro_user && (
+        <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-amber-500 rounded">
+          PRO
+        </span>
+      )}
+    </button>
+  );
+}

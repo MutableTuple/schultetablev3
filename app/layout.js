@@ -111,7 +111,7 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const { user, error } = await getCurrentUser();
   const isProUser = user?.[0]?.is_pro_user === true;
-  console.log("isProUser", isProUser);
+  // console.log("isProUser", isProUser);
   return (
     <html lang="en" data-theme="">
       <head>

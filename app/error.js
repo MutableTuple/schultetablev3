@@ -6,7 +6,7 @@ export default function ErrorPage({ error }) {
   const router = useRouter();
 
   useEffect(() => {
-    console.error("App Error:", error);
+    // console.error("App Error:", error);
   }, [error]);
 
   // Define friendly messages for specific errors

@@ -7,6 +7,7 @@ export function calculateScore({
   consistencyScore,
 }) {
   const maxScore = 1000;
+
   const difficultyMultiplier =
     {
       Easy: 1,
@@ -16,7 +17,9 @@ export function calculateScore({
       Impossible: 2.5,
     }[difficulty] || 1;
 
-  const timePenalty = Math.min(durationMs / 1000, 600);
+  // Cap time penalty at 120 seconds (2 minutes) for robustness
+  const timePenalty = Math.min(durationMs / 1000, 120);
+
   const mistakePenalty = mistakes * 10;
   const reactionPenalty = avgReactionTimeMs / 10;
   const consistencyPenalty = consistencyScore / 5;
@@ -28,7 +31,10 @@ export function calculateScore({
     reactionPenalty -
     consistencyPenalty;
 
-  const rawScore = base * difficultyMultiplier * (gridSize / 3);
+  // Grid size multiplier logic: normalize around 3x3
+  const gridMultiplier = Math.min(gridSize / 3, 3); // Cap multiplier at x3
 
-  return Math.max(Math.round(rawScore), 0);
+  const rawScore = base * difficultyMultiplier * gridMultiplier;
+
+  return Math.max(Math.round(rawScore), 1); // Ensure minimum score is 1
 }
