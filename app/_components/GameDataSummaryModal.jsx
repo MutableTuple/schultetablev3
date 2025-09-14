@@ -152,22 +152,11 @@ export default function GameDataSummaryModal({
                 <FaCogs className="mr-1" /> Play Next:{" "}
                 {`${nextMode}-${nextGridSize}x${nextGridSize}-${nextDifficulty}`}
               </button>
-              <Link
-                href={
-                  user?.[0]
-                    ? user?.[0].is_pro_user
-                      ? `/game-analytics/${lastGameId}`
-                      : `https://schultetable.lemonsqueezy.com/buy/a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e?checkout[custom][user_id]=${user[0]?.id}`
-                    : "/auth/login"
-                }
-                target="_blank"
-              >
-                <BrainProfileBtn
-                  isLoadingLastGame={isLoadingLastGame}
-                  lastGameId={lastGameId}
-                  user={user}
-                />
-              </Link>
+              <BrainProfileBtn
+                isLoadingLastGame={isLoadingLastGame}
+                lastGameId={lastGameId}
+                user={user}
+              />
             </div>
           </div>
         </div>
