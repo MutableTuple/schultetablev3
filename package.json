@@ -17,6 +17,7 @@
     "daisyui": "^5.0.43",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.18.1",
+    "html2canvas": "^1.4.1",
     "mathjs": "^14.5.2",
     "millify": "^6.1.0",
     "next": "15.3.3",
