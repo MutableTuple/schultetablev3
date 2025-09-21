@@ -26,3 +26,46 @@
   opacity: 0.6;
   pointer-events: none;
 }
+@keyframes gradient-glow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.pro-glow {
+  background: linear-gradient(270deg, #facc15, #f87171, #60a5fa, #a78bfa);
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-glow 6s ease infinite;
+  font-weight: 700;
+}
+@keyframes gold-shimmer {
+  0% {
+    background-position: -200% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.gold-text {
+  background: linear-gradient(
+    90deg,
+    #facc15,
+    /* gold start */ #f59e0b,
+    /* gold middle */ #facc15 /* gold end */
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-shimmer 2.5s linear infinite;
+  font-weight: 600;
+}

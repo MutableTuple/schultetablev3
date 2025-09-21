@@ -7,7 +7,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { formatDistanceToNow, formatDistanceToNowStrict } from "date-fns";
 import { formatMicroTime } from "@/app/_utils/formatMicroTime";
-
+import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { RiPushpinLine } from "react-icons/ri";
+import { TbAlien } from "react-icons/tb";
 export default function ChatBox({ user }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -19,6 +21,7 @@ export default function ChatBox({ user }) {
   const [allUsers, setAllUsers] = useState([]);
   const chatRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const [pinnedMessage, setPinnedMessage] = useState(null);
 
   // Scroll to latest message
   useEffect(() => {
@@ -32,7 +35,8 @@ export default function ChatBox({ user }) {
       ])
     ).values()
   );
-
+  console.log("PINNED MESSAGE", pinnedMessage);
+  console.log(" MESSAGE", messages);
   // Check screen size
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -46,12 +50,23 @@ export default function ChatBox({ user }) {
     const fetchMessages = async () => {
       const { data } = await supabase
         .from("messages")
-        .select("*")
+        .select("*, User:User(is_pro_user)")
         .order("created_at", { ascending: true });
 
       if (data) setMessages(data);
-    };
 
+      // fetch latest pinned message
+      const { data: pinned } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("pinned", true)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (pinned && pinned.length > 0) {
+        setPinnedMessage(pinned[0]);
+      }
+    };
     fetchMessages();
 
     const subscription = supabase
@@ -66,6 +81,21 @@ export default function ChatBox({ user }) {
         (payload) => {
           setMessages((prev) => [...prev, payload.new]);
           setShowTooltip(true);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          if (payload.new.pinned) {
+            setPinnedMessage(payload.new);
+          } else if (pinnedMessage?.id === payload.new.id) {
+            setPinnedMessage(null);
+          }
         }
       )
       .subscribe();
@@ -113,7 +143,7 @@ export default function ChatBox({ user }) {
         >
           {/* Tooltip pill */}
           <AnimatePresence>
-            {latestMessage && showTooltip && (
+            {(pinnedMessage || latestMessage) && showTooltip && (
               <motion.div
                 key="tooltip"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -125,7 +155,7 @@ export default function ChatBox({ user }) {
               >
                 <div className="truncate max-w-[180px] text-sm">
                   <span className="font-bold text-primary">
-                    {latestMessage.username}
+                    {(pinnedMessage || latestMessage).username}
                   </span>
                   {": "}
                   <span className="truncate">{latestMessage.content}</span>
@@ -186,35 +216,103 @@ export default function ChatBox({ user }) {
             </div>
 
             {/* Messages */}
+            {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 text-sm">
-              {messages.map((msg, idx) => {
-                const contentWithMentions = msg.content
-                  .split(/(@\w+)/g)
-                  .map((part, i) =>
-                    part.startsWith("@") ? (
-                      <span key={i} className="text-accent font-semibold">
-                        {part}
-                      </span>
+              {/* Pinned Message at top */}
+              {pinnedMessage && (
+                <div className="sticky top-0 p-3 mb-2 bg-primary/80 backdrop-blur-lg border-l-4 border-accent rounded-md shadow-md z-10">
+                  <div className="flex items-center gap-2">
+                    {pinnedMessage?.is_system_message ? (
+                      <div
+                        className="tooltip tooltip-top"
+                        data-tip="System Message"
+                      >
+                        <span className=" text-green-500 italic font-semibold flex items-center gap-1 px-1 rounded">
+                          {pinnedMessage.username}
+                          <TbAlien className="text-green-500" />:
+                        </span>
+                      </div>
                     ) : (
-                      part
-                    )
-                  );
-
-                return (
-                  <div
-                    key={idx}
-                    className="break-words flex gap-1 items-center"
-                  >
-                    <span className="font-semibold text-primary flex  gap-0.5">
-                      {msg.username}:
-                    </span>{" "}
-                    <span className="text-xs"> {contentWithMentions}</span>
-                    {/* <div className="text-xs opacity-40">
-                      {formatMicroTime(new Date(msg.created_at))}
-                    </div> */}
+                      <span className="text-primary font-semibold">
+                        {pinnedMessage.username}:
+                      </span>
+                    )}
+                    <span className="text-xs">{pinnedMessage.content}</span>
+                    <span className="ml-auto">
+                      <RiPushpinLine />
+                    </span>
                   </div>
-                );
-              })}
+                </div>
+              )}
+
+              {/* Normal Messages */}
+              {messages
+                .filter((msg) => !msg.pinned)
+                .map((msg, idx) => {
+                  const contentWithMentions = msg.content
+                    .split(/(@\w+)/g)
+                    .map((part, i) =>
+                      part.startsWith("@") ? (
+                        <span key={i} className="text-accent font-semibold">
+                          {part}
+                        </span>
+                      ) : (
+                        part
+                      )
+                    );
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`break-words flex gap-1 items-center  ${
+                        msg.is_system_message
+                          ? "border-l-4 border-accent px-1 bg-primary/20 py-1"
+                          : ""
+                      }`}
+                    >
+                      {msg.User?.is_pro_user ? (
+                        <div
+                          className={`tooltip tooltip-top cursor-pointer`}
+                          data-tip={msg.User?.is_pro_user ? "Pro User" : ""}
+                        >
+                          <span className="flex items-center gap-1">
+                            {msg.is_system_message ? (
+                              // System message styling
+                              <>
+                                <span className="text-green-500 italic font-semibold flex items-center gap-1">
+                                  {msg.username}
+                                </span>
+                                <TbAlien className="text-green-500" />
+                              </>
+                            ) : (
+                              // Regular message styling
+                              <>
+                                <span className="gold-text font-semibold flex items-center gap-1">
+                                  {msg.username}
+                                </span>
+                                {msg.User?.is_pro_user && (
+                                  <RiVerifiedBadgeFill className="text-yellow-400" />
+                                )}
+                              </>
+                            )}
+                            :
+                          </span>
+                        </div>
+                      ) : (
+                        <span
+                          className={`cursor-pointer ${
+                            msg.is_system_message
+                              ? "px-1 rounded"
+                              : "text-primary font-semibold"
+                          }`}
+                        >
+                          {msg.username}:
+                        </span>
+                      )}
+                      <span className="text-xs">{contentWithMentions}</span>
+                    </div>
+                  );
+                })}
 
               <div ref={messagesEndRef} />
             </div>
