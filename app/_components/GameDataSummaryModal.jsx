@@ -16,6 +16,7 @@ import { getCurrentUserGameData } from "../_lib/data-service";
 import BrainProfileBtn from "./BrainProfileBtn";
 import { supabase } from "../_lib/supabase";
 import { trackGAEvent } from "../_utils/helper";
+import BrainAgeModalField from "./Modals/BrainAgeModalField";
 
 export default function GameDataSummaryModal({
   gameSummaryData,
@@ -109,9 +110,8 @@ export default function GameDataSummaryModal({
             </div>
 
             <p className="text-center text-base-content mb-6">
-              Here’s a quick performance overview after your game session
+              Here&apos;s a quick performance overview after your game session
             </p>
-
             {/* GRID STATS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="stat bg-base-200 rounded-lg p-4 text-center shadow">
@@ -119,13 +119,11 @@ export default function GameDataSummaryModal({
                 <div className="stat-value text-primary">{score}</div>
                 <div className="stat-desc truncate">Speed & accuracy</div>
               </div>
-
               <div className="stat bg-base-200 rounded-lg p-4 text-center shadow">
                 <div className="stat-title">Accuracy</div>
                 <div className="stat-value text-success">{accuracy}%</div>
                 <div className="stat-desc truncate">Mistakes: {mistakes}</div>
               </div>
-
               <div className="stat bg-base-200 rounded-lg p-4 text-center shadow">
                 <div className="stat-title">Time Taken</div>
                 <div className="stat-value text-warning">{timeTakenSec} s</div>
@@ -133,14 +131,14 @@ export default function GameDataSummaryModal({
                   Grid: {gridSize}x{gridSize}
                 </div>
               </div>
-
               <div className="stat bg-base-200 rounded-lg p-4 text-center shadow">
                 <div className="stat-title">Difficulty</div>
                 <div className="stat-value text-error">{difficulty}</div>
                 <div className="stat-desc truncate">Game level</div>
               </div>
-
-              {rankData && (
+              <BrainAgeModalField gameId={lastGameId} user={user} />
+              {/* PRO FIELDS REMOVED FOR NOEW */}
+              {/* {rankData && (
                 <>
                   <div className="stat bg-base-200 rounded-lg p-4 text-center shadow">
                     <div className="stat-title">Accuracy Percentile</div>
@@ -172,11 +170,13 @@ export default function GameDataSummaryModal({
                     </div>
                   </div>
                 </>
-              )}
+              )} */}
+              {/*  */}
+              {/* ONLY PRO FIELDS */}
             </div>
 
             {/* SHARE BUTTONS */}
-            <div className="flex gap-2 justify-center py-3">
+            <div className="flex gap-2 justify-center py-3 mt-2">
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`}
                 target="_blank"

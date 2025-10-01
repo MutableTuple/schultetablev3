@@ -21,7 +21,7 @@ export default function BarChartAnalytics({ reactionTimes }) {
               return (
                 <div className="p-2 bg-slate-800 border border-slate-600 rounded text-slate-100 text-sm">
                   <p className="font-semibold">{label}</p>
-                  <p>Time: {time} ms</p>
+                  <p>Time: {time} s</p>
                   {change !== null && (
                     <p>
                       Change:{" "}
@@ -43,7 +43,7 @@ export default function BarChartAnalytics({ reactionTimes }) {
         <Bar
           dataKey="time"
           fill="#ffffff"
-          name="Time (ms)"
+          name="Time (s)"
           radius={[0, 0, 0, 0]} // perfect corners
         />
       </BarChart>

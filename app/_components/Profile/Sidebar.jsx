@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { HiMenu, HiHome, HiUser, HiCog } from "react-icons/hi";
 import { IoMdColorPalette } from "react-icons/io";
 import { VscGraph } from "react-icons/vsc";
+import { MdOutlineAnalytics } from "react-icons/md";
 export default function Sidebar() {
   const pathname = usePathname();
 
@@ -16,6 +17,12 @@ export default function Sidebar() {
       icon: VscGraph,
       link: "/my-profile/analytics",
     },
+    {
+      id: 5,
+      label: "Pro Analytics",
+      icon: MdOutlineAnalytics,
+      link: "/my-profile/pro-analytics",
+    },
     { id: 3, label: "All Games", icon: HiUser, link: "/my-profile/my-games" },
     {
       id: 4,
@@ -23,8 +30,9 @@ export default function Sidebar() {
       icon: IoMdColorPalette,
       link: "/my-profile/personalize",
     },
+
     {
-      id: 5,
+      id: 6,
       label: "Security & Passwords",
       icon: HiCog,
       link: "/my-profile/security",

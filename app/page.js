@@ -15,49 +15,17 @@ import ClientShell from "./_components/ClientShell";
 
 // ✅ SEO metadata export
 export const metadata = {
-  title: "Play Schulte Table Online – Improve Focus & Track Your Progress",
+  title: "Free Schulte Table Online: Boost Your Focus & Track Progress",
   description:
-    "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development with progress tracking.",
+    "Train your brain with our free online Schulte Table game. Improve speed reading, focus, and peripheral vision with a scientifically proven method. Start your training and track your progress today!",
   keywords: [
     "schulte table",
-    "舒尔特方格",
-    "schulte",
-    "brain training",
-    "speed reading",
-    "cognitive training",
-    "focus improvement",
-    "concentration exercises",
-    "peripheral vision",
-    "mental training",
-    "attention training",
-    "eye movement training",
-    "schulte table game",
-    "schulte table colour",
-    "schulte-table",
-    "tablica schulte",
-    "schulte tables",
-    "brain game schulte table",
-    "schulte table brain game",
-    "table schulte",
-    "shulte table",
+    "schulte table online",
+    "brain training game",
     "schultetable",
-    "schulte game",
-    "tabla de schulte",
-    "schule table",
-    "schutle table",
-    "the schulte table",
-    "schulte table brain exercise",
-    "schulte grid",
-    "schult table",
-    "shuttle table brain game",
-    "schulte table games",
-    "shult table",
-    "tablas schulte",
-    "tabelul lui schulte",
-    "mesa de schulte",
-    "tablas de schulte",
-    "schultz tables",
-    "brain exercise schulte table",
+    "speed reading",
+    "concentration exercises",
+    "peripheral vision training",
   ],
   alternates: {
     canonical: "https://www.schultetable.com/",
@@ -140,7 +108,7 @@ const jsonLd = [
     interactionStatistic: {
       "@type": "InteractionCounter",
       interactionType: "https://schema.org/PlayAction",
-      userInteractionCount: 1000000, // Optional: approximate plays/users
+      userInteractionCount: 45000, // Optional: approximate plays/users
     },
     publisher: {
       "@type": "Organization",
@@ -171,15 +139,6 @@ export default async function Home() {
         reading abilities.
       </p>
       <HomeMain user={user} error={error} />
-      {/* <ChatBox user={user} />
-      <WhatsNewModal isLoggedIn={!!user} />
-      <GameLoginPrompt />
-      <ThemeChangerHotkey user={user} />
-      <MissionButton />
-      <ShowProLoggedInModals user={user} />
-      <ShinyGoProButton
-        isProUser={Array.isArray(user) && user[0]?.is_pro_user}
-      /> */}
       <ClientShell user={user} />
     </>
   );
