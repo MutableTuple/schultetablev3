@@ -5,13 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IoIosPaper } from "react-icons/io";
 import { MdLightbulbOutline } from "react-icons/md";
 
-import {
-  MdMenu,
-  MdClose,
-  MdLeaderboard,
-  MdArticle,
-  MdHome,
-} from "react-icons/md";
+import { MdMenu, MdClose } from "react-icons/md";
 import { FaRegCircleQuestion, FaXTwitter } from "react-icons/fa6";
 export default function FloatingMenu() {
   const [open, setOpen] = useState(false);

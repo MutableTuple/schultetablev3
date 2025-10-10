@@ -5,7 +5,7 @@ import StartBtn from "../StartBtn";
 import GameTimer from "../GameTimer";
 import UserIcon from "../UserIcon";
 import { supabase } from "../../_lib/supabase";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { calculateScore } from "./scoreUtils";
 import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
@@ -456,6 +456,7 @@ export default function SchulteTable({
             setDifficulty={setDifficulty}
             user={user}
             setMode={setMode}
+            current_game_mode={mode}
             onGoHome={() => {
               setShowLargeScreenSummaryModal(false);
               window.location.href = "/";

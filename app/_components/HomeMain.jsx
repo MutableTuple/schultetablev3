@@ -23,8 +23,7 @@ const UserAvatar = dynamic(() => import("./UserAvatar"), { ssr: false });
 const GoToLeaderboard = dynamic(() => import("./GoToLeaderboard"), {
   ssr: false,
 });
-const FloatingMenu = dynamic(() => import("./FloatingMenu"), { ssr: false });
-// const PWAInstallButton = dynamic(() => import("./PWAInstallButton"), { ssr: false });
+
 import { getRandomGameSettings } from "../_utils/randomGameSettings";
 
 export default function HomeMain({ user, error }) {
@@ -70,8 +69,6 @@ export default function HomeMain({ user, error }) {
             />
           </svg>
         </label>
-
-        <FloatingMenu />
 
         {/* ✅ Lazy loaded with spinner */}
         <SchulteTable

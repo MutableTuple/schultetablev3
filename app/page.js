@@ -1,17 +1,7 @@
 // app/page.js
-import Image from "next/image";
 import { getCurrentUser } from "./_utils/getCurrentUser";
-import { getMissionByID } from "./_lib/data-service";
 import HomeMain from "./_components/HomeMain";
 import ClientShell from "./_components/ClientShell";
-
-// import WhatsNewModal from "./_components/WhatsNewModal";
-// import GameLoginPrompt from "./_components/Modals/GameLoginPrompt.jsx";
-// import ThemeChangerHotkey from "./_components/ThemeChangerHotkey";
-// import MissionButton from "./_components/MissionButton";
-// import ShowProLoggedInModals from "./_components/Modals/ShowProLoggedInModals";
-// import ShinyGoProButton from "./_components/ShinyGoProButton";
-// import ChatBox from "./_components/Chat/ChatBox";
 
 // ✅ SEO metadata export
 export const metadata = {
@@ -108,7 +98,7 @@ const jsonLd = [
     interactionStatistic: {
       "@type": "InteractionCounter",
       interactionType: "https://schema.org/PlayAction",
-      userInteractionCount: 45000, // Optional: approximate plays/users
+      userInteractionCount: 45000,
     },
     publisher: {
       "@type": "Organization",
@@ -120,13 +110,12 @@ const jsonLd = [
 
 export default async function Home() {
   const { user, error } = await getCurrentUser();
-  const mission = await getMissionByID("7113a0c2-ce6d-4896-8260-9ca759bb512c");
 
   return (
     <>
       {/* ✅ SEO-friendly screen reader tags */}
       <h1 className="sr-only">
-        Schulte Table – Train Focus, Reading Speed & Peripheral Vision
+        Schulte Table – Train Focus, Speed Reading & Peripheral Vision
       </h1>
       {/* JSON-LD structured data */}
       <script

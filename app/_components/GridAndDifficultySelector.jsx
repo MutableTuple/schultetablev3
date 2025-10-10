@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { BsGrid1X2Fill } from "react-icons/bs";
 
@@ -15,15 +16,12 @@ export default function GridAndDifficultySelector({
   const panelRef = useRef();
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsLargeScreen(window.innerWidth >= 768);
-    };
+    const handleResize = () => setIsLargeScreen(window.innerWidth >= 768);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (panelRef.current && !panelRef.current.contains(event.target)) {
@@ -49,7 +47,7 @@ export default function GridAndDifficultySelector({
       {!gameStarted && (
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className="fixed top-20 left-4 z-50 btn btn-circle btn-sm  border border-base-300 shadow-md  btn-primary  transition  tooltip tooltip-right hover:scale-105 "
+          className="fixed top-20 left-4 z-50 btn btn-circle btn-sm border border-base-300 shadow-md btn-primary transition hover:scale-105 tooltip tooltip-right"
           data-tip={"Change grid, difficulty & mode"}
         >
           <BsGrid1X2Fill size={16} />
@@ -65,56 +63,81 @@ export default function GridAndDifficultySelector({
             : "opacity-100 scale-100"
         }`}
       >
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-xs font-semibold">Grid</span>
+        {/* Grid Size Dropdown */}
+        <div className="dropdown dropdown-hover">
+          <label tabIndex={0} className="btn btn-sm btn-outline rounded-full">
+            Grid: <span className="ml-2 font-semibold">{gridSize}</span>
           </label>
-          <select
-            className="select select-bordered select-sm rounded-full"
-            value={gridSize}
-            onChange={(e) => setGridSize(Number(e.target.value))}
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40"
           >
             {gridOptions.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
+              <li key={size}>
+                <button
+                  onClick={() => setGridSize(size)}
+                  className={`${
+                    gridSize === size ? "active font-bold" : ""
+                  } capitalize`}
+                >
+                  {size} × {size}
+                </button>
+              </li>
             ))}
-          </select>
+          </ul>
         </div>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-xs font-semibold">Difficulty</span>
+        {/* Difficulty Dropdown */}
+        <div className="dropdown dropdown-hover">
+          <label tabIndex={0} className="btn btn-sm btn-outline rounded-full">
+            Difficulty: <span className="ml-2 font-semibold">{difficulty}</span>
           </label>
-          <select
-            className="select select-bordered select-sm rounded-full"
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44"
           >
-            <option>Easy</option>
-            <option>Medium</option>
-            <option>Hard</option>
-            <option>Extreme</option>
-            <option>Impossible</option>
-          </select>
+            {["Easy", "Medium", "Hard", "Extreme", "Impossible"].map((diff) => (
+              <li key={diff}>
+                <button
+                  onClick={() => setDifficulty(diff)}
+                  className={difficulty === diff ? "active font-bold" : ""}
+                >
+                  {diff}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold mb-1">Game Mode</label>
-          <select
-            className="select select-bordered select-sm rounded-full"
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-            disabled={gameStarted}
+        {/* Mode Dropdown */}
+        <div className="dropdown dropdown-hover">
+          <label tabIndex={0} className="btn btn-sm btn-outline rounded-full">
+            Mode: <span className="ml-2 font-semibold capitalize">{mode}</span>
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
           >
-            <option value="number">Number Schulte</option>
-            <option value="word">Word Schulte</option>
+            <li>
+              <button onClick={() => setMode("number")}>Number Schulte</button>
+            </li>
+            <li>
+              <button onClick={() => setMode("word")}>Word Schulte</button>
+            </li>
             {gridSize <= 5 && (
-              <option value="alphabet">Alphabet Schulte</option>
+              <li>
+                <button onClick={() => setMode("alphabet")}>
+                  Alphabet Schulte
+                </button>
+              </li>
             )}
-            <option value="emoji">Emoji Schulte</option>
-            <option value="maths">Maths Schulte</option>
-          </select>
+            <li>
+              <button onClick={() => setMode("emoji")}>Emoji Schulte</button>
+            </li>
+            <li>
+              <button onClick={() => setMode("maths")}>Maths Schulte</button>
+            </li>
+          </ul>
         </div>
       </div>
     </>

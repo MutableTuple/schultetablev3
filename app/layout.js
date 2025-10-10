@@ -1,7 +1,7 @@
 import { Chakra_Petch } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import GlobalGameListener from "./_components/GlobalGameListener";
+
 import { Toaster } from "react-hot-toast";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { getCurrentUser } from "./_utils/getCurrentUser";
