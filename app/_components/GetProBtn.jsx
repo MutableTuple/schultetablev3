@@ -66,11 +66,10 @@ export default function GetProBtn() {
         <div className="relative z-20 flex flex-col items-center gap-1 text-xs text-center">
           <p className="flex items-center gap-1 text-sm">
             <span>👑 Get Pro at just</span>
-            <span className="text-warning font-bold">$3.99/lifetime</span>
+            <span className="text-warning font-bold">$19.99/lifetime</span>
           </p>
           <p className="text-[11px] text-gray-400">
-            ⏳ {timeLeft} left at this price, then{" "}
-            <span className="font-semibold">$5.99 (last chance)</span>
+            Unlock this exclusive deal for the first 100 people only.
           </p>
         </div>
 
