@@ -64,12 +64,14 @@ export default function GetProBtn() {
 
         {/* Button content */}
         <div className="relative z-20 flex flex-col items-center gap-1 text-xs text-center">
-          <p className="flex items-center gap-1 text-sm">
-            <span>👑 Get Pro at just</span>
-            <span className="text-warning font-bold">$19.99/lifetime</span>
+          <p className="flex items-center gap-1 text-xs">
+            <span>Get detailed analytics</span>
+            <span className="text-warning font-bold text-xs">
+              $19.99/lifetime
+            </span>
           </p>
           <p className="text-[11px] text-gray-400">
-            Unlock this exclusive deal for the first 100 people only.
+            Unlock monthly brain reports and detailed game analytics.
           </p>
         </div>
 
