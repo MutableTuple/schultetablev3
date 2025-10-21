@@ -47,7 +47,7 @@ export default function GridAndDifficultySelector({
       {!gameStarted && (
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className="fixed top-20 left-4 z-50 btn btn-circle btn-sm border border-base-300 shadow-md btn-primary transition hover:scale-105 tooltip tooltip-right"
+          className="fixed top-44 left-4 z-50 btn btn-circle btn-sm border border-base-300 shadow-md btn-primary transition hover:scale-105 tooltip tooltip-right"
           data-tip={"Change grid, difficulty & mode"}
         >
           <BsGrid1X2Fill size={16} />

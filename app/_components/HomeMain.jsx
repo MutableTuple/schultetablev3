@@ -24,6 +24,10 @@ const GoToLeaderboard = dynamic(() => import("./GoToLeaderboard"), {
   ssr: false,
 });
 
+const AnalyticsBtn = dynamic(() => import("./AnalyticsBtn"), {
+  ssr: false,
+});
+
 import { getRandomGameSettings } from "../_utils/randomGameSettings";
 
 export default function HomeMain({ user, error }) {
@@ -47,6 +51,7 @@ export default function HomeMain({ user, error }) {
       />
 
       <GoToLeaderboard />
+      <AnalyticsBtn />
       <UserAvatar user={user} />
 
       <div className="drawer-content relative p-4 flex items-center justify-center min-h-screen overflow-auto">
