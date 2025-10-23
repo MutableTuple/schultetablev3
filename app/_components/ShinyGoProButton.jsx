@@ -243,7 +243,7 @@ export default function ShinyGoProButton({ isProUser }) {
                         }}
                         transition={{ duration: 2, repeat: Infinity }}
                       >
-                        $3.99
+                        $4.99
                       </motion.span>
                     </div>
                     <p className="text-xs text-green-500 font-semibold">
