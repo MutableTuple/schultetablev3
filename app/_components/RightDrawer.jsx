@@ -30,7 +30,6 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
     return () =>
       window.removeEventListener("game-finished", handleGameFinished);
   }, [user]);
-
   return (
     <div className="bg-base-200 text-base-content min-h-full w-80 p-4 flex flex-col z-50 relative">
       {/* ✕ Close Button for Mobile */}
@@ -97,9 +96,20 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
         </Link>
       )} */}
       {/* Always at the bottom */}
-      <div className="mt-auto pt-4">
-        <GetProBtn />
-      </div>
+      {user && user[0] ? (
+        user[0].is_pro_user ? (
+          ""
+        ) : (
+          <div className="mt-auto pt-4">
+            <GetProBtn />
+          </div>
+        )
+      ) : (
+        // If user is not logged in at all
+        <div className="mt-auto pt-4">
+          <GetProBtn />
+        </div>
+      )}
     </div>
   );
 }

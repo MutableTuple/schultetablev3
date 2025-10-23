@@ -67,7 +67,7 @@ export default function GetProBtn() {
           <p className="flex items-center gap-1 text-xs">
             <span>Get detailed analytics</span>
             <span className="text-warning font-bold text-xs">
-              $19.99/lifetime
+              $4.99/lifetime
             </span>
           </p>
           <p className="text-[11px] text-gray-400">

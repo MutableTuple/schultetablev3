@@ -30,9 +30,11 @@ export const metadata = {
 };
 
 export default async function page() {
+  const { user, error } = await getCurrentUser();
+
   return (
     <div>
-      <GlobalLeaderboard />
+      <GlobalLeaderboard user={user} />
     </div>
   );
 }

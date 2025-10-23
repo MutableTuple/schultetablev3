@@ -6,12 +6,13 @@ import BackButton from "../BackButton";
 import Link from "next/link";
 import StatisticsGlobal from "../StatisticsGlobal";
 import { FaSquareXTwitter } from "react-icons/fa6";
+import UpgradeToProOnLeaderboardButton from "./UpgradeToProOnLeaderboardButton";
 
 const difficulties = ["Easy", "Medium", "Hard"];
 const gridSizes = [3, 4, 5];
 const gameModes = ["number", "word", "alphabet", "emoji"];
 
-export default function GlobalLeaderboard() {
+export default function GlobalLeaderboard({ user }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [gridSize, setGridSize] = useState("");
@@ -48,52 +49,92 @@ export default function GlobalLeaderboard() {
       <h1 className="text-3xl sm:text-4xl font-bold text-center">
         🏆 Global Leaderboard
       </h1>
-
       {/* Filters */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-        <select
-          className="select select-sm select-bordered rounded-lg focus:outline-none"
-          value={gridSize}
-          onChange={(e) => setGridSize(e.target.value)}
-        >
-          <option value="">All Grid Sizes</option>
-          {gridSizes.map((size) => (
-            <option key={size} value={size}>
-              {size}×{size}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap sm:flex-nowrap justify-center items-center gap-2 sm:gap-3 w-full px-2">
+        {/* Grid Size Dropdown */}
+        <div className="dropdown">
+          <label
+            tabIndex={0}
+            className="btn btn-sm btn-outline w-full sm:w-auto"
+          >
+            {gridSize ? `${gridSize}×${gridSize}` : "All Grid Sizes"}
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40"
+          >
+            <li>
+              <button onClick={() => setGridSize("")}>All Grid Sizes</button>
+            </li>
+            {gridSizes.map((size) => (
+              <li key={size}>
+                <button onClick={() => setGridSize(size)}>
+                  {size}×{size}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <select
-          className="select select-sm select-bordered rounded-lg focus:outline-none"
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-        >
-          <option value="">All Difficulties</option>
-          {difficulties.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
+        {/* Difficulty Dropdown */}
+        <div className="dropdown">
+          <label
+            tabIndex={0}
+            className="btn btn-sm btn-outline w-full sm:w-auto"
+          >
+            {difficulty || "All Difficulties"}
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40"
+          >
+            <li>
+              <button onClick={() => setDifficulty("")}>
+                All Difficulties
+              </button>
+            </li>
+            {difficulties.map((d) => (
+              <li key={d}>
+                <button onClick={() => setDifficulty(d)}>{d}</button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <select
-          className="select select-sm select-bordered rounded-lg focus:outline-none"
-          value={gameMode}
-          onChange={(e) => setGameMode(e.target.value)}
-        >
-          <option value="">All Modes</option>
-          {gameModes.map((mode) => (
-            <option key={mode} value={mode}>
-              {mode}
-            </option>
-          ))}
-        </select>
+        {/* Game Mode Dropdown */}
+        <div className="dropdown">
+          <label
+            tabIndex={0}
+            className="btn btn-sm btn-outline w-full sm:w-auto"
+          >
+            {gameMode || "All Modes"}
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40"
+          >
+            <li>
+              <button onClick={() => setGameMode("")}>All Modes</button>
+            </li>
+            {gameModes.map((mode) => (
+              <li key={mode}>
+                <button onClick={() => setGameMode(mode)}>{mode}</button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
+      {!(user && user[0]?.is_pro_user) && (
+        <div className="mt-auto pt-4">
+          <UpgradeToProOnLeaderboardButton />
+        </div>
+      )}
 
       {/* Leaderboard */}
       {loading ? (
-        <div className="text-center">Loading...</div>
+        <div className="text-center">
+          <span className="loading loading-spinner loading-xs"></span>
+        </div>
       ) : players.length === 0 ? (
         <div className="text-center text-base-content/70">
           No players found for selected filters.
@@ -112,7 +153,6 @@ export default function GlobalLeaderboard() {
                   : rank === 3
                     ? "border-orange-400"
                     : "border-base-300";
-
             return (
               <li
                 key={player.user_id || index}
@@ -168,7 +208,6 @@ export default function GlobalLeaderboard() {
           })}
         </ul>
       )}
-
       {/* Pagination */}
       {players.length === limit && (
         <div className="join flex justify-center pt-4">
