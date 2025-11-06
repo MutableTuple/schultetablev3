@@ -19,7 +19,7 @@ export default function StatisticsGlobal() {
     const fetchStats = async () => {
       const { data, error } = await supabase.rpc("get_global_game_stats");
       if (error) {
-        console.error("Error fetching global stats:", error);
+        // console.error("Error fetching global stats:", error);
       } else {
         setStats(data);
       }

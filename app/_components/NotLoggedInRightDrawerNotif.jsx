@@ -1,42 +1,48 @@
 import Link from "next/link";
 import React from "react";
+import {
+  FiTrendingUp,
+  FiClock,
+  FiBarChart2,
+  FiLayers,
+  FiAward,
+  FiTarget,
+} from "react-icons/fi";
 
 export default function NotLoggedInRightDrawerNotif() {
-  return (
-    <div className="flex flex-col items-center justify-center text-center bg-base-300/80 border border-base-300  rounded-md px-4 py-6 w-full">
-      <p className="font-semibold text-base mb-3">
-        Sign in to see your personalized stats
-      </p>
+  const features = [
+    { icon: FiTrendingUp, text: "Track your progress" },
+    { icon: FiClock, text: "View past performance" },
+    { icon: FiTarget, text: "Unlock insights" },
+    { icon: FiBarChart2, text: "Advanced data & analytics" },
+    { icon: FiAward, text: "Compete on leaderboard" },
+    { icon: FiLayers, text: "Personalized coaching tips" },
+  ];
 
-      <ul className="space-y-2 text-sm text-gray-600">
-        {[
-          "Track your progress",
-          "View past performance",
-          "Get insights",
-          "See advanced data & graphs",
-          "Get on the leaderboard",
-          "& much more to fit here",
-        ].map((text, idx) => (
-          <li key={idx} className="flex items-center justify-center gap-2">
-            <svg
-              className="w-4 h-4 text-green-500"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
+  return (
+    <div className="w-full rounded-xl border border-base-200 bg-base-200/80 p-6 backdrop-blur-sm">
+      <h2 className="text-lg font-semibold text-base-content mb-4">
+        Sign in to unlock your stats
+      </h2>
+
+      <ul className="space-y-3 text-sm text-base-content/80">
+        {features.map(({ icon: Icon, text }, idx) => (
+          <li key={idx} className="flex items-center gap-3">
+            <Icon className="w-4 h-4 text-primary" />
             <span>{text}</span>
           </li>
         ))}
       </ul>
 
-      <Link href="/auth/login">
-        <span className="btn btn-sm btn-primary mt-4">Sign In</span>
+      <Link href="/auth/login" className="block">
+        <button className="btn btn-primary btn-sm w-full mt-5 shadow-sm hover:shadow-md transition-all">
+          Sign In
+        </button>
       </Link>
+
+      <p className="text-[11px] opacity-60 mt-3 text-center">
+        No account? It takes less than 10 seconds.
+      </p>
     </div>
   );
 }

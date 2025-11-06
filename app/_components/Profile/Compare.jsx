@@ -14,7 +14,6 @@ export default function Compare({ user }) {
   const [loadingSummaries, setLoadingSummaries] = useState(false);
   let validAccuracyCount = 0;
   // 1. Check if current user is Pro
-  console.log("<USDS", user);
   useEffect(() => {
     const checkProStatus = async () => {
       const { data, error } = await supabase
@@ -25,7 +24,7 @@ export default function Compare({ user }) {
 
       if (error) {
         toast.error("Error checking Pro status");
-        console.error(error);
+        // console.error(error);
       }
 
       setProUser(data?.is_pro_user || false);
@@ -159,7 +158,6 @@ export default function Compare({ user }) {
             ? (total.mistakes / total.count).toFixed(2)
             : "—",
         };
-        console.log(avg);
 
         return {
           latest: latest.game_summary,

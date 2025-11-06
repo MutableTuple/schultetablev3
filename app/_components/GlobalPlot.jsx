@@ -22,7 +22,7 @@ export default function GlobalPlot({ userId }) {
         .select("user_id, game_summary->>accuracy as accuracy");
 
       if (error) {
-        console.error("Error fetching game data:", error);
+        // console.error("Error fetching game data:", error);
       } else {
         setGames(
           data.map((g) => ({

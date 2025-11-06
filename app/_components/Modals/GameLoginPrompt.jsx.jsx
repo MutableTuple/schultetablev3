@@ -19,7 +19,7 @@ export default function GameLoginPrompt({ isLoggedIn = false }) {
         const allUsers = await getAllUsers();
         setUsers(allUsers);
       } catch (err) {
-        console.error("Failed to fetch users:", err);
+        // console.error("Failed to fetch users:", err);
       }
     };
 

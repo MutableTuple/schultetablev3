@@ -26,7 +26,6 @@ export default function SmallScreenDetailsModal({
   const setting = getRandomGameSettings();
   const isPro = user?.[0]?.is_pro_user;
   const userId = user?.[0]?.id;
-  // console.log("GSD", gameSummaryData);
   const currentTimeInSec = gameSummaryData.durationMs / 1000;
   const percentageOfBest =
     fastestTimeInSec && fastestTimeInSec > 0

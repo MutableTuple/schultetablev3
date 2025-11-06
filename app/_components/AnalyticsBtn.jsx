@@ -16,7 +16,7 @@ export default function AnalyticsBtn() {
     <div className="fixed top-20 left-4 z-30">
       <div className="relative group">
         {/* Tooltip */}
-        <div
+        {/* <div
           className={`absolute left-12 top-1/2 -translate-y-1/2 bg-secondary  text-sm px-3 py-1 rounded-lg shadow-md flex items-center gap-2 whitespace-nowrap
             ${dismissed ? "opacity-0 group-hover:opacity-100 transition-opacity" : "opacity-100"}`}
         >
@@ -29,7 +29,7 @@ export default function AnalyticsBtn() {
               <IoClose size={16} />
             </button>
           )}
-        </div>
+        </div> */}
 
         {/* Analytics button */}
         <Link href="/my-profile/analytics" passHref>

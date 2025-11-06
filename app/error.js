@@ -5,10 +5,6 @@ import { FaExclamationCircle } from "react-icons/fa";
 export default function ErrorPage({ error }) {
   const router = useRouter();
 
-  useEffect(() => {
-    // console.error("App Error:", error);
-  }, [error]);
-
   // Define friendly messages for specific errors
   const getFriendlyMessage = (message) => {
     if (!message) return "Something went wrong. Please try again.";

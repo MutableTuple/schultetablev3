@@ -125,7 +125,6 @@ export async function Login(formData) {
       await setSession(data.session);
     }
 
-    console.log("LOGIN SUCCESS", data);
     return { user: data.user, session: data.session };
   } catch (err) {
     console.error("Unexpected login error:", err);

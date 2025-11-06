@@ -57,7 +57,7 @@ export default function GlobalGameListener() {
               rankText = ` (Rank: #${rank})`;
             }
           } catch (err) {
-            console.error("Rank fetch failed:", err);
+            // console.error("Rank fetch failed:", err);
           }
 
           toast.success(

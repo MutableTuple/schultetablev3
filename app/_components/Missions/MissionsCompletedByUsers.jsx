@@ -28,7 +28,7 @@ export default function MissionsCompletedByUsers({
         .lte("created_at", missionEnd);
 
       if (error) {
-        console.error("Error fetching game stats:", error.message);
+        // console.error("Error fetching game stats:", error.message);
         setLoading(false);
         return;
       }

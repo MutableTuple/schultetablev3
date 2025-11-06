@@ -34,7 +34,6 @@ export async function getStatsofUser(user_id) {
     return [];
   }
 
-  console.log("✅ Data fetched:", data);
   return data;
 }
 
@@ -56,7 +55,6 @@ export async function fetchUserFromDB(id) {
   const { data, error } = await supabase.from("User").select("*").eq("id", id);
 
   if (error) console.error("cant fetch user for some reason", error);
-  console.log("Data", data);
   return data;
 }
 
@@ -99,7 +97,6 @@ export async function getFastestTimeForGame(gridSize, difficulty) {
     .gt("time_taken", 0); // no sort or limit
 
   if (error) {
-    console.log("Error fetching times:", error);
     return null;
   }
 
@@ -128,7 +125,6 @@ export async function getGamePlayedTimes(gridSize, difficulty) {
     .gt("time_taken", 0);
 
   if (error) {
-    console.log("Error fetching game played times count:", error);
     return null;
   }
 
@@ -147,7 +143,6 @@ export async function getOverallStats() {
     .gte("created_at", twentyFourHoursAgo);
 
   if (error) {
-    console.log("Error fetching overall stats:", error);
     return null;
   }
 
@@ -299,7 +294,6 @@ export async function checkAndUpdateUserMissions(userId) {
                 is_completed: completed,
               },
             ]);
-            console.log("🔄 Inserted new user_mission participation");
 
             if (completed) {
               showMissionCompletedToast({

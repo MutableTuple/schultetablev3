@@ -63,7 +63,7 @@ export default function FatigueConsistencyStat({ user }) {
 
         setGameData(avgPerGame);
       } catch (err) {
-        console.error("Fetch error:", err);
+        // console.error("Fetch error:", err);
         setError("Unable to fetch game data.");
       } finally {
         setLoading(false);

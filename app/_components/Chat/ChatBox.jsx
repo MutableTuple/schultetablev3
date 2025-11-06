@@ -35,8 +35,7 @@ export default function ChatBox({ user }) {
       ])
     ).values()
   );
-  console.log("PINNED MESSAGE", pinnedMessage);
-  console.log(" MESSAGE", messages);
+
   // Check screen size
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);

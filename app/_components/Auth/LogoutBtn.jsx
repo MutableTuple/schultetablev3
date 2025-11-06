@@ -14,7 +14,7 @@ export default function LogoutBtn() {
       toast.success("Logged out");
       router.refresh(); // or use router.push("/login")
     } catch (err) {
-      console.error("Logout failed:", err);
+      // console.error("Logout failed:", err);
       toast.error("Something went wrong");
     }
   };

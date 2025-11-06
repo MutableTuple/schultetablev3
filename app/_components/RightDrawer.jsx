@@ -16,7 +16,6 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
         const data = await getCurrentUserGameData(user[0].id);
         setUserData(data || null); // null if no data returned
 
-        console.log("GMAE DTA", data);
       }
     };
 

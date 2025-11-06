@@ -52,7 +52,6 @@ export default function ProfileInformation({ user }) {
 
     if (error) {
       toast.error("Failed to save profile");
-      console.error(error);
     } else {
       toast.success("Profile updated successfully!");
     }

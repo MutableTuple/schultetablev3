@@ -44,7 +44,7 @@ export default function UserIcon({ gridSize, difficulty, mode, user }) {
         setError(null);
       }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       setError("Error fetching user");
     } finally {
       setLoading(false);

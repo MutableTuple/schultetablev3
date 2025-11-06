@@ -45,7 +45,7 @@ export default function AccuracySpeedScatter({ user }) {
 
         setClickData(allClicks);
       } catch (err) {
-        console.error(err);
+        // console.error(err);
         setError("Unable to fetch click data.");
       } finally {
         setLoading(false);

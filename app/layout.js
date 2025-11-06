@@ -111,9 +111,8 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const { user, error } = await getCurrentUser();
   const isProUser = user?.[0]?.is_pro_user === true;
-  // console.log("isProUser", isProUser);
   return (
-    <html lang="en" data-theme="">
+    <html lang="en" data-theme="dark">
       <head>
         <GoogleAnalytics gaId="G-66EJ7VMS98" />
         {/* {!isProUser && (

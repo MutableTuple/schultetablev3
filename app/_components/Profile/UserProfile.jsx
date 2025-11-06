@@ -21,8 +21,6 @@ const UserProfile = ({ user }) => {
       ]);
 
       if (statsError || rankError) {
-        console.error("Stats error:", statsError);
-        console.error("Rank error:", rankError);
       } else {
         setStats({ ...statData[0], rank: rankData[0].rank });
       }

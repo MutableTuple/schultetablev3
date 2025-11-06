@@ -29,7 +29,7 @@ export default function LoginForm() {
 
     setSuccess("Login successful! Redirecting...");
     setTimeout(() => {
-      router.push("/");
+      router.push("/my-profile");
     }, 1000);
   }
 

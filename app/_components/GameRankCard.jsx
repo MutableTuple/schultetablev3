@@ -42,7 +42,6 @@ export default function GameRankCard({
           }
           return;
         } catch (err) {
-          //   console.error(`RPC call attempt ${attempt + 1} failed:`, err);
           attempt += 1;
           if (attempt > maxRetries && !isCancelled) {
             setErrorMsg("Failed to fetch rank");

@@ -55,7 +55,7 @@ export default function AccuracyStat({ user }) {
 
         setAccuracyData(chartData);
       } catch (err) {
-        console.error(err);
+        // console.error(err);
         setError("Unable to fetch your accuracy data at the moment.");
       } finally {
         setLoading(false);

@@ -68,7 +68,7 @@ export default function GamelistPage({ user }) {
           setTotalGames(DEFAULT_LIMIT);
         }
       } catch (err) {
-        console.error("Failed to fetch games:", err);
+        // console.error("Failed to fetch games:", err);
       } finally {
         setLoading(false);
       }

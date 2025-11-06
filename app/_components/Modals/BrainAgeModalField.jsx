@@ -31,7 +31,7 @@ export default function BrainAgeModalField({ gameId, userAge = 18, user }) {
 
         setBrainAge(data);
       } catch (err) {
-        console.error("Error fetching brain age:", err);
+        // console.error("Error fetching brain age:", err);
         setError("Failed to load brain age");
       } finally {
         setLoading(false);

@@ -83,13 +83,6 @@ export default function TimeTakenStat({ user }) {
 
   // Debug selected filters
   useEffect(() => {
-    console.log("Selected Filters:", {
-      filter,
-      difficulty,
-      gridSize,
-      gameMode,
-    });
-    console.log("Filtered Data:", filteredData);
     if (!filteredData.length) console.warn("No games match these filters!");
   }, [filter, difficulty, gridSize, gameMode, filteredData]);
 

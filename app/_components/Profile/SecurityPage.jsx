@@ -51,7 +51,6 @@ export default function SecurityPage() {
         setConfirmPassword("");
       }
     } catch (err) {
-      console.error("Unexpected error:", err);
       toast.error("Something went wrong");
     }
   };

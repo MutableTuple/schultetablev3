@@ -36,7 +36,7 @@ export default function ContributionHeatmap({ user }) {
         .gte("created_at", startDate.toISOString());
 
       if (error) {
-        console.error("Error fetching stats:", error);
+        // console.error("Error fetching stats:", error);
         return;
       }
 

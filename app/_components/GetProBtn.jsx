@@ -17,10 +17,10 @@ export default function GetProBtn() {
         .limit(1)
         .single();
 
-      if (error) {
-        console.error("Error fetching ProCampaign:", error);
-        return;
-      }
+      // if (error) {
+      //   console.error("Error fetching ProCampaign:", error);
+      //   return;
+      // }
 
       const endTime = new Date(data.ends_in);
 

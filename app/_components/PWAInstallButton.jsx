@@ -22,7 +22,6 @@ export default function PWAInstallButton() {
     deferredPrompt.prompt();
 
     const result = await deferredPrompt.userChoice;
-    console.log("Install result:", result.outcome);
 
     if (result.outcome === "accepted") {
       if (typeof window.gtag === "function") {

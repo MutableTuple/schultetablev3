@@ -52,10 +52,6 @@ export default function GamePlayedCount({ userData, user, mode }) {
           }),
         ]);
 
-        if (scoreError) console.error("Score RPC Error:", scoreError);
-        if (accError) console.error("Accuracy RPC Error:", accError);
-        if (timeError) console.error("Time RPC Error:", timeError);
-
         setScorePercentile(scoreData ? (scoreData * 100).toFixed(1) : "N/A");
         setAccuracyPercentile(
           accData !== null && accData !== undefined
@@ -64,11 +60,9 @@ export default function GamePlayedCount({ userData, user, mode }) {
         );
         setTimePercentile(timeData ? (timeData * 100).toFixed(1) : "N/A");
       } catch (err) {
-        console.error("Unexpected percentile fetch error:", err, err.message);
         setScorePercentile("N/A");
         setAccuracyPercentile("N/A");
         setTimePercentile("N/A");
-        console.log(scorePercentile, accuracyPercentile, timePercentile);
       }
     };
 

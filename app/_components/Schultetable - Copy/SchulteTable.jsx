@@ -225,7 +225,6 @@ export default function SchulteTable({
 
         if (!insertError && user?.[0]?.id) {
           const missioN_data = await checkAndUpdateUserMissions(user[0].id);
-          console.log(missioN_data);
         }
 
         if (insertError) {

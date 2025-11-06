@@ -9,11 +9,12 @@ import toast from "react-hot-toast";
 import { calculateScore } from "./scoreUtils";
 import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
-import SmallScreenDetailsModal from "./SmallScreenDetailsModal";
+
 import ShineButton from "../ShineButton";
 import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
 import dynamic from "next/dynamic";
-import GameDataSummaryModal from "../GameDataSummaryModal";
+
+import GameDataSummaryModalAdvanced from "../GameDataSummaryModalAdvanced";
 const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
 
 export default function SchulteTable({
@@ -92,7 +93,6 @@ export default function SchulteTable({
 
     generateBoard();
   }, [gridSize, difficulty, totalTiles, mode]);
-
   const handleStartGame = () => {
     setConfettiActive(false);
     setGameStarted(false);
@@ -228,7 +228,6 @@ export default function SchulteTable({
 
         if (!insertError && user?.[0]?.id) {
           const missioN_data = await checkAndUpdateUserMissions(user[0].id);
-          console.log(missioN_data);
         }
 
         if (insertError) {
@@ -332,7 +331,7 @@ export default function SchulteTable({
       const isSmallScreen = window.innerWidth < 768;
 
       if (isSmallScreen) {
-        setShowSummaryModal(true); // Existing small screen modal
+        setShowLargeScreenSummaryModal(true); // Existing small screen modal
       } else {
         setShowLargeScreenSummaryModal(true); // New large screen modal
       }
@@ -427,43 +426,13 @@ export default function SchulteTable({
           loading={loadingBoard}
         />
       )}
-      {gameSummaryData && (
-        <>
-          {/* Small screen modal (unchanged) */}
-          <SmallScreenDetailsModal
-            showSummaryModal={showSummaryModal}
-            summaryVisible={summaryVisible}
-            gameSummaryData={gameSummaryData}
-            setSummaryVisible={setSummaryVisible}
-            setShowSummaryModal={setShowSummaryModal}
-            user={user}
-            setGridSize={setGridSize}
-            setDifficulty={setDifficulty}
-            setMode={setMode}
-            setGameStarted={setGameStarted}
-          />
-
-          {/* Large screen modal */}
-          <GameDataSummaryModal
-            gameSummaryData={gameSummaryData}
-            showModal={showLargeScreenSummaryModal}
-            setShowModal={setShowLargeScreenSummaryModal}
-            onNewGame={() => {
-              setShowLargeScreenSummaryModal(false);
-              handleStartGame();
-            }}
-            setGridSize={setGridSize}
-            setDifficulty={setDifficulty}
-            user={user}
-            setMode={setMode}
-            current_game_mode={mode}
-            onGoHome={() => {
-              setShowLargeScreenSummaryModal(false);
-              window.location.href = "/";
-            }}
-          />
-        </>
-      )}
+      <GameDataSummaryModalAdvanced
+        gameSummaryData={gameSummaryData}
+        showModal={!!gameSummaryData && showLargeScreenSummaryModal}
+        setShowModal={setShowLargeScreenSummaryModal}
+        user={user}
+        mode={mode}
+      />
     </div>
   );
 }

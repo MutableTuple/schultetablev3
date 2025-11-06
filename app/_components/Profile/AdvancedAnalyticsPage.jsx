@@ -56,7 +56,7 @@ export default function AdvancedAnalyticsPage({ user }) {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching game stats:", error);
+      // console.error("Error fetching game stats:", error);
     } else {
       setGameData(data);
     }

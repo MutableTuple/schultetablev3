@@ -64,19 +64,6 @@ export default function GameDataSummaryModal({
   useEffect(() => {
     if (!showModal || !gameSummaryData) return;
 
-    // Fetch rank data
-    // (async () => {
-    //   try {
-    //     const { data, error } = await supabase.rpc("rank_game", {
-    //       game: gameSummaryData,
-    //     });
-    //     if (error) console.error("Error fetching rank data:", error);
-    //     else setRankData(data);
-    //   } catch (err) {
-    //     console.error("RPC failed:", err);
-    //   }
-    // })();
-
     // Randomize next game settings
     const isLargeScreen = window.innerWidth >= 768;
     const allGridOptions = isLargeScreen ? [3, 4, 5, 6, 7, 8, 9] : [3, 4, 5];

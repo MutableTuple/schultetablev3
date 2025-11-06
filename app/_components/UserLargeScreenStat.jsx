@@ -41,7 +41,7 @@ export default function UserLargeScreenStat({
         setError(null);
       }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       setError("Something went wrong.");
     } finally {
       setLoading(false);

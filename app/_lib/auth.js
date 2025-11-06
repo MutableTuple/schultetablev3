@@ -7,8 +7,6 @@ export async function setSession(session) {
   const cookieStore = cookies();
 
   if (session) {
-    console.log("Setting session:", session); // Log the session object to verify structure
-
     if (session.access_token && session.refresh_token && session.user) {
       await cookieStore.set("sb-access-token", session.access_token, {
         httpOnly: true,
