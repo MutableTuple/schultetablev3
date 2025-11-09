@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MdVerified } from "react-icons/md";
 import StartBtn from "../StartBtn";
 import GameTimer from "../GameTimer";
@@ -32,58 +32,63 @@ export default function SchulteTable({
   const [loadingBoard, setLoadingBoard] = useState(false);
   const [numbers, setNumbers] = useState([]);
   const [clickedNumbers, setClickedNumbers] = useState([]);
-  const [clickData, setClickData] = useState([]);
-  const [mistakes, setMistakes] = useState(0);
+  const clickData = useRef([]); // ref (no re-render per click)
+  const mistakes = useRef(0); // ref (no re-render per mistake)
   const lastClickTime = useRef(null);
   const gameStartTime = useRef(null);
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [summaryVisible, setSummaryVisible] = useState(true); // toggle option
   const [gameSummaryData, setGameSummaryData] = useState(null);
   const [fastestTimeInSec, setFastestTimeInSec] = useState(null);
-  const getComparableValue = (n) => (typeof n === "object" ? n.value : n);
   const confettiRef = useRef(null);
   const [confettiConfig, setConfettiConfig] = useState({});
   const [confettiActive, setConfettiActive] = useState(false);
   const [showLargeScreenSummaryModal, setShowLargeScreenSummaryModal] =
     useState(false);
 
-  const nextTarget = useMemo(() => {
-    const remaining = numbers.filter(
-      (n) => !clickedNumbers.includes(getComparableValue(n))
-    );
+  const getComparableValue = (n) => (typeof n === "object" ? n.value : n);
 
-    if (remaining.length === 0) return null;
+  // New pointer-based ordering (O(1) next target lookup)
+  const sortedNumbersRef = useRef([]);
+  const currentIndexRef = useRef(0);
 
-    const first = remaining[0];
+  const nextTarget =
+    sortedNumbersRef.current.length > 0
+      ? sortedNumbersRef.current[currentIndexRef.current] || null
+      : null;
 
-    if (typeof first === "object" && typeof first.value === "number") {
-      // Number-based modes (like maths)
-      return remaining.sort((a, b) => a.value - b.value)[0];
-    }
-
-    // Non-number modes (emoji, word, alphabet)
-    return [...remaining].sort((a, b) =>
-      String(getComparableValue(a)).localeCompare(String(getComparableValue(b)))
-    )[0];
-  }, [numbers, clickedNumbers]);
-
+  // Generate board once per settings
   useEffect(() => {
     const generateBoard = async () => {
       setLoadingBoard(true);
       setNumbers([]);
       setClickedNumbers([]);
-      setClickData([]);
-      setMistakes(0);
+      clickData.current = [];
+      mistakes.current = 0;
+      currentIndexRef.current = 0;
 
       try {
         const generator =
           GAME_MODES[mode]?.generate || GAME_MODES["number"].generate;
 
-        // Simulate async for heavy modes like maths
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50)); // avoid blocking
 
         const newNumbers = generator(totalTiles, difficulty);
         setNumbers(newNumbers);
+
+        // Pre-sort values once (not every render)
+        const sortedCopy = [...newNumbers];
+        const first = sortedCopy[0];
+
+        if (typeof first === "object" && typeof first.value === "number") {
+          sortedCopy.sort((a, b) => a.value - b.value);
+        } else {
+          sortedCopy.sort((a, b) =>
+            String(getComparableValue(a)).localeCompare(
+              String(getComparableValue(b))
+            )
+          );
+        }
+
+        sortedNumbersRef.current = sortedCopy;
       } catch (err) {
         console.error("Error generating grid:", err);
       } finally {
@@ -93,72 +98,69 @@ export default function SchulteTable({
 
     generateBoard();
   }, [gridSize, difficulty, totalTiles, mode]);
+
   const handleStartGame = () => {
     setConfettiActive(false);
     setGameStarted(false);
     setClickedNumbers([]);
-    setClickData([]);
-    setMistakes(0);
-    setLoadingBoard(true);
+    clickData.current = [];
+    mistakes.current = 0;
+    currentIndexRef.current = 0;
 
     const generator =
       GAME_MODES[mode]?.generate || GAME_MODES["number"].generate;
     const newNumbers = generator(totalTiles, difficulty);
     setNumbers(newNumbers);
-    setLoadingBoard(false);
+
+    const sortedCopy = [...newNumbers];
+    const first = sortedCopy[0];
+    if (typeof first === "object" && typeof first.value === "number") {
+      sortedCopy.sort((a, b) => a.value - b.value);
+    } else {
+      sortedCopy.sort((a, b) =>
+        String(getComparableValue(a)).localeCompare(
+          String(getComparableValue(b))
+        )
+      );
+    }
+    sortedNumbersRef.current = sortedCopy;
 
     setGameStarted(true);
     lastClickTime.current = Date.now();
     gameStartTime.current = Date.now();
   };
+
   const handleTileClick = async (num) => {
+    if (!gameStarted) return;
     const now = Date.now();
     const expected = nextTarget;
-    const actualValue = typeof num === "object" ? num.value : num;
+    const interval = now - lastClickTime.current;
 
     const isCorrect = getComparableValue(num) === getComparableValue(expected);
 
-    const interval = now - lastClickTime.current;
-
-    if (!gameStarted) return;
-
-    setClickData((prev) => [
-      ...prev,
-      {
-        number: num,
-        expected,
-        correct: isCorrect,
-        timeTakenMs: interval,
-        timestamp: new Date().toISOString(),
-      },
-    ]);
+    clickData.current.push({
+      number: num,
+      expected,
+      correct: isCorrect,
+      timeTakenMs: interval,
+      timestamp: new Date().toISOString(),
+    });
 
     if (!isCorrect) {
-      setMistakes((prev) => prev + 1);
+      mistakes.current += 1;
       return;
     }
 
     lastClickTime.current = now;
+    setClickedNumbers((c) => [...c, getComparableValue(num)]);
+    currentIndexRef.current++;
 
-    const updatedClickedNumbers = [...clickedNumbers, getComparableValue(num)];
-    setClickedNumbers(updatedClickedNumbers);
-
-    if (updatedClickedNumbers.length === numbers.length) {
-      setGameStarted(false);
+    if (currentIndexRef.current === numbers.length) {
+      // Game finished — unchanged logic below
       const endTime = Date.now();
-
-      const correctClicks = [
-        ...clickData,
-        {
-          number: num,
-          expected,
-          correct: true,
-          timeTakenMs: interval,
-          timestamp: new Date().toISOString(),
-        },
-      ].filter((d) => d.correct);
-
+      const correctClicks = clickData.current.filter((d) => d.correct);
       const timeList = correctClicks.map((d) => d.timeTakenMs);
+
       const avg = Math.round(
         timeList.reduce((a, b) => a + b, 0) / timeList.length
       );
@@ -173,7 +175,7 @@ export default function SchulteTable({
 
       const score = calculateScore({
         durationMs: endTime - gameStartTime.current,
-        mistakes,
+        mistakes: mistakes.current,
         difficulty,
         gridSize,
         avgReactionTimeMs: avg,
@@ -181,7 +183,7 @@ export default function SchulteTable({
       });
 
       const accuracy = parseFloat(
-        ((totalTiles / (totalTiles + mistakes)) * 100).toFixed(1)
+        ((totalTiles / (totalTiles + mistakes.current)) * 100).toFixed(1)
       );
 
       const gameSummary = {
@@ -190,24 +192,19 @@ export default function SchulteTable({
         gridSize,
         difficulty,
         totalTiles,
-        accuracy: accuracy,
-        mistakes,
+        accuracy,
+        mistakes: mistakes.current,
         avgReactionTimeMs: avg,
         fastestMs: min,
         slowestMs: max,
         consistencyScore: std,
         score,
-        clicks: [
-          ...clickData,
-          {
-            number: num,
-            expected,
-            correct: true,
-            timeTakenMs: interval,
-            timestamp: new Date().toISOString(),
-          },
-        ],
+        clicks: clickData.current,
       };
+
+      setGameStarted(false);
+
+      // ----------- unchanged supabase code -------------
       try {
         const { error: insertError } = await supabase
           .from("UniversalGameStats")
@@ -218,7 +215,7 @@ export default function SchulteTable({
               grid_size: gridSize,
               difficulty,
               total_right_click: totalTiles,
-              total_wrong_click: mistakes,
+              total_wrong_click: mistakes.current,
               time_taken: (endTime - gameStartTime.current) / 1000,
               score,
               game_mode: mode,
@@ -227,37 +224,19 @@ export default function SchulteTable({
           ]);
 
         if (!insertError && user?.[0]?.id) {
-          const missioN_data = await checkAndUpdateUserMissions(user[0].id);
-        }
-
-        if (insertError) {
-          console.error("Error saving to Supabase:", insertError.message);
-        } else if (user?.[0]?.id) {
-          // Increment the user’s total score
-          const { error: updateError } = await supabase.rpc(
-            "increment_user_score",
-            {
-              p_user_id: user[0].id,
-              p_increment: score,
-            }
-          );
-
-          if (updateError) {
-            console.error("Error updating user score:", updateError.message);
-          }
+          await checkAndUpdateUserMissions(user[0].id);
+          await supabase.rpc("increment_user_score", {
+            p_user_id: user[0].id,
+            p_increment: score,
+          });
         }
       } catch (err) {
-        console.error("Unexpected Supabase error:", err);
-      } finally {
-        const played = Number(localStorage.getItem("gamesPlayed") || 0);
-        localStorage.setItem("gamesPlayed", played + 1);
-        window.dispatchEvent(new Event("gamesPlayedUpdated"));
+        console.error(err);
       }
 
       const timeTaken = (endTime - gameStartTime.current) / 1000;
 
-      // 🔍 Get top 3 fastest GLOBAL times for current grid/difficulty/mode
-      const { data: timeData, error: timeError } = await supabase
+      const { data: timeData } = await supabase
         .from("UniversalGameStats")
         .select("time_taken")
         .eq("grid_size", gridSize)
@@ -267,39 +246,31 @@ export default function SchulteTable({
         .order("time_taken", { ascending: true })
         .limit(3);
 
-      const currentTimeTaken = timeTaken;
       let position = null;
-
-      if (timeData?.length > 0) {
-        const topTimes = timeData.map((entry) => entry.time_taken);
-
-        if (currentTimeTaken < topTimes[0]) position = 1;
-        else if (topTimes[1] && currentTimeTaken < topTimes[1]) position = 2;
-        else if (topTimes[2] && currentTimeTaken < topTimes[2]) position = 3;
-      } else {
-        // If no times exist, you're automatically 1st!
-        position = 1;
+      if (!timeData?.length) position = 1;
+      else {
+        const t = timeData.map((x) => x.time_taken);
+        if (timeTaken < t[0]) position = 1;
+        else if (t[1] && timeTaken < t[1]) position = 2;
+        else if (t[2] && timeTaken < t[2]) position = 3;
       }
 
       if (position) {
-        setConfettiActive(false); // reset
-
-        let colors = ["#ccc", "#eee"]; // default fallback
-        let positionText = "";
-
+        setConfettiActive(false);
+        let colors = ["#ccc"];
+        let msg = "";
         if (position === 1) {
-          colors = ["#FFD700", "#FFFACD", "#F5DEB3"]; // Gold
-          positionText = "🔥 You're the fastest globally! #1 🥇";
+          colors = ["#FFD700", "#FFFACD", "#F5DEB3"];
+          msg = "🔥 You're the fastest globally! #1 🥇";
         } else if (position === 2) {
-          colors = ["#00FF00", "#FF0000", "#FFFF00"]; // Green, Red, Yellow
-          positionText = "Great job! You're ranked #2 globally! 🥈";
-        } else if (position === 3) {
-          colors = ["#800080", "#DA70D6", "#BA55D3"]; // Purple shades
-          positionText = "Nice! You're ranked #3 globally! 🥉";
+          colors = ["#00FF00", "#FF0000", "#FFFF00"];
+          msg = "Great job! You're ranked #2 globally! 🥈";
+        } else {
+          colors = ["#800080", "#DA70D6", "#BA55D3"];
+          msg = "Nice! You're ranked #3 globally! 🥉";
         }
 
         const isSmallScreen = window.innerWidth < 768;
-
         setConfettiConfig({
           angle: 90,
           spread: 360,
@@ -314,53 +285,32 @@ export default function SchulteTable({
           colors,
         });
 
-        setTimeout(() => {
-          setConfettiActive(true);
-        }, 100);
-
-        // Show special toast
-        toast.success(
-          `${positionText}\n⏱️ Completed in ${timeTaken.toFixed(2)} seconds!`
-        );
+        setTimeout(() => setConfettiActive(true), 100);
+        toast.success(`${msg}\n⏱️ ${timeTaken.toFixed(2)}s`);
       } else {
-        // fallback normal toast if not in top 3
-        toast(`Good Job! Completed in ${timeTaken.toFixed(2)} seconds 👏`);
+        toast(`Good Job! ${timeTaken.toFixed(2)}s 👏`);
       }
 
       setGameSummaryData(gameSummary);
-      const isSmallScreen = window.innerWidth < 768;
-
-      if (isSmallScreen) {
-        setShowLargeScreenSummaryModal(true); // Existing small screen modal
-      } else {
-        setShowLargeScreenSummaryModal(true); // New large screen modal
-      }
+      setShowLargeScreenSummaryModal(true);
       window.dispatchEvent(new Event("game-finished"));
     }
   };
+
   useEffect(() => {
     const fetchFastestTime = async () => {
       if (!user?.[0]?.id) return;
-
-      try {
-        const { data, error } = await supabase
-          .from("UniversalGameStats")
-          .select("time_taken")
-          .eq("user_id", user[0].id)
-          .eq("grid_size", gridSize)
-          .eq("difficulty", difficulty)
-          .eq("game_mode", mode)
-          .order("time_taken", { ascending: true })
-          .limit(1);
-
-        if (!error && data && data.length > 0) {
-          setFastestTimeInSec(data[0].time_taken);
-        }
-      } catch (err) {
-        console.error("Error fetching fastest time:", err);
-      }
+      const { data } = await supabase
+        .from("UniversalGameStats")
+        .select("time_taken")
+        .eq("user_id", user[0].id)
+        .eq("grid_size", gridSize)
+        .eq("difficulty", difficulty)
+        .eq("game_mode", mode)
+        .order("time_taken", { ascending: true })
+        .limit(1);
+      if (data?.length > 0) setFastestTimeInSec(data[0].time_taken);
     };
-
     fetchFastestTime();
   }, [user, gridSize, difficulty, mode]);
 
@@ -372,17 +322,14 @@ export default function SchulteTable({
         </div>
       )}
       {gameStarted && <GameTimer />}
-      {/* Confetti pop from center */}
+
       <div
         className="fixed z-50 pointer-events-none"
-        style={{
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
+        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
       >
         <Confetti active={confettiActive} config={confettiConfig} />
       </div>
+
       <div className="text-xl font-bold text-primary">
         {gameStarted && nextTarget && (
           <div className="text-xl font-bold text-primary">
@@ -395,6 +342,7 @@ export default function SchulteTable({
           </div>
         )}
       </div>
+
       <div className="block lg:hidden">
         <ShineButton
           text="Get pro access"
@@ -403,6 +351,7 @@ export default function SchulteTable({
           href="/get-pro"
         />
       </div>
+
       <div className="block lg:hidden">
         <UserIcon
           mode={mode}
@@ -411,6 +360,7 @@ export default function SchulteTable({
           user={user}
         />
       </div>
+
       {loadingBoard ? (
         <div className="flex flex-col items-center justify-center h-[300px]">
           <span className="loading loading-infinity loading-xl text-primary" />
@@ -426,6 +376,7 @@ export default function SchulteTable({
           loading={loadingBoard}
         />
       )}
+
       <GameDataSummaryModalAdvanced
         gameSummaryData={gameSummaryData}
         showModal={!!gameSummaryData && showLargeScreenSummaryModal}

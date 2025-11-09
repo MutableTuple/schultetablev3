@@ -6,6 +6,7 @@ import MoreDataNeededAlert from "./MoreDataNeededAlert";
 import LoginToViewReport from "./LoginToViewReport";
 import Link from "next/link";
 import { LuBadgeAlert } from "react-icons/lu";
+import PaymentLink from "./PaymentLink";
 /*
   DetailedMessage (single-file, full)
   - Adds frontend-only "blur for free users" logic everywhere
@@ -146,25 +147,7 @@ export default function DetailedMessage({ userId, user }) {
               improvement map.
             </p>
           </div>
-          <Link
-            href={`https://schultetable.lemonsqueezy.com/buy/a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e?checkout[custom][user_id]=${user[0]?.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className=""
-          >
-            <button
-              className="btn btn-secondary w-full shadow-md hover:shadow-lg transition-all backdrop-blur-sm"
-              onClick={() =>
-                window.gtag?.("event", "click_unlock_full_report", {
-                  user_id: userId,
-                  source: "cognitive_report",
-                })
-              }
-            >
-              Unlock My Full Brain Report —{" "}
-              <span className="font-bold">$4.99 /</span> Lifetime &rarr;
-            </button>
-          </Link>
+          <PaymentLink user={user} userId={userId} />
 
           <p className="text-[10px] opacity-60">
             One-time purchase. No subscription. Your brain deserves this.
