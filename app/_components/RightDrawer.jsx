@@ -1,59 +1,67 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import GamePlayedCount from "./GamePlayedCount";
 import UserLargeScreenStat from "./UserLargeScreenStat";
 import { getCurrentUserGameData } from "../_lib/data-service";
 import GetProBtn from "./GetProBtn";
-import Link from "next/link";
 import NotLoggedInRightDrawerNotif from "./NotLoggedInRightDrawerNotif";
 
 export default function RightDrawer({ user, gridSize, difficulty, mode }) {
-  const [userData, setUserData] = useState(undefined); // undefined = not loaded, null = no data
+  const userId = user?.[0]?.id;
+  const isPro = user?.[0]?.is_pro_user;
+
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Prevent race conditions
+  const requestRef = useRef(0);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (user && user[0]?.id) {
-        const data = await getCurrentUserGameData(user[0].id);
-        setUserData(data || null); // null if no data returned
+    let ignore = false;
+    requestRef.current++;
 
+    async function load() {
+      if (!userId) {
+        setUserData(null);
+        setLoading(false);
+        return;
       }
-    };
 
-    fetchData();
+      setLoading(true);
+      const result = await getCurrentUserGameData(userId);
+
+      if (ignore) return;
+
+      // ✅ Always set the last played game, even if game_summary is null
+      setUserData(result ?? null);
+      setLoading(false);
+    }
+
+    load();
 
     const handleGameFinished = () => {
-      fetchData();
+      setTimeout(load, 250);
     };
 
     window.addEventListener("game-finished", handleGameFinished);
-    return () =>
+    return () => {
+      ignore = true;
       window.removeEventListener("game-finished", handleGameFinished);
-  }, [user]);
+    };
+  }, [userId]); // runs only when user changes
+
   return (
-    <div className="bg-base-200 text-base-content min-h-full w-80 p-4 flex flex-col z-50 relative">
-      {/* ✕ Close Button for Mobile */}
+    <div className="relative bg-base-200 text-base-content min-h-full w-80 p-4 flex flex-col z-50">
+      {/* Close for mobile */}
       <label
         htmlFor="my-drawer"
         className="btn btn-ghost btn-circle absolute top-4 right-4 lg:hidden"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
+        ✕
       </label>
 
-      {/* Global Fastest Game */}
       <div className="divider my-2 text-xs opacity-60">Global Fastest Game</div>
+
       <ul className="menu w-full flex flex-col gap-1">
         <li>
           <UserLargeScreenStat
@@ -64,16 +72,17 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
           />
         </li>
       </ul>
-      {/* User Stats Section */}
 
-      {user && user[0]?.id ? (
+      {userId ? (
         <>
           <div className="divider my-2 text-xs opacity-60">
             Your last game data
           </div>
 
           <ul className="menu w-full flex flex-col gap-1">
-            {userData && userData.game_summary ? (
+            {loading ? (
+              <p className="italic px-2 opacity-60">Loading...</p>
+            ) : userData ? ( // ✅ show stats if ANY game exists
               <li>
                 <GamePlayedCount userData={userData} mode={mode} user={user} />
               </li>
@@ -87,24 +96,8 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
       ) : (
         <NotLoggedInRightDrawerNotif />
       )}
-      {/* {user && (
-        <Link href={`/game-analytics/${userData?.id}`} className="text-xs">
-          <div className="px-2 rounded-md py-3 bg-secondary/40 text-center">
-            Get complete data for this game
-          </div>
-        </Link>
-      )} */}
-      {/* Always at the bottom */}
-      {user && user[0] ? (
-        user[0].is_pro_user ? (
-          ""
-        ) : (
-          <div className="mt-auto pt-4">
-            <GetProBtn />
-          </div>
-        )
-      ) : (
-        // If user is not logged in at all
+
+      {!isPro && (
         <div className="mt-auto pt-4">
           <GetProBtn />
         </div>

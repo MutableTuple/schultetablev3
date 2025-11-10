@@ -5,7 +5,7 @@ import { IoMdLogIn } from "react-icons/io";
 
 export default function UserAvatar({ user }) {
   return (
-    <div className="fixed top-8 left-4 z-40">
+    <div className="fixed top-4 left-4 z-10">
       {user ? (
         <Link href={"/my-profile"}>
           <div className="avatar tooltip tooltip-right" data-tip="My profile ">
