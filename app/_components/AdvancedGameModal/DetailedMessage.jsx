@@ -55,16 +55,13 @@ export default function DetailedMessage({ userId, user }) {
     if (!userId) return;
 
     (async () => {
-      const { data, error } = await supabase
+      const { count, error } = await supabase
         .from("UniversalGameStats")
-        .select("id", { count: "exact" })
+        .select("*", { count: "exact", head: true })
         .eq("user_id", userId);
 
-      if (data !== null) {
-        setGameCount(data.length); // works fine
-      } else {
-        setGameCount(0);
-      }
+      // preserve existing state variable name
+      setGameCount(count ?? 0);
     })();
   }, [userId]);
 

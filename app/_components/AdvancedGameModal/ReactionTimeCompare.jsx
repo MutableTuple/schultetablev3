@@ -26,7 +26,8 @@ export default function ReactionTimeCompare({
           p_difficulty: difficulty,
           p_game_mode: gameMode,
           p_current_game: currentGame,
-        }
+        },
+        { cache: "no-store" }
       );
 
       if (!error) setData(res);

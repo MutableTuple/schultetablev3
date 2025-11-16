@@ -68,7 +68,6 @@ export default function ReactionTime({ game, user, mode }) {
     [game]
   );
 
-
   // ✅ SINGLE RPC (clean, stable, no duplicates)
   useEffect(() => {
     let mounted = true;

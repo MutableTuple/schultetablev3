@@ -4,7 +4,6 @@ import { supabase } from "@/app/_lib/supabase";
 import AnalyticsData from "./AnalyticsData";
 import GameChart from "./GameChart";
 import ContributionHeatmap from "./ContributionHeatmap";
-import SingleGameCounts from "./SingleGameCounts";
 
 export default function AdvancedAnalyticsPage({ user }) {
   const [gameData, setGameData] = useState([]);
@@ -198,7 +197,7 @@ export default function AdvancedAnalyticsPage({ user }) {
         formatMs={formatMs}
         formatPercent={formatPercent}
       />
-      <SingleGameCounts user={user} />
+      {/* <SingleGameCounts user={user} /> */}
       <GameChart
         gameData={gameData}
         totalRightClicks={totalRightClicks}

@@ -219,9 +219,13 @@ export default function SchulteTable({
           score,
           game_mode: mode,
           accuracy,
+
+          // 🧠 NEW OPTIMIZED COLUMNS
+          fastest_ms: min,
+          avg_reaction_ms: avg,
+          slowest_ms: max,
         },
       ]);
-
       if (user?.[0]?.id) {
         await supabase.rpc("increment_user_score", {
           p_user_id: user[0].id,
