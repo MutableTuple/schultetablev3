@@ -26,17 +26,17 @@ export async function POST(req) {
     // 3. Product → Plan mapping
     const PLAN_MAP = {
       // INDIA
-      "470240d2-a5ee-4def-92c0-394c2ecf0579": {
+      "da963873-e5af-4eca-98d3-5372b43d2b94": {
         plan: "india_30days",
         days: 30,
       },
-      "1d34e5e2-5140-4a77-b8ce-72f5615aea97": {
+      "d73e877b-7b15-4813-b958-1fdd4bd07212": {
         plan: "india_lifetime",
         days: null,
       },
 
       // GLOBAL
-      "a66627cf-a706-41aa-af08-5438b49b17e9": {
+      "6f0853e5-b4c8-4db3-a68c-8324a06f49d9": {
         plan: "global_30days",
         days: 30,
       },
