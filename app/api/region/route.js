@@ -1,13 +1,40 @@
+export const runtime = "nodejs"; // 🟢 REQUIRED FIX
+
+import { headers } from "next/headers";
+
 export async function GET(req) {
-  const url = new URL(req.url);
-  const debug = url.searchParams.get("cc"); // example: ?cc=IN
+  console.log("🔍 /api/region called");
 
-  let country = headers().get("x-vercel-ip-country") || "US";
+  let country = "US"; // fallback
 
-  // force country in dev mode
-  if (process.env.NODE_ENV !== "production" && debug) {
-    country = debug.toUpperCase();
+  try {
+    const h = headers();
+    const vercelCountry = h.get("x-vercel-ip-country");
+
+    console.log("📦 Vercel sent country:", vercelCountry);
+
+    if (vercelCountry) {
+      country = vercelCountry;
+    }
+  } catch (err) {
+    console.error("❌ Failed to read Vercel headers:", err);
   }
+
+  // Debug override: /api/region?cc=IN
+  try {
+    const url = new URL(req.url);
+    const debug = url.searchParams.get("cc");
+
+    if (debug && process.env.NODE_ENV !== "production") {
+      console.log("🧪 DEBUG override:", debug);
+      country = debug.toUpperCase();
+    }
+  } catch (err) {
+    console.error("❌ URL parsing error:", err);
+  }
+
+  console.log("🌏 FINAL COUNTRY:", country);
+  console.log("🇮🇳 isIndia:", country === "IN");
 
   return Response.json({
     country,
