@@ -40,7 +40,7 @@ export async function POST(req) {
         plan: "global_30days",
         days: 30,
       },
-      "a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e": {
+      "f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b": {
         plan: "global_lifetime",
         days: null,
       },

@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function PaymentLink({ user }) {
   const [isIndia, setIsIndia] = useState(false);
   const userId = user?.[0]?.id;
-
+  console.log(userId);
   // Fetch region
   useEffect(() => {
     const getRegion = async () => {
@@ -24,11 +24,11 @@ export default function PaymentLink({ user }) {
   }, []);
 
   // 🌐 TEST MODE CHECKOUT URLS
-  const INDIA_LIFETIME_TEST =
-    "https://schultetable.lemonsqueezy.com/buy/d73e877b-7b15-4813-b958-1fdd4bd07212?test=1";
+  const INDIA_LIFETIME =
+    "https://schultetable.lemonsqueezy.com/buy/d73e877b-7b15-4813-b958-1fdd4bd07212";
 
-  const GLOBAL_LIFETIME_TEST =
-    "https://schultetable.lemonsqueezy.com/buy/6f0853e5-b4c8-4db3-a68c-8324a06f49d9?test=1";
+  const GLOBAL_LIFETIME =
+    "https://schultetable.lemonsqueezy.com/buy/f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b";
 
   const selectedUrl = isIndia ? INDIA_LIFETIME_TEST : GLOBAL_LIFETIME_TEST;
 
