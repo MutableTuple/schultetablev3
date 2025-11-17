@@ -22,19 +22,22 @@ export default function PaymentLink({ user }) {
     getRegion();
   }, []);
 
-  // INDIA TEST
+  // 🌐 TEST MODE CHECKOUT URLS (ALL 4 PRODUCTS)
+  // INDIA
   const INDIA_30_TEST =
-    "https://schultetable.lemonsqueezy.com/buy/694744?test=1";
+    "https://schultetable.lemonsqueezy.com/buy/da963873-e5af-4eca-98d3-5372b43d2b94?test=1";
+
   const INDIA_LIFETIME_TEST =
-    "https://schultetable.lemonsqueezy.com/buy/694745?test=1";
+    "https://schultetable.lemonsqueezy.com/buy/d73e877b-7b15-4813-b958-1fdd4bd07212?test=1";
 
-  // GLOBAL TEST
+  // GLOBAL
   const GLOBAL_30_TEST =
-    "https://schultetable.lemonsqueezy.com/buy/694746?test=1";
-  const GLOBAL_LIFETIME_TEST =
-    "https://schultetable.lemonsqueezy.com/buy/560289?test=1";
+    "https://schultetable.lemonsqueezy.com/buy/6f0853e5-b4c8-4db3-a68c-8324a06f49d9?test=1";
 
-  // Pick link by region
+  const GLOBAL_LIFETIME_TEST =
+    "https://schultetable.lemonsqueezy.com/buy/f8eb6dde-bf7a-4f7e-912e-8b29fcc1490b?test=1";
+
+  // Pick correct plans based on region
   const selected30 =
     (isIndia ? INDIA_30_TEST : GLOBAL_30_TEST) +
     `&checkout[custom][user_id]=${userId}`;
@@ -53,13 +56,15 @@ export default function PaymentLink({ user }) {
 
   return (
     <div className="flex flex-col gap-3 w-full">
-      <Link href={selected30} target="_blank">
+      {/* 30 Days Button */}
+      <Link href={selected30} target="_blank" rel="noopener noreferrer">
         <button className="btn btn-secondary w-full shadow-md">
           Unlock Pro — <span className="font-bold">{price30}</span> →
         </button>
       </Link>
 
-      <Link href={selectedLifetime} target="_blank">
+      {/* Lifetime Button */}
+      <Link href={selectedLifetime} target="_blank" rel="noopener noreferrer">
         <button className="btn btn-primary w-full shadow-md">
           Unlock Pro Forever —{" "}
           <span className="font-bold">{priceLifetime}</span> →
