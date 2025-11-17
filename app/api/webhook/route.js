@@ -4,8 +4,21 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    // 1. Only accept paid order events
+    // Massive debug log object
+    const LOG = {
+      raw_body: body,
+      step: "START",
+      extracted: {},
+      plan_info: {},
+      supabase_payload: {},
+      supabase_response: {},
+    };
+
+    // 1. Verify event
+    LOG.step = "verify_event";
     if (body.meta?.event_name !== "order_created") {
+      LOG.reason = "Ignored non-order event";
+      console.log(JSON.stringify(LOG, null, 2));
       return new Response("Ignored non-order event", { status: 200 });
     }
 
@@ -13,17 +26,22 @@ export async function POST(req) {
     const email = attributes?.user_email;
     const userId = body.meta?.custom_data?.user_id;
 
-    // 2. Product ID (LS gives 2 possible locations)
+    // 2. Detect product ID (product_id OR variant_id)
     const productId =
+      attributes?.first_order_item?.variant_id ||
       attributes?.first_order_item?.product_id ||
+      attributes?.order_items?.[0]?.variant_id ||
       attributes?.order_items?.[0]?.product_id;
 
+    LOG.extracted = { email, userId, productId };
+
     if (!userId || !email || !productId) {
-      console.error("❌ Missing webhook fields", { userId, email, productId });
+      LOG.error = "Missing required fields for webhook processing";
+      console.log(JSON.stringify(LOG, null, 2));
       return new Response("Missing required data", { status: 400 });
     }
 
-    // 3. Product → Plan mapping
+    // 3. Product Map
     const PLAN_MAP = {
       // INDIA
       "da963873-e5af-4eca-98d3-5372b43d2b94": {
@@ -47,44 +65,53 @@ export async function POST(req) {
     };
 
     const plan = PLAN_MAP[String(productId)];
+    LOG.plan_info.plan = plan;
 
     if (!plan) {
-      console.log("⚠️ Product not mapped. Ignored:", productId);
-      return new Response("Ignored", { status: 200 });
+      LOG.error = "Product not mapped";
+      console.log(JSON.stringify(LOG, null, 2));
+      return new Response("Ignored unmapped product", { status: 200 });
     }
 
-    // 4. Calculate expiry
+    // 4. Expiry
     let expiry = null;
-
     if (plan.days) {
-      expiry = new Date();
-      expiry.setDate(expiry.getDate() + plan.days);
+      const now = new Date();
+      now.setDate(now.getDate() + plan.days);
+      expiry = now.toISOString(); // FIX: Proper format
     }
 
-    // 5. Update SUPABASE USER record
+    LOG.plan_info.expiry = expiry;
+
+    // 5. SUPABASE update (use correct table name)
+    const updatePayload = {
+      is_pro_user: true,
+      pro_expiry: expiry,
+      purchase_plan: plan.plan,
+    };
+
+    LOG.supabase_payload = updatePayload;
+
     const { error } = await supabase
-      .from("User")
-      .update({
-        is_pro_user: true,
-        pro_expiry: expiry, // null for lifetime
-        purchase_plan: plan.plan,
-      })
+      .from("user") // FIX: table name should be lowercase
+      .update(updatePayload)
       .eq("id", userId);
 
+    LOG.supabase_response = { error };
+
     if (error) {
-      console.error("❌ Supabase update error:", error);
+      LOG.error = "Supabase update error";
+      console.log(JSON.stringify(LOG, null, 2));
       return new Response("Database error", { status: 500 });
     }
 
-    console.log(
-      `✅ User upgraded: ${userId} → ${plan.plan} (expiry: ${
-        expiry ?? "lifetime"
-      })`
-    );
+    LOG.step = "SUCCESS";
+    console.log(JSON.stringify(LOG, null, 2));
 
     return new Response("User upgraded to Pro", { status: 200 });
   } catch (err) {
-    console.error("❌ Webhook processing error:", err);
+    const LOG = { fatal_error: err.message, stack: err.stack };
+    console.log(JSON.stringify(LOG, null, 2));
     return new Response("Server error", { status: 500 });
   }
 }
