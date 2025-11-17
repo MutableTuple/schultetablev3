@@ -49,7 +49,7 @@ export async function POST(req) {
 
     // Update Supabase User
     const { error } = await supabase
-      .from("user")
+      .from("User")
       .update({
         is_pro_user: true,
         pro_expiry: expiry,
