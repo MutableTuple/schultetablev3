@@ -13,10 +13,11 @@ export async function POST(req) {
     const email = attributes?.user_email;
     const userId = body.meta?.custom_data?.user_id;
 
-    // Product ID (use product_id only)
-    const productId =
-      attributes?.first_order_item?.product_id ||
-      attributes?.order_items?.[0]?.product_id;
+    // Product ID (ALWAYS use Number conversion)
+    const productId = Number(
+      attributes?.first_order_item?.product_id ??
+        attributes?.order_items?.[0]?.product_id
+    );
 
     if (!userId || !email || !productId) {
       return new Response("Missing required data", { status: 400 });
@@ -24,30 +25,30 @@ export async function POST(req) {
 
     // NEW PLAN MAP
     const PLAN_MAP = {
-      // INDIA PLANS
+      // INDIA
       694744: { plan: "india_30days", days: 30 },
       694745: { plan: "india_lifetime", days: null },
 
-      // GLOBAL PLANS
+      // GLOBAL
       694746: { plan: "global_30days", days: 30 },
       560289: { plan: "global_lifetime", days: null },
     };
 
-    const plan = PLAN_MAP[String(productId)];
+    const plan = PLAN_MAP[productId];
 
     if (!plan) {
       return new Response("Unknown product ID — ignored", { status: 200 });
     }
 
-    // Calculate Expiry
+    // Calculate Expiry Date
     let expiry = null;
     if (plan.days) {
       const now = new Date();
       now.setDate(now.getDate() + plan.days);
-      expiry = now.toISOString();
+      expiry = now.toISOString(); // Supabase supports ISO timestamps for timestamptz
     }
 
-    // Update Supabase User
+    // Update Supabase User (table name EXACTLY as required)
     const { error } = await supabase
       .from("User")
       .update({
@@ -58,11 +59,13 @@ export async function POST(req) {
       .eq("id", userId);
 
     if (error) {
+      console.error("Supabase update error:", error);
       return new Response("Database error", { status: 500 });
     }
 
     return new Response("User upgraded", { status: 200 });
   } catch (err) {
+    console.error("Webhook error:", err);
     return new Response("Server error", { status: 500 });
   }
 }
