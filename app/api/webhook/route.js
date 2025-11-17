@@ -6,7 +6,7 @@ export async function POST(req) {
 
     // Accept only paid order events
     if (body.meta?.event_name !== "order_created") {
-      return new Response("Ignored", { status: 200 });
+      return new Response("Workgin", { status: 200 });
     }
 
     const attributes = body.data?.attributes;
