@@ -16,9 +16,20 @@ export default function Pro() {
     document.body.appendChild(s);
   }, []);
 
-  // Detect Region (simulated for demo)
+  // Detect Region
   useEffect(() => {
-    setTimeout(() => setIsIndia(false), 500);
+    let canceled = false;
+    const detect = async () => {
+      try {
+        const res = await fetch("/api/region");
+        const data = await res.json();
+        if (!canceled) setIsIndia(Boolean(data.isIndia));
+      } catch {
+        if (!canceled) setIsIndia(false);
+      }
+    };
+    detect();
+    return () => (canceled = true);
   }, []);
 
   const PLANS = isIndia
@@ -35,7 +46,7 @@ export default function Pro() {
       }
     : {
         region: "Global",
-        monthlyPrice: "$1.99",
+        monthlyPrice: "$0.99",
         lifetimePrice: "$4.99",
         monthlySaved: "$7/year vs monthly",
         lifetimeSaved: "Pay once, save $7 vs yearly",
@@ -147,7 +158,7 @@ export default function Pro() {
                   {PLANS.monthlyPrice}
                   <span className="text-xl text-base-content/50 font-normal">
                     {" "}
-                    / 30 days pass
+                    / 30 days
                   </span>
                 </div>
                 <div className="text-sm text-success font-medium">
@@ -179,7 +190,7 @@ export default function Pro() {
           {/* Lifetime Plan */}
           <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow border-2 border-primary relative">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <div className="badge badge-primary badge-lg gap-2">
+              <div className="badge badge-secondary badge-lg gap-2">
                 <span>🏆</span> BEST VALUE
               </div>
             </div>
