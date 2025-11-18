@@ -99,7 +99,7 @@ export default function GetProBtn() {
         {/* Main content */}
         <div className="relative bg-base-100 rounded-xl p-4 h-full">
           {/* Top row: Badge + Timer */}
-          <div className="flex items-center justify-between mb-3">
+          {/* <div className="flex items-center justify-between mb-3">
             <div className="badge badge-primary badge-sm gap-1 font-semibold">
               <span>{pricing.flag}</span>
               <span>LIMITED OFFER</span>
@@ -109,7 +109,7 @@ export default function GetProBtn() {
                 ⏱️ {timeLeft}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Main heading */}
           <div className="mb-2">
