@@ -26,12 +26,11 @@ export async function POST(req) {
     // NEW PLAN MAP
     const PLAN_MAP = {
       // INDIA
-      694744: { plan: "india_30days", days: 30 },
-      694745: { plan: "india_lifetime", days: null },
-
+      694716: { plan: "india_30days", days: 30 },
+      694720: { plan: "india_lifetime", days: null },
       // GLOBAL
-      694746: { plan: "global_30days", days: 30 },
-      560289: { plan: "global_lifetime", days: null },
+      694721: { plan: "global_30days", days: 30 },
+      560283: { plan: "global_lifetime", days: null },
     };
 
     const plan = PLAN_MAP[productId];
