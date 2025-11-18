@@ -37,24 +37,25 @@ export default function GridAndDifficultySelector({
   const handleSelect = (setter, gaName, value) => {
     setter(value);
     trackGA(gaName, value);
-    document.activeElement?.blur(); // close dropdown on click
+    document.activeElement?.blur();
   };
 
   if (gameStarted) return null;
 
   return (
-    <div className="fixed top-14 left-4 z-10 flex flex-col gap-2  rounded-xl  border border-base-300 ">
+    <div className="fixed top-14 left-4 z-[99999] flex flex-col gap-2 rounded-xl pointer-events-auto">
       {/* GRID */}
-      <div className="dropdown">
+      <div className="dropdown relative z-[99999]">
         <label
           tabIndex={0}
           className="btn btn-xs w-full bg-success text-base-100"
         >
           {gridSize}×{gridSize}
         </label>
+
         <ul
           tabIndex={0}
-          className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 z-50 max-h-56 overflow-auto"
+          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-40 z-[99999] max-h-56 overflow-auto"
         >
           {gridOptions.map((size) => (
             <li key={size}>
@@ -70,16 +71,17 @@ export default function GridAndDifficultySelector({
       </div>
 
       {/* DIFFICULTY */}
-      <div className="dropdown">
+      <div className="dropdown relative z-[99999]">
         <label
           tabIndex={0}
           className="btn btn-xs w-full bg-primary text-base-100 capitalize"
         >
           {difficulty}
         </label>
+
         <ul
           tabIndex={0}
-          className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44 z-50"
+          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-44 z-[99999]"
         >
           {["Easy", "Medium", "Hard", "Extreme", "Impossible"].map((diff) => (
             <li key={diff}>
@@ -97,16 +99,17 @@ export default function GridAndDifficultySelector({
       </div>
 
       {/* MODE */}
-      <div className="dropdown">
+      <div className="dropdown relative z-[99999]">
         <label
           tabIndex={0}
           className="btn btn-xs w-full bg-error text-base-100 capitalize"
         >
           {mode}
         </label>
+
         <ul
           tabIndex={0}
-          className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50"
+          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-52 z-[99999]"
         >
           {[
             "number",
