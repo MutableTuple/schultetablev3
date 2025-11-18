@@ -1,308 +1,376 @@
 "use client";
-import Link from "next/link";
-import React, { useEffect } from "react";
 
-export default function Pro({ user }) {
+import React, { useEffect, useState } from "react";
+
+export default function Pro() {
+  const [isIndia, setIsIndia] = useState(null);
+  const userId = "demo-user-123";
+
+  // Load LemonSqueezy script
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://app.lemonsqueezy.com/js/lemon.js";
-    script.async = true;
-    script.onload = () => {
-      if (window.LemonSqueezy) {
-        window.LemonSqueezy.Setup();
-      }
-    };
-    document.body.appendChild(script);
+    if (window.LemonSqueezy) return;
+    const s = document.createElement("script");
+    s.src = "https://app.lemonsqueezy.com/js/lemon.js";
+    s.async = true;
+    s.onload = () => window.LemonSqueezy?.Setup?.();
+    document.body.appendChild(s);
   }, []);
+
+  // Detect Region (simulated for demo)
+  useEffect(() => {
+    setTimeout(() => setIsIndia(false), 500);
+  }, []);
+
+  const PLANS = isIndia
+    ? {
+        region: "India",
+        monthlyPrice: "₹49",
+        lifetimePrice: "₹249",
+        monthlySaved: "₹339/year vs monthly",
+        lifetimeSaved: "Pay once, save ₹339 vs yearly",
+        monthlyUrl:
+          "https://schultetable.lemonsqueezy.com/buy/470240d2-a5ee-4def-92c0-394c2ecf0579",
+        lifetimeUrl:
+          "https://schultetable.lemonsqueezy.com/buy/1d34e5e2-5140-4a77-b8ce-72f5615aea97",
+      }
+    : {
+        region: "Global",
+        monthlyPrice: "$1.99",
+        lifetimePrice: "$4.99",
+        monthlySaved: "$7/year vs monthly",
+        lifetimeSaved: "Pay once, save $7 vs yearly",
+        monthlyUrl:
+          "https://schultetable.lemonsqueezy.com/buy/a66627cf-a706-41aa-af08-5438b49b17e9",
+        lifetimeUrl:
+          "https://schultetable.lemonsqueezy.com/buy/a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e",
+      };
+
+  const checkout = (url) =>
+    url.includes("?")
+      ? `${url}&checkout[custom][user_id]=${userId}`
+      : `${url}?checkout[custom][user_id]=${userId}`;
+
+  if (isIndia === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="mt-4 text-base-content/70">
+            Loading your personalized pricing...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-base-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center text-base-content">
-      {/* Header */}
-      <div className="text-center max-w-4xl mb-8 sm:mb-10 lg:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
-          Unlock Your Brain's Full Potential
-        </h1>
-        <p className="text-sm sm:text-base lg:text-lg opacity-70 px-2">
-          Upgrade to{" "}
-          <span className="text-primary font-semibold">SchulteTable Pro</span>{" "}
-          for a faster, smarter, and more personalized brain training
-          experience.
-        </p>
+    <div className="min-h-screen bg-base-200">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-primary/10 via-base-100 to-secondary/10">
+        <div className="max-w-6xl mx-auto px-4 py-16 text-center">
+          <div className="badge badge-primary badge-lg mb-6">
+            Pricing for {PLANS.region}
+          </div>
+
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Upgrade to <span className="text-primary">SchulteTable Pro</span>
+          </h1>
+
+          <p className="text-xl text-base-content/70 max-w-2xl mx-auto mb-8">
+            Get deep analytics, personalized insights, and comprehensive
+            performance tracking to accelerate your cognitive improvement.
+          </p>
+
+          {/* Trust badges */}
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">⚡</span>
+              <span>Instant Access</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🔒</span>
+              <span>Secure Payment</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">📊</span>
+              <span>Advanced Analytics</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Plans */}
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-        {/* Free Plan */}
-        <div className="card w-full bg-base-100 shadow-sm border border-primary">
-          <div className="card-body p-4 sm:p-6">
-            <span className="badge badge-xs badge-neutral mb-2">Free Plan</span>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-              <h2 className="text-2xl sm:text-3xl font-bold">Free</h2>
-              <span className="text-lg sm:text-xl mt-1 sm:mt-0">$0/mo</span>
+      {/* Pricing Cards */}
+      <div className="max-w-6xl mx-auto px-4 -mt-8 pb-16">
+        <div className="grid md:grid-cols-3 gap-6 mb-16">
+          {/* Free Plan */}
+          <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="card-body">
+              <h2 className="card-title text-2xl">Free</h2>
+              <p className="text-base-content/60">Basic training features</p>
+
+              <div className="my-6">
+                <div className="text-5xl font-bold text-base-content mb-2">
+                  $0
+                  <span className="text-xl text-base-content/50 font-normal">
+                    {" "}
+                    forever
+                  </span>
+                </div>
+                <div className="text-sm text-base-content/60">Current plan</div>
+              </div>
+
+              <div className="card-actions">
+                <button className="btn btn-disabled w-full">
+                  Your Current Plan
+                </button>
+              </div>
+
+              <div className="divider">Includes</div>
+
+              <ul className="space-y-2 text-sm">
+                <Benefit text="Basic training mode" />
+                <Benefit text="Standard game sessions" />
+                <Benefit text="Simple time tracking" />
+                <Benefit text="Basic statistics" />
+              </ul>
             </div>
-            <ul className="mt-4 sm:mt-6 flex flex-col gap-3 text-xs sm:text-sm">
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+          </div>
+
+          {/* Monthly Plan */}
+          <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <div className="card-body">
+              <h2 className="card-title text-2xl">Monthly Pro</h2>
+              <p className="text-base-content/60">Full features, flexible</p>
+
+              <div className="my-6">
+                <div className="text-5xl font-bold text-primary mb-2">
+                  {PLANS.monthlyPrice}
+                  <span className="text-xl text-base-content/50 font-normal">
+                    {" "}
+                    / 30 days pass
+                  </span>
+                </div>
+                <div className="text-sm text-success font-medium">
+                  {PLANS.monthlySaved}
+                </div>
+              </div>
+
+              <div className="card-actions">
+                <a
+                  href={checkout(PLANS.monthlyUrl)}
+                  target="_blank"
+                  className="btn btn-outline btn-primary w-full"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Access to basic 3x3 and 4x4 tables</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                  Upgrade to Monthly
+                </a>
+              </div>
+
+              <div className="divider">Everything in Free, plus</div>
+
+              <ul className="space-y-2 text-sm">
+                <Benefit text="All Pro analytics features" />
+                <Benefit text="Advanced performance insights" />
+                <Benefit text="Detailed progress tracking" />
+                <Benefit text="Priority support" />
+              </ul>
+            </div>
+          </div>
+
+          {/* Lifetime Plan */}
+          <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow border-2 border-primary relative">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <div className="badge badge-primary badge-lg gap-2">
+                <span>🏆</span> BEST VALUE
+              </div>
+            </div>
+
+            <div className="card-body">
+              <h2 className="card-title text-2xl">Lifetime Pro</h2>
+              <p className="text-base-content/60">Pay once, own forever</p>
+
+              <div className="my-6">
+                <div className="text-5xl font-bold text-primary mb-2">
+                  {PLANS.lifetimePrice}
+                  <span className="text-xl text-base-content/50 font-normal">
+                    {" "}
+                    one-time
+                  </span>
+                </div>
+                <div className="text-sm text-success font-medium">
+                  {PLANS.lifetimeSaved}
+                </div>
+              </div>
+
+              <div className="card-actions">
+                <a
+                  href={checkout(PLANS.lifetimeUrl)}
+                  target="_blank"
+                  className="btn btn-primary w-full"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Limited score tracking</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Ads shown occasionally</span>
-              </li>
-              <li className="opacity-50 flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-base-content/50"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                <span className="line-through">
-                  Advanced statistics & performance insights
-                </span>
-              </li>
-              <li className="opacity-50 flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-base-content/50"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                <span className="line-through">
-                  Personal leaderboard tracking
-                </span>
-              </li>
-              <li className="opacity-50 flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-base-content/50"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                <span className="line-through">
-                  Premium themes & animations
-                </span>
-              </li>
-            </ul>
-            <div className="mt-6">
-              <button className="btn btn-outline btn-block text-sm sm:text-base">
-                Current Plan
-              </button>
+                  Get Lifetime Access →
+                </a>
+              </div>
+
+              <div className="divider">Everything in Free, plus</div>
+
+              <ul className="space-y-2 text-sm">
+                <Benefit text="All Pro features forever" />
+                <Benefit text="All future updates included" />
+                <Benefit text="Priority email support" />
+                <Benefit text="Best value for money" highlighted />
+              </ul>
             </div>
           </div>
         </div>
 
-        {/* Pro Plan */}
-        <div className="card w-full bg-base-100 shadow-sm border border-primary">
-          <div className="card-body p-4 sm:p-6">
-            <span className="badge badge-xs badge-warning mb-2">
-              Most Popular
-            </span>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-              <h2 className="text-2xl sm:text-3xl font-bold">Premium</h2>
-              <span className="text-lg sm:text-xl mt-1 sm:mt-0">
-                $4.99/lifetime
-              </span>
+        {/* All Pro Features */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Everything Included in Pro
+          </h2>
+          <p className="text-center text-base-content/70 mb-10 max-w-2xl mx-auto">
+            Unlock the complete suite of advanced analytics and insights to
+            maximize your training results
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Analytics Section */}
+            <div className="card bg-base-100 shadow-lg">
+              <div className="card-body">
+                <h3 className="card-title text-primary">
+                  <span className="text-2xl mr-2">📊</span>
+                  Advanced Analytics
+                </h3>
+                <ul className="space-y-3 mt-4">
+                  <Benefit text="Full brain performance report with detailed metrics" />
+                  <Benefit text="Reaction time deep-analysis and speed tracking" />
+                  <Benefit text="Accuracy percentage and error pattern analysis" />
+                  <Benefit text="Consistency metrics across all sessions" />
+                  <Benefit text="Fatigue detection and optimal timing insights" />
+                  <Benefit text="Performance distribution charts and graphs" />
+                </ul>
+              </div>
             </div>
-            <ul className="mt-4 sm:mt-6 flex flex-col gap-3 text-xs sm:text-sm">
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Access to all game modes</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Track Response time between each click</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Advanced statistics & performance tracking</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Customizable difficulty presets</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Ad-free uninterrupted gameplay</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Exclusive Pro-only leaderboard</span>
-              </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4 me-2 mt-0.5 flex-shrink-0 text-success"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Priority support</span>
-              </li>
-            </ul>
-            <div className="mt-6">
-              <Link
-                href={`https://schultetable.lemonsqueezy.com/buy/a7ae0450-6c1d-4aa1-92c0-dfce4e3edf6e?checkout[custom][user_id]=${user[0]?.id}`}
+
+            {/* Progress Section */}
+            <div className="card bg-base-100 shadow-lg">
+              <div className="card-body">
+                <h3 className="card-title text-secondary">
+                  <span className="text-2xl mr-2">📈</span>
+                  Progress Tracking
+                </h3>
+                <ul className="space-y-3 mt-4">
+                  <Benefit text="10-game trend evolution map showing improvement" />
+                  <Benefit text="Historical performance comparison" />
+                  <Benefit text="Personal best tracking and milestones" />
+                  <Benefit text="Week-over-week progress reports" />
+                  <Benefit text="Visual timeline of your cognitive journey" />
+                  <Benefit text="Goal setting and achievement tracking" />
+                </ul>
+              </div>
+            </div>
+
+            {/* Insights Section */}
+            <div className="card bg-base-100 shadow-lg">
+              <div className="card-body">
+                <h3 className="card-title text-accent">
+                  <span className="text-2xl mr-2">🎯</span>
+                  Detailed Insights
+                </h3>
+                <ul className="space-y-3 mt-4">
+                  <Benefit text="Game-by-game breakdown with session details" />
+                  <Benefit text="Pattern recognition in your performance" />
+                  <Benefit text="Strength and weakness identification" />
+                  <Benefit text="Personalized improvement recommendations" />
+                  <Benefit text="Time-of-day performance analysis" />
+                  <Benefit text="Cognitive load assessment per session" />
+                </ul>
+              </div>
+            </div>
+
+            {/* Extra Benefits */}
+            <div className="card bg-base-100 shadow-lg">
+              <div className="card-body">
+                <h3 className="card-title text-success">
+                  <span className="text-2xl mr-2">✨</span>
+                  Exclusive Benefits
+                </h3>
+                <ul className="space-y-3 mt-4">
+                  <Benefit text="Priority email support with faster response times" />
+                  <Benefit text="Export your data for external analysis" />
+                  <Benefit text="Custom training difficulty recommendations" />
+                  <Benefit text="Ad-free experience across all features" />
+                  <Benefit text="Early access to new features and updates" />
+                  <Benefit text="Dedicated dashboard for all your stats" />
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Final CTA Section */}
+        <div className="card bg-gradient-to-br from-primary/20 to-secondary/20 shadow-xl">
+          <div className="card-body items-center text-center py-12">
+            <h3 className="card-title text-3xl mb-4">
+              Ready to Unlock Your Full Potential?
+            </h3>
+            <p className="text-base-content/70 max-w-2xl mb-6">
+              Join thousands of users who are improving their cognitive
+              performance with Pro. Get instant access to all advanced analytics
+              and insights right after purchase.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <a
+                href={checkout(PLANS.lifetimeUrl)}
                 target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary btn-block text-sm sm:text-base"
+                className="btn btn-primary btn-lg"
               >
-                Get it now! (limited time offer)
-              </Link>
+                Get Lifetime Access — {PLANS.lifetimePrice}
+              </a>
+              <a
+                href={checkout(PLANS.monthlyUrl)}
+                target="_blank"
+                className="btn btn-outline btn-lg"
+              >
+                Try Monthly — {PLANS.monthlyPrice}
+              </a>
+            </div>
+            <div className="mt-6 flex items-center gap-2 text-sm text-base-content/60">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+              Secure checkout powered by LemonSqueezy
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function Benefit({ text, highlighted }) {
+  return (
+    <li className="flex items-start gap-3">
+      <svg
+        className={`w-5 h-5 mt-0.5 flex-shrink-0 ${highlighted ? "text-secondary" : "text-success"}`}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+      <span className={highlighted ? "font-semibold" : ""}>{text}</span>
+    </li>
   );
 }

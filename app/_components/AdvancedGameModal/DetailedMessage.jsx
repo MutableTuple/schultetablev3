@@ -462,7 +462,6 @@ function Placeholder({ text }) {
    - Insight text is blurred for free users
    ======================================================= */
 function InsightSection({ insight, isPro, user }) {
-  console.log(user);
   return (
     <div className="bg-base-300 p-4 rounded-xl border border-base-200">
       <h3 className="font-semibold mb-2">Overall Insight</h3>
