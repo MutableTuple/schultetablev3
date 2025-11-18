@@ -1,10 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
-export default function Pro() {
+import { IoMdAnalytics } from "react-icons/io";
+import { RiSecurePaymentLine } from "react-icons/ri";
+import { AiFillThunderbolt } from "react-icons/ai";
+import { GiProgression } from "react-icons/gi";
+import { CgInsights } from "react-icons/cg";
+import { IoSparkles } from "react-icons/io5";
+import { BiSolidBadgeDollar } from "react-icons/bi";
+export default function Pro({ user }) {
   const [isIndia, setIsIndia] = useState(null);
-  const userId = "demo-user-123";
+  const userId = user?.[0]?.id;
 
   // Load LemonSqueezy script
   useEffect(() => {
@@ -46,7 +52,7 @@ export default function Pro() {
       }
     : {
         region: "Global",
-        monthlyPrice: "$0.99",
+        monthlyPrice: "$1.99",
         lifetimePrice: "$4.99",
         monthlySaved: "$7/year vs monthly",
         lifetimeSaved: "Pay once, save $7 vs yearly",
@@ -66,9 +72,7 @@ export default function Pro() {
       <div className="min-h-screen flex items-center justify-center bg-base-200">
         <div className="text-center">
           <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="mt-4 text-base-content/70">
-            Loading your personalized pricing...
-          </p>
+          <p className="mt-4 text-base-content/70">Loading...</p>
         </div>
       </div>
     );
@@ -95,15 +99,21 @@ export default function Pro() {
           {/* Trust badges */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">⚡</span>
+              <span className="text-2xl">
+                <AiFillThunderbolt />
+              </span>
               <span>Instant Access</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🔒</span>
+              <span className="text-2xl">
+                <RiSecurePaymentLine />
+              </span>
               <span>Secure Payment</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">📊</span>
+              <span className="text-2xl">
+                <IoMdAnalytics />
+              </span>
               <span>Advanced Analytics</span>
             </div>
           </div>
@@ -114,7 +124,7 @@ export default function Pro() {
       <div className="max-w-6xl mx-auto px-4 -mt-8 pb-16">
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           {/* Free Plan */}
-          <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="card bg-base-100 border border-base-300 cursor-pointer hover:shadow-sm transition-shadow hover:shadow-xl transition-shadow">
             <div className="card-body">
               <h2 className="card-title text-2xl">Free</h2>
               <p className="text-base-content/60">Basic training features</p>
@@ -158,7 +168,7 @@ export default function Pro() {
                   {PLANS.monthlyPrice}
                   <span className="text-xl text-base-content/50 font-normal">
                     {" "}
-                    / 30 days
+                    30 day pass
                   </span>
                 </div>
                 <div className="text-sm text-success font-medium">
@@ -190,8 +200,11 @@ export default function Pro() {
           {/* Lifetime Plan */}
           <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow border-2 border-primary relative">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <div className="badge badge-secondary badge-lg gap-2">
-                <span>🏆</span> BEST VALUE
+              <div className="badge badge-primary badge-lg gap-2 font-bold">
+                <span>
+                  <BiSolidBadgeDollar />
+                </span>{" "}
+                BEST VALUE
               </div>
             </div>
 
@@ -246,10 +259,12 @@ export default function Pro() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Analytics Section */}
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-300 cursor-pointer hover:shadow-sm transition-shadow">
               <div className="card-body">
                 <h3 className="card-title text-primary">
-                  <span className="text-2xl mr-2">📊</span>
+                  <span className="text-2xl mr-2">
+                    <IoMdAnalytics />
+                  </span>
                   Advanced Analytics
                 </h3>
                 <ul className="space-y-3 mt-4">
@@ -264,10 +279,12 @@ export default function Pro() {
             </div>
 
             {/* Progress Section */}
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-300 cursor-pointer hover:shadow-sm transition-shadow">
               <div className="card-body">
                 <h3 className="card-title text-secondary">
-                  <span className="text-2xl mr-2">📈</span>
+                  <span className="text-2xl mr-2">
+                    <GiProgression />
+                  </span>
                   Progress Tracking
                 </h3>
                 <ul className="space-y-3 mt-4">
@@ -282,10 +299,12 @@ export default function Pro() {
             </div>
 
             {/* Insights Section */}
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-300 cursor-pointer hover:shadow-sm transition-shadow">
               <div className="card-body">
                 <h3 className="card-title text-accent">
-                  <span className="text-2xl mr-2">🎯</span>
+                  <span className="text-2xl mr-2">
+                    <CgInsights />
+                  </span>
                   Detailed Insights
                 </h3>
                 <ul className="space-y-3 mt-4">
@@ -300,10 +319,12 @@ export default function Pro() {
             </div>
 
             {/* Extra Benefits */}
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-300 cursor-pointer hover:shadow-sm transition-shadow">
               <div className="card-body">
                 <h3 className="card-title text-success">
-                  <span className="text-2xl mr-2">✨</span>
+                  <span className="text-2xl mr-2">
+                    <IoSparkles />
+                  </span>
                   Exclusive Benefits
                 </h3>
                 <ul className="space-y-3 mt-4">
@@ -381,7 +402,9 @@ function Benefit({ text, highlighted }) {
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
       </svg>
-      <span className={highlighted ? "font-semibold" : ""}>{text}</span>
+      <span className={highlighted ? "font-semibold text-secondary" : ""}>
+        {text}
+      </span>
     </li>
   );
 }

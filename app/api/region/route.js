@@ -3,15 +3,11 @@ export const runtime = "nodejs"; // 🟢 REQUIRED FIX
 import { headers } from "next/headers";
 
 export async function GET(req) {
-  console.log("🔍 /api/region called");
-
   let country = "US"; // fallback
 
   try {
     const h = headers();
     const vercelCountry = h.get("x-vercel-ip-country");
-
-    console.log("📦 Vercel sent country:", vercelCountry);
 
     if (vercelCountry) {
       country = vercelCountry;
