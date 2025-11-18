@@ -53,8 +53,8 @@ export async function POST(req) {
       .from("User")
       .update({
         is_pro_user: true,
-        pro_expiry: expiry,
-        purchase_plan: plan.plan,
+        pro_expiry: "2025-11-18T10:30:02.000Z",
+        purchase_plan: "DEBUG_TEST_PLAN_527",
       })
       .eq("id", userId);
 
