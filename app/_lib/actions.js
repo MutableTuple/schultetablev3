@@ -38,6 +38,27 @@ async function sendTokenToEmail(email, token) {
 
 export async function RegisterUser(formData) {
   try {
+    // ⛔ NEW: Captcha Verification Start
+    const captchaToken = formData.get("captchaToken");
+
+    if (!captchaToken) {
+      return { error: "Captcha token missing." };
+    }
+
+    const verifyCaptcha = await fetch("https://hcaptcha.com/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `response=${captchaToken}&secret=${process.env.HCAPTCHA_SECRET}`,
+    });
+
+    const captchaResult = await verifyCaptcha.json();
+
+    if (!captchaResult.success) {
+      return { error: "Captcha verification failed." };
+    }
+    // ⛔ NEW: Captcha Verification End
+    // ---------------------------------------------------------------------
+
     const fullName = formData.get("fullName");
     const suggestedUsername = formData.get("suggestedUsername");
     const email = formData.get("email");
@@ -48,7 +69,9 @@ export async function RegisterUser(formData) {
     }
 
     const avatarSeed = suggestedUsername || fullName || uuidv4().slice(0, 8);
-    const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(avatarSeed)}`;
+    const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(
+      avatarSeed
+    )}`;
     const verificationToken = generate6DigitToken();
 
     const { data, error } = await supabase.auth.signUp({

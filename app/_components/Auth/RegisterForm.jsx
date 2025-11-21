@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { RegisterUser } from "@/app/_lib/actions";
 import { supabase } from "@/app/_lib/supabase"; // ← your supabase instance
 import VerifyModal from "./VerifyModal";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
-
+  const [captchaToken, setCaptchaToken] = useState("");
   // Live check for suggested username
   useEffect(() => {
     const timeout = setTimeout(async () => {
@@ -33,15 +34,28 @@ export default function RegisterForm() {
   async function handleSubmit(event) {
     event.preventDefault();
     setLoading(true);
+
     const formData = new FormData(event.target);
 
+    // ⛔ NEW: ensure passwords match
     if (formData.get("password") !== formData.get("confirm-password")) {
       setStatus({ success: false, message: "Passwords do not match." });
       setLoading(false);
       return;
     }
 
-    formData.append("suggestedUsername", username); // 👈 pass it along
+    // ⛔ NEW: ensure captcha was solved
+    if (!captchaToken) {
+      setStatus({ success: false, message: "Please verify you're human." });
+      setLoading(false);
+      return;
+    }
+
+    // ⛔ NEW: append captcha token
+    formData.append("captchaToken", captchaToken);
+
+    // existing line — keep it
+    formData.append("suggestedUsername", username);
 
     const response = await RegisterUser(formData);
 
@@ -52,6 +66,7 @@ export default function RegisterForm() {
       setUserId(response.user.id);
       setShowModal(true);
     }
+
     setLoading(false);
   }
 
@@ -146,7 +161,12 @@ export default function RegisterForm() {
                 placeholder="Confirm your password"
               />
             </div>
+            <HCaptcha
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITEKEY}
+              onVerify={(token) => setCaptchaToken(token)}
+            />
 
+            <input type="hidden" name="captchaToken" value={captchaToken} />
             <button
               type="submit"
               className="btn btn-primary w-full mt-4"
