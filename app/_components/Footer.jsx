@@ -104,6 +104,29 @@ export default function Footer() {
               width="150"
             />
           </Link>
+
+          <Link
+            href="https://launchigniter.com/product/schultetable-com?ref=badge-schultetable-com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://launchigniter.com/api/badge/schultetable-com?theme=dark"
+              alt="Featured on LaunchIgniter"
+              width="212"
+              height="55"
+            />
+          </Link>
+          <Link
+            href="https://auraplusplus.com/projects/schultetable-com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://auraplusplus.com/images/badges/featured-on-dark.svg"
+              alt="Featured on Aura++"
+            />
+          </Link>
         </div>
 
         {/* Bottom Line */}
