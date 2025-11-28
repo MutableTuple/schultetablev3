@@ -5,6 +5,7 @@ import Script from "next/script";
 import { Toaster } from "react-hot-toast";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { getCurrentUser } from "./_utils/getCurrentUser";
+import Footer from "./_components/Footer";
 
 const chakraPetch = Chakra_Petch({
   variable: "--font-chakra-petch",
@@ -160,6 +161,7 @@ export default async function RootLayout({ children }) {
       <body className={`${chakraPetch.className} antialiased`}>
         <Toaster position="bottom-right" />
         {children}
+        <Footer />
       </body>
     </html>
   );
