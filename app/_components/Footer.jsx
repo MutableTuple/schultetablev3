@@ -93,6 +93,17 @@ export default function Footer() {
               height="54"
             />
           </Link>
+          <Link
+            href="https://bestsky.tools?utm_source=badge"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://assets.bestsky.tools/badges/featured-light.svg"
+              alt="Featured on BestskyTools"
+              width="150"
+            />
+          </Link>
         </div>
 
         {/* Bottom Line */}
