@@ -157,6 +157,8 @@ export default async function RootLayout({ children }) {
             `,
           }}
         />
+
+        <meta name="format-detection" content="telephone=no" />
       </head>
       <body className={`${chakraPetch.className} antialiased`}>
         <Toaster position="bottom-right" />

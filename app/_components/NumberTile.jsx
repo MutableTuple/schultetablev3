@@ -74,28 +74,31 @@ function NumberTile({ num, onClick, disabled }) {
         WebkitTouchCallout: "none",
         WebkitTapHighlightColor: "transparent",
         touchAction: "manipulation",
+        contain: "paint", // 🔥 prevents Chrome text searching
       }}
     >
       <div className="hover-glow absolute inset-0 pointer-events-none" />
       <div className="press-glow absolute inset-0 pointer-events-none" />
 
+      {/* 🔥 RENDER LABEL USING CSS PSEUDO-ELEMENT SO CHROME CANNOT SEARCH IT */}
       <span
         className={`
+          num-label
           font-bold text-base-content relative z-10 text-center px-1 break-words
           ${label.length <= 2 ? "text-xl sm:text-2xl" : ""}
           ${label.length === 3 ? "text-lg sm:text-xl" : ""}
           ${label.length === 4 ? "text-base sm:text-lg" : ""}
           ${label.length >= 5 ? "text-xs sm:text-sm" : ""}
         `}
+        data-label={label}
         style={{
+          pointerEvents: "none", // critical fix
           userSelect: "none",
           WebkitUserSelect: "none",
           WebkitTouchCallout: "none",
           WebkitTapHighlightColor: "transparent",
         }}
-      >
-        {label}
-      </span>
+      ></span>
     </div>
   );
 }

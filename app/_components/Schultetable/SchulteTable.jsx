@@ -10,7 +10,14 @@ import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
 import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
 import dynamic from "next/dynamic";
-import GameDataSummaryModalAdvanced from "../GameDataSummaryModalAdvanced";
+
+const GameDataSummaryModalAdvanced = dynamic(
+  () => import("../GameDataSummaryModalAdvanced"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
 
@@ -45,7 +52,7 @@ export default function SchulteTable({
   const [confettiActive, setConfettiActive] = useState(false);
   const [showLargeScreenSummaryModal, setShowLargeScreenSummaryModal] =
     useState(false);
-
+  const [gameLocked, setGameLocked] = useState(false);
   /* ===========================================
      REFS
   =========================================== */
@@ -153,6 +160,7 @@ export default function SchulteTable({
 
     /* GAME COMPLETED */
     setGameStarted(false);
+    setGameLocked(true); // ⛔ instantly block UI before modal loads
     const endTime = Date.now();
     const elapsed = endTime - gameStartTime.current;
     const allCorrect = [
@@ -313,8 +321,12 @@ export default function SchulteTable({
      UI
   =========================================== */
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full px-4 gap-2">
-      {!gameStarted && (
+    <div
+      className={`flex flex-col items-center justify-center w-full h-full px-4 gap-2 ${
+        gameLocked ? "pointer-events-none" : ""
+      }`}
+    >
+      {!gameStarted && !showLargeScreenSummaryModal && !gameLocked && (
         <div onClick={handleStartGame}>
           <StartBtn />
         </div>
@@ -364,21 +376,30 @@ export default function SchulteTable({
           <p className="mt-4 text-sm text-gray-500">Setting up your board...</p>
         </div>
       ) : (
-        <BoardGrid
-          numbers={numbers}
-          gridSize={gridSize}
-          onClick={handleTileClick}
-          gameStarted={gameStarted}
-          clickedNumbers={clickedNumbers}
-          loading={loadingBoard}
-        />
+        <div
+          className={
+            showLargeScreenSummaryModal ? "pointer-events-none opacity-40" : ""
+          }
+        >
+          <BoardGrid
+            numbers={numbers}
+            gridSize={gridSize}
+            onClick={handleTileClick}
+            gameStarted={gameStarted}
+            clickedNumbers={clickedNumbers}
+            loading={loadingBoard}
+          />
+        </div>
       )}
 
       {/* SUMMARY MODAL */}
       <GameDataSummaryModalAdvanced
         gameSummaryData={gameSummaryData}
         showModal={!!gameSummaryData && showLargeScreenSummaryModal}
-        setShowModal={setShowLargeScreenSummaryModal}
+        setShowModal={(v) => {
+          setShowLargeScreenSummaryModal(v);
+          if (!v) setGameLocked(false); // unlock when closed
+        }}
         user={user}
         mode={mode}
       />
