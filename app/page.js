@@ -22,7 +22,7 @@ export const metadata = {
     canonical: "https://www.schultetable.com/",
   },
   openGraph: {
-    title: "Play Schulte Table Online | Boost Brain Focus & Vision",
+    title: "Play Schulte Table Online Free",
     description:
       "Train your brain with the classic Schulte Table exercise. Improve attention span and reading speed while having fun.",
     url: "https://www.schultetable.com/",

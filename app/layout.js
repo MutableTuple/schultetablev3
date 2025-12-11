@@ -15,7 +15,7 @@ const chakraPetch = Chakra_Petch({
 });
 
 export const metadata = {
-  title: "Play Schulte Table Online – Improve Focus & Track Your Progress",
+  title: "Play Schulte Table Online Free",
   description:
     "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development with progress tracking.",
   keywords: [
@@ -115,7 +115,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="dark">
       <head>
-        <GoogleAnalytics gaId="G-66EJ7VMS98" />
+        {/* <GoogleAnalytics gaId="G-66EJ7VMS98" /> */}
         {/* {!isProUser && (
           <script
             async
