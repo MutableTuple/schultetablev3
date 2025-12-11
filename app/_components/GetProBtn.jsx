@@ -122,7 +122,7 @@ export default function GetProBtn() {
           </div>
 
           {/* Price with shine effect */}
-          <div className="relative inline-flex items-baseline gap-2 mb-3">
+          {/* <div className="relative inline-flex items-baseline gap-2 mb-3">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shine"></div>
               <span className="text-3xl font-black text-primary relative z-10">
@@ -132,7 +132,7 @@ export default function GetProBtn() {
             <span className="text-sm text-base-content/70 font-medium">
               lifetime
             </span>
-          </div>
+          </div> */}
 
           {/* CTA Button */}
           <button className="btn btn-primary w-full btn-sm font-bold group-hover:btn-secondary transition-all">
