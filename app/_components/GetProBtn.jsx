@@ -114,7 +114,7 @@ export default function GetProBtn() {
           {/* Main heading */}
           <div className="mb-2">
             <h3 className="text-lg font-bold text-base-content leading-tight">
-              Don&apos;t just play , know your games!
+              Don&apos;t just play , understand your games!
             </h3>
             <p className="text-xs text-base-content/60 mt-1">
               Unlock monthly brain reports & detailed insights
