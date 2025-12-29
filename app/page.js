@@ -130,7 +130,7 @@ export default async function Home() {
       </p>
       <HomeMain user={user} error={error} />
       <ClientShell user={user} />
-      <StickyGetProBtn user={user} />
+      {/* <StickyGetProBtn user={user} /> */}
     </>
   );
 }
