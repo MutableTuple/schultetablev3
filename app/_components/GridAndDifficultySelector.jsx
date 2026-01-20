@@ -43,19 +43,19 @@ export default function GridAndDifficultySelector({
   if (gameStarted) return null;
 
   return (
-    <div className="fixed top-14 left-4 z-[99999] flex flex-col gap-2 rounded-xl pointer-events-auto">
+    <div className="fixed sm:top-15 top-14 left-4 flex flex-col md:gap-2 gap-1 rounded-xl pointer-events-auto z-10">
       {/* GRID */}
-      <div className="dropdown relative z-[99999]">
+      <div className="dropdown relative ">
         <label
           tabIndex={0}
-          className="btn btn-xs w-full bg-success text-base-100"
+          className="bg-primary py-1.5 shadow-none hover:shadow-none hover:scale-105 transition-all duration-300  sm:text-sm text-[11px] sm:px-4 px-1 w-full text-base-100  font-semibold tracking-wider cursor-pointer hover:bg-primary/90 "
         >
-          {gridSize}×{gridSize}
+          Grid Size : {gridSize}×{gridSize}
         </label>
 
         <ul
           tabIndex={0}
-          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-40 z-[99999] max-h-56 overflow-auto"
+          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-40 z-50 max-h-56 overflow-auto"
         >
           {gridOptions.map((size) => (
             <li key={size}>
@@ -71,17 +71,17 @@ export default function GridAndDifficultySelector({
       </div>
 
       {/* DIFFICULTY */}
-      <div className="dropdown relative z-[99999]">
+      <div className="dropdown relative z-50">
         <label
           tabIndex={0}
-          className="btn btn-xs w-full bg-primary text-base-100 capitalize"
+          className="bg-secondary   py-1.5 shadow-none hover:shadow-none hover:scale-105 transition-all duration-300  sm:text-sm text-[11px] sm:px-4 px-1 w-full text-base-100  font-semibold tracking-wider cursor-pointer hover:bg-secondary/90 "
         >
-          {difficulty}
+          Difficulty : {difficulty}
         </label>
 
         <ul
           tabIndex={0}
-          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-44 z-[99999]"
+          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-44 z-50"
         >
           {["Easy", "Medium", "Hard", "Extreme", "Impossible"].map((diff) => (
             <li key={diff}>
@@ -99,17 +99,17 @@ export default function GridAndDifficultySelector({
       </div>
 
       {/* MODE */}
-      <div className="dropdown relative z-[99999]">
+      <div className="dropdown relative z-50">
         <label
           tabIndex={0}
-          className="btn btn-xs w-full bg-error text-base-100 capitalize"
+          className="bg-info   py-1.5 shadow-none hover:shadow-none hover:scale-105 transition-all duration-300  sm:text-sm text-[11px] sm:px-4  w-full text-base-100  font-semibold tracking-wider cursor-pointer hover:bg-info/90 px-1 "
         >
-          {mode}
+          Game Mode : <span>{mode}</span>
         </label>
 
         <ul
           tabIndex={0}
-          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-52 z-[99999]"
+          className="dropdown-content absolute left-full top-0 ml-2 menu p-2 shadow bg-base-100 rounded-box w-52 z-50"
         >
           {[
             "number",

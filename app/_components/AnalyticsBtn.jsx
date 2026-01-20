@@ -8,7 +8,7 @@ export default function AnalyticsBtn() {
   const [dismissed, setDismissed] = useState(false);
 
   return (
-    <div className="fixed top-40 left-4 z-10 ">
+    <div className="fixed sm:top-40 top-36 left-4 z-10 ">
       <div
         className={`tooltip tooltip-right ${dismissed ? "tooltip-hidden" : ""}`}
         data-tip="My Game Analytics"

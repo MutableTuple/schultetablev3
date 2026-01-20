@@ -115,7 +115,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="dark">
       <head>
-        <GoogleAnalytics gaId="G-66EJ7VMS98" />
+        {/* <GoogleAnalytics gaId="G-66EJ7VMS98" /> */}
         {/* {!isProUser && (
           <script
             async
@@ -162,7 +162,7 @@ export default async function RootLayout({ children }) {
       </head>
       <body className={`${chakraPetch.className} antialiased`}>
         <Toaster position="bottom-right" />
-        {children}
+        <div id="floating-root">{children}</div>
         <Footer />
       </body>
     </html>

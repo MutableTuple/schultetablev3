@@ -1,8 +1,7 @@
 "use client";
 import Link from "next/link";
 import React from "react";
-import { IoMdLogIn } from "react-icons/io";
-
+import { BiLogIn } from "react-icons/bi";
 export default function UserAvatar({ user }) {
   return (
     <div className="fixed top-4 left-4 z-10">
@@ -28,7 +27,7 @@ export default function UserAvatar({ user }) {
             className="btn btn-primary btn-circle w-8 h-8 tooltip tooltip-right hover:btn-secondary"
             data-tip="Click to log in"
           >
-            <IoMdLogIn className="text-xl" />
+            <BiLogIn className="text-xl " />
           </button>
         </Link>
       )}

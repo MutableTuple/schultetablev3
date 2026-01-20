@@ -100,7 +100,7 @@ export default function UserLargeScreenStat({
 
   if (fastestUser === undefined)
     return (
-      <div className="stat p-3 relative border rounded-md bg-base-100">
+      <div className="stat p-3 relative border rounded-md bg-base-100 ">
         <div className="stat-title text-sm flex items-center gap-2">
           Fetching fastest user…
           <span className="loading loading-spinner loading-xs text-primary" />
@@ -122,7 +122,7 @@ export default function UserLargeScreenStat({
   const isYou = fastestUser?.User?.id === user?.[0]?.id;
 
   return (
-    <div className="relative bg-base-100 border border-base-300 rounded-md hover:shadow transition-shadow">
+    <div className="relative bg-base-100 border border-base-300 rounded-md hover:shadow transition-shadow z-[9999]">
       <RefreshButton />
       <div className="stat p-3 pt-6 cursor-pointer">
         <div className="stat-value text-primary text-lg">
