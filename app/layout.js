@@ -15,7 +15,9 @@ const chakraPetch = Chakra_Petch({
 });
 
 export const metadata = {
-  title: "Play Schulte Table Online Free",
+  title:
+    "Play Schulte Table Online – Free Brain Training Game for Focus & Mental Speed",
+
   description:
     "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development with progress tracking.",
   keywords: [

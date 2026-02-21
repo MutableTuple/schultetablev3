@@ -17,7 +17,7 @@ export default function BoardGrid({
   ========================== */
   const clickedSet = useMemo(() => {
     return new Set(
-      clickedNumbers.map((n) => (typeof n === "object" ? n.value : n))
+      clickedNumbers.map((n) => (typeof n === "object" ? n.value : n)),
     );
   }, [clickedNumbers]);
 
@@ -28,7 +28,7 @@ export default function BoardGrid({
     (num) => {
       onClick(num);
     },
-    [onClick]
+    [onClick],
   );
 
   /* ==========================
@@ -36,13 +36,10 @@ export default function BoardGrid({
   ========================== */
   const gridStyle = useMemo(
     () => ({
-      gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-      width: `min(${gridSize * 6}rem, 100%)`,
-      maxWidth: "100%",
+      gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
     }),
-    [gridSize]
+    [gridSize],
   );
-
   /* ==========================
      4) Memo Skeleton Tiles
   ========================== */
@@ -51,7 +48,7 @@ export default function BoardGrid({
       Array.from({ length: totalTiles }).map((_, i) => (
         <div key={i} className="skeleton aspect-square rounded w-full" />
       )),
-    [totalTiles]
+    [totalTiles],
   );
 
   /* ==========================
@@ -72,16 +69,26 @@ export default function BoardGrid({
           />
         );
       }),
-    [numbers, totalTiles, gameStarted, clickedSet, handleTileClick]
+    [numbers, totalTiles, gameStarted, clickedSet, handleTileClick],
   );
 
   /* ==========================
      RENDER
   ========================== */
   return (
-    <div className="bg-base-100 p-4 w-full max-w-full flex justify-center">
+    <div className="w-full flex justify-center px-3 sm:px-6 lg:px-10">
       <div
-        className="grid gap-2 w-full max-w-screen-sm sm:max-w-screen-md md:max-w-screen-lg"
+        className="
+        grid
+        w-full
+        max-w-[92vw]
+        sm:max-w-[80vw]
+        md:max-w-[70vw]
+        lg:max-w-[60vw]
+        xl:max-w-[50vw]
+        2xl:max-w-[900px]
+        gap-1
+      "
         style={gridStyle}
       >
         {loading ? skeletonTiles : numberTiles}

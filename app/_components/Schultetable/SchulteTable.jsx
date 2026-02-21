@@ -9,6 +9,7 @@ import { calculateScore } from "./scoreUtils";
 import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
 import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
+import QuickResultBottomSheet from "../BottomModal/QuickResultBottomSheet";
 import dynamic from "next/dynamic";
 
 const GameDataSummaryModalAdvanced = dynamic(
@@ -16,7 +17,7 @@ const GameDataSummaryModalAdvanced = dynamic(
   {
     ssr: false,
     loading: () => null,
-  }
+  },
 );
 
 const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
@@ -35,6 +36,7 @@ export default function SchulteTable({
   setDifficulty,
   setMode,
 }) {
+  console.log("USEERR", user);
   /* ===========================================
      STATE
   =========================================== */
@@ -52,7 +54,63 @@ export default function SchulteTable({
   const [confettiActive, setConfettiActive] = useState(false);
   const [showLargeScreenSummaryModal, setShowLargeScreenSummaryModal] =
     useState(false);
-  const [gameLocked, setGameLocked] = useState(false);
+  const [pendingStart, setPendingStart] = useState(null);
+  // const [gameLocked, setGameLocked] = useState(false);
+  const [showQuickSheet, setShowQuickSheet] = useState(false);
+  const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const saved = localStorage.getItem("games_since_last_report");
+    return saved ? Number(saved) : 0;
+  });
+  const [country, setCountry] = useState("US");
+  const [isMobile, setIsMobile] = useState(false);
+
+  const [reportUnlocked, setReportUnlocked] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("report_unlocked") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("games_since_last_report", gamesSinceLastReport);
+  }, [gamesSinceLastReport]);
+  useEffect(() => {
+    localStorage.setItem("report_unlocked", reportUnlocked);
+  }, [reportUnlocked]);
+
+  // get country
+  useEffect(() => {
+    fetch("/api/region")
+      .then((res) => res.json())
+      .then((data) => {
+        setCountry(data.country);
+      });
+  }, []);
+  // ============================================
+  // check mobile
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  useEffect(() => {
+    if (!pendingStart) return;
+
+    // Apply new settings
+    setGridSize(pendingStart.grid);
+    setMode(pendingStart.mode);
+  }, [pendingStart]);
+  useEffect(() => {
+    if (!pendingStart) return;
+
+    // Wait until numbers are regenerated for new grid
+    if (numbers.length === pendingStart.grid * pendingStart.grid) {
+      handleStartGame();
+      setPendingStart(null);
+    }
+  }, [numbers, pendingStart]);
+
   /* ===========================================
      REFS
   =========================================== */
@@ -62,11 +120,12 @@ export default function SchulteTable({
   /* ===========================================
      HELPERS
   =========================================== */
+
   const getComparableValue = (n) => (typeof n === "object" ? n.value : n);
 
   const nextTarget = useMemo(() => {
     const remaining = numbers.filter(
-      (n) => !clickedNumbers.includes(getComparableValue(n))
+      (n) => !clickedNumbers.includes(getComparableValue(n)),
     );
     if (!remaining.length) return null;
 
@@ -75,8 +134,8 @@ export default function SchulteTable({
       ? [...remaining].sort((a, b) => a.value - b.value)[0]
       : [...remaining].sort((a, b) =>
           String(getComparableValue(a)).localeCompare(
-            String(getComparableValue(b))
-          )
+            String(getComparableValue(b)),
+          ),
         )[0];
   }, [numbers, clickedNumbers]);
 
@@ -126,6 +185,32 @@ export default function SchulteTable({
   /* ===========================================
      TILE CLICK LOGIC
   =========================================== */
+  const saveGameToLocalHistory = (summary) => {
+    try {
+      // OLD key (keep for backward compatibility)
+      const oldKey = "schulte_last_10_games";
+
+      const oldHistory = JSON.parse(localStorage.getItem(oldKey) || "[]");
+
+      const updatedOld = [summary, ...oldHistory].slice(0, 100);
+
+      localStorage.setItem(oldKey, JSON.stringify(updatedOld));
+
+      // NEW unified key (THIS FIXES YOUR PROBLEM)
+      const newKey = user?.[0]?.id
+        ? `schulte_history_user_${user[0].id}`
+        : "schulte_history_guest";
+
+      const newHistory = JSON.parse(localStorage.getItem(newKey) || "[]");
+
+      const updatedNew = [summary, ...newHistory].slice(0, 100);
+
+      localStorage.setItem(newKey, JSON.stringify(updatedNew));
+    } catch (e) {
+      console.error("Failed to save game history", e);
+    }
+  };
+
   const handleTileClick = async (num) => {
     if (!gameStarted) return;
 
@@ -160,7 +245,9 @@ export default function SchulteTable({
 
     /* GAME COMPLETED */
     setGameStarted(false);
-    setGameLocked(true); // ⛔ instantly block UI before modal loads
+    // if (!isMobile && gamesSinceLastReport + 1 >= 10) {
+    //   setGameLocked(true);
+    // }
     const endTime = Date.now();
     const elapsed = endTime - gameStartTime.current;
     const allCorrect = [
@@ -180,8 +267,8 @@ export default function SchulteTable({
     const max = Math.max(...times);
     const std = Math.round(
       Math.sqrt(
-        times.reduce((acc, t) => acc + (t - avg) ** 2, 0) / times.length
-      )
+        times.reduce((acc, t) => acc + (t - avg) ** 2, 0) / times.length,
+      ),
     );
 
     const score = calculateScore({
@@ -194,7 +281,7 @@ export default function SchulteTable({
     });
 
     const accuracy = Number(
-      ((totalTiles / (totalTiles + mistakes)) * 100).toFixed(1)
+      ((totalTiles / (totalTiles + mistakes)) * 100).toFixed(1),
     );
 
     const gameSummary = {
@@ -227,7 +314,7 @@ export default function SchulteTable({
           score,
           game_mode: mode,
           accuracy,
-
+          country: country,
           // 🧠 NEW OPTIMIZED COLUMNS
           fastest_ms: min,
           avg_reaction_ms: avg,
@@ -267,6 +354,7 @@ export default function SchulteTable({
             : top[2] && timeTaken < top[2]
               ? 3
               : null;
+    ``;
 
     if (position) {
       const colorSets = {
@@ -287,14 +375,35 @@ export default function SchulteTable({
       setTimeout(() => setConfettiActive(true), 80);
 
       toast.success(
-        `${position === 1 ? "🔥 You're #1 globally!" : `You're #${position} globally!`} ⏱ ${timeTaken.toFixed(2)}s`
+        `${position === 1 ? "🔥 You're #1 globally!" : `You're #${position} globally!`} ⏱ ${timeTaken.toFixed(2)}s`,
       );
     } else {
       toast(`Completed in ${timeTaken.toFixed(2)}s 👏`);
     }
 
+    // save FIRST
+    saveGameToLocalHistory(gameSummary);
+
+    // THEN update state
     setGameSummaryData(gameSummary);
-    setShowLargeScreenSummaryModal(true);
+
+    setGamesSinceLastReport((prev) => {
+      const newCount = prev + 1;
+      const isMilestone = newCount >= 10;
+
+      if (isMilestone) {
+        setReportUnlocked(true); // unlock permanently
+
+        toast.success("🔓 Advanced Performance Report Unlocked!");
+
+        setShowQuickSheet(true); // 👈 show bottom sheet instead
+        return 10;
+      }
+
+      setShowQuickSheet(true);
+      return newCount;
+    });
+
     window.dispatchEvent(new Event("game-finished"));
   };
 
@@ -317,20 +426,55 @@ export default function SchulteTable({
       });
   }, [user, gridSize, difficulty, mode]);
 
+  // 🔥 ADD THIS RIGHT BELOW IT
+
+  useEffect(() => {
+    if (!user?.[0]) return;
+
+    const currentUser = user[0];
+
+    // Lifetime / Pro users always unlocked
+    if (currentUser.purchase_plan || currentUser.is_pro_user) {
+      setReportUnlocked(true);
+      setGamesSinceLastReport(10);
+      return;
+    }
+
+    const totalGames = getTotalGamesPlayed(currentUser.games_played_count);
+
+    if (totalGames >= 10) {
+      setReportUnlocked(true);
+      setGamesSinceLastReport(10);
+    }
+  }, [user]);
   /* ===========================================
      UI
   =========================================== */
+
+  const getTotalGamesPlayed = (gamesPlayedCount) => {
+    if (!gamesPlayedCount) return 0;
+
+    let total = 0;
+
+    Object.values(gamesPlayedCount).forEach((mode) => {
+      Object.values(mode).forEach((difficulty) => {
+        Object.values(difficulty).forEach((count) => {
+          total += Number(count || 0);
+        });
+      });
+    });
+
+    return total;
+  };
+
   return (
-    <div
-      className={`flex flex-col items-center justify-center w-full h-full px-4 gap-2 ${
-        gameLocked ? "pointer-events-none" : ""
-      }`}
-    >
-      {!gameStarted && !showLargeScreenSummaryModal && !gameLocked && (
+    <div className="flex flex-col items-center justify-center w-full h-full px-4 gap-2">
+      {!gameStarted && !showLargeScreenSummaryModal && (
         <div onClick={handleStartGame}>
           <StartBtn />
         </div>
       )}
+
       {gameStarted && <GameTimer />}
 
       {/* CONFETTI */}
@@ -398,10 +542,34 @@ export default function SchulteTable({
         showModal={!!gameSummaryData && showLargeScreenSummaryModal}
         setShowModal={(v) => {
           setShowLargeScreenSummaryModal(v);
-          if (!v) setGameLocked(false); // unlock when closed
         }}
         user={user}
         mode={mode}
+      />
+      <QuickResultBottomSheet
+        visible={showQuickSheet}
+        gameSummaryData={gameSummaryData}
+        gamesRemaining={
+          reportUnlocked ? 0 : Math.max(0, 10 - gamesSinceLastReport)
+        }
+        user={user?.[0] || null} // ✅ pass logged-in user
+        isProUser={user?.[0]?.is_pro || false} // ✅ adjust if your column name differs
+        dailyUsers={1242 + Math.floor(Math.random() * 80)} // fake live counter
+        onLogin={() => toast("Login system hook here")}
+        onUpgrade={() => toast("Redirect to Pro page")}
+        onClose={() => setShowQuickSheet(false)}
+        onPlayAgain={() => {
+          setShowQuickSheet(false);
+          handleStartGame();
+        }}
+        onTryRecommendation={({ grid, mode }) => {
+          setShowQuickSheet(false);
+          setPendingStart({ grid, mode });
+        }}
+        onViewReport={() => {
+          setShowQuickSheet(false);
+          setShowLargeScreenSummaryModal(true);
+        }}
       />
     </div>
   );

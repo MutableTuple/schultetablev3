@@ -6,7 +6,9 @@ import StickyGetProBtn from "./_components/StickyGetProBtn";
 
 // ✅ SEO metadata export
 export const metadata = {
-  title: "Free Schulte Table Online: Boost Your Focus & Track Progress",
+  title:
+    "Play Schulte Table Online – Free Brain Training Game for Focus & Mental Speed",
+
   description:
     "Train your brain with our free online Schulte Table game. Improve speed reading, focus, and peripheral vision with a scientifically proven method. Start your training and track your progress today!",
   keywords: [
@@ -114,11 +116,18 @@ export default async function Home() {
 
   return (
     <>
-      {/* ✅ SEO-friendly screen reader tags */}
-      <h1 className="sr-only">
-        Schulte Table – Train Focus, Speed Reading & Peripheral Vision
-      </h1>
       {/* JSON-LD structured data */}
+      {/* <header className="absolute top-6 left-1/2 -translate-x-1/2 text-center px-4 w-full max-w-3xl pointer-events-none ">
+        <h1 className="text-xs font-bold leading-tight">
+          Schulte Table Online — Train Your Brain for Focus & Mental Speed
+        </h1>
+        <p className="mt-2 text-xs text-gray-400">
+          The Schulte Table is a scientifically used brain training exercise
+          that improves attention, peripheral vision, and mental processing
+          speed. Practice free online and track your progress over time.
+        </p>
+      </header> */}
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

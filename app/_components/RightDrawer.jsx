@@ -59,7 +59,18 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
       >
         ✕
       </label>
-
+      {!user && (
+        <div>
+          <h1 className="text-xs font-bold leading-tight text-center">
+            Schulte Table Online — Train Your Brain for Focus & Mental Speed
+          </h1>
+          <p className="mt-2 text-xs text-gray-400">
+            The Schulte Table is a scientifically used brain training exercise
+            that improves attention, peripheral vision, and mental processing
+            speed.
+          </p>
+        </div>
+      )}
       <div className="divider my-2 text-xs opacity-60">Global Fastest Game</div>
 
       <ul className="menu w-full flex flex-col gap-1">
