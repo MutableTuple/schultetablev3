@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { setSession } from "@/lib/auth";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { setSession } from "@/_lib/auth";
+import { createUserClient } from "@/_lib/supabaseServer";
 import { supabase } from "@/app/_lib/supabase";
+
 export async function POST(req) {
+  const supabaseServer = await createUserClient();
+
   const { credential } = await req.json();
 
   const { data, error } = await supabase.auth.signInWithIdToken({

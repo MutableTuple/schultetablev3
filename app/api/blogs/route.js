@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createUserClient } from "@/lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 // Blogs don’t change every second → safe to cache
 export const revalidate = 60;
