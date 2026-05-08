@@ -1,0 +1,239 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: all;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-glow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+  z-index: 1;
+  border-radius: inherit;
+  opacity: 0.6;
+  pointer-events: none;
+}
+@keyframes gradient-glow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.pro-glow {
+  background: linear-gradient(270deg, #facc15, #f87171, #60a5fa, #a78bfa);
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-glow 6s ease infinite;
+  font-weight: 700;
+}
+@keyframes gold-shimmer {
+  0% {
+    background-position: -200% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.gold-text {
+  background: linear-gradient(
+    90deg,
+    #facc15,
+    /* gold start */ #f59e0b,
+    /* gold middle */ #facc15 /* gold end */
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-shimmer 2.5s linear infinite;
+  font-weight: 600;
+}
+/* removes scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+@keyframes slideFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideFade {
+  animation: slideFade 0.35s ease forwards;
+}
+
+/* Hover glow (soft & ambient) */
+.number-tile .hover-glow {
+  background: radial-gradient(
+    circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(255, 255, 255, 0.03) 65%,
+    transparent 100%
+  );
+  opacity: 1;
+  transition: opacity 180ms;
+}
+
+/* Press glow (bright highlight) */
+.number-tile .press-glow {
+  background: radial-gradient(
+    circle at var(--mx) var(--my),
+    hsl(var(--p) / 0.55) 0%,
+    hsl(var(--p) / 0.32) 45%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.num-label::before {
+  content: attr(data-label);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* When actively pressing */
+.number-tile.pressed-glow .press-glow {
+  opacity: 1;
+}
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.35s ease-out;
+}
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s ease-out;
+}
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(255, 165, 0, 1);
+  }
+}
+
+.animate-glow {
+  animation: glowPulse 1.5s ease-in-out infinite;
+}
+@keyframes gradient-x {
+  0%,
+  100% {
+    background-position: left center;
+  }
+  50% {
+    background-position: right center;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 6s ease infinite;
+}
+/* ✨ Shine */
+.shine {
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  animation: shineMove 2.5s infinite;
+}
+
+@keyframes shineMove {
+  0% {
+    left: -50%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+
+/* 🌈 Smooth gradient motion */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
+}
+/* 🌈 Gradient sliding animation */
+@keyframes gradientSlide {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-slide {
+  animation: gradientSlide 3s linear infinite;
+}

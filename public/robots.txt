@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.schultetable.com
+
+# Sitemaps
+Sitemap: https://www.schultetable.com/sitemap.xml

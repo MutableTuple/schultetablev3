@@ -1,0 +1,44 @@
+import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { setSession } from "@/lib/auth";
+import { supabaseServer } from "@/lib/supabaseServer";
+
+export async function POST(req) {
+  const { credential } = await req.json();
+
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: "google",
+    token: credential,
+  });
+
+  if (error) {
+    return NextResponse.json({ error: error.message });
+  }
+
+  // ✅ store session (YOUR SYSTEM)
+  if (data?.session) {
+    await setSession(data.session);
+  }
+
+  // ✅ ensure user exists in your DB
+  const user = data.user;
+
+  const { data: existing } = await supabaseServer
+    .from("User")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!existing) {
+    await supabaseServer.from("User").insert([
+      {
+        id: user.id,
+        name: user.user_metadata?.full_name,
+        email: user.email,
+        image: user.user_metadata?.avatar_url,
+      },
+    ]);
+  }
+
+  return NextResponse.json({ success: true });
+}
