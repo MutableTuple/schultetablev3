@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/lib/supabaseServer";
 
 export async function GET(req, { params }) {
   try {
     const slug = params.slug;
 
+    const supabaseServer = await createUserClient();
+
     const { data, error } = await supabaseServer
       .from("Blogs")
       .select("*")
       .eq("slug", slug)
-      .single(); // important → returns single object
+      .single();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

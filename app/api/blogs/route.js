@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/lib/supabaseServer";
 
 // Blogs don’t change every second → safe to cache
 export const revalidate = 60;
 
 export async function GET() {
   try {
+    const supabaseServer = await createUserClient();
+
     const { data, error } = await supabaseServer
       .from("Blogs")
-      .select("id, title, slug, thumbnail, created_at") // lighter payload
+      .select("id, title, slug, thumbnail, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {

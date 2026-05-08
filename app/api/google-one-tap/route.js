@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
 import { setSession } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabaseServer";
-
+import { supabase } from "@/app/_lib/supabase";
 export async function POST(req) {
   const { credential } = await req.json();
 
