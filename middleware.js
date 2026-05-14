@@ -28,7 +28,6 @@ export async function middleware(request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log("USER IN MIDDLEWARE:", user);
 
   return response;
 }

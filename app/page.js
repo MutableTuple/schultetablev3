@@ -114,7 +114,6 @@ const jsonLd = [
 export default async function Home() {
   const { user, error } = await getCurrentUser();
   
-  console.log("uSER hm app", user);
   return (
     <>
       {/* JSON-LD structured data */}
