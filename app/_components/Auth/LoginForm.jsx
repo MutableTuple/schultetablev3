@@ -34,7 +34,7 @@ export default function LoginForm() {
     }
 
     const { data: session } = await supabase.auth.getSession();
-    console.log("CLIENT SESSION:", session);
+    // console.log("CLIENT SESSION:", session);
 
     setSuccess("Login successful!");
     await new Promise((r) => setTimeout(r, 100));

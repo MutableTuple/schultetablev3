@@ -9,8 +9,8 @@ import NotLoggedInRightDrawerNotif from "./NotLoggedInRightDrawerNotif";
 export default function RightDrawer({ user, gridSize, difficulty, mode }) {
   const userId = user?.id;
   const isPro = user?.is_pro_user;
-  console.log("uid", userId);
-  console.log("isPro", isPro);
+  // console.log("uid", userId);
+  // console.log("isPro", isPro);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 

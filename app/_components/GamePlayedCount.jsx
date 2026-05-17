@@ -67,7 +67,7 @@ export default function GamePlayedCount({ userData, user, mode }) {
 
         setCompareData({ tier, badge, headline, sub, topGap: Number(topGap), sampleSize: data.length });
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     }
 

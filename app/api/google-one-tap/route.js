@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { setSession } from "@/_lib/auth";
 import { createUserClient } from "@/_lib/supabaseServer";
 import { supabase } from "@/app/_lib/supabase";
 
@@ -14,12 +13,7 @@ export async function POST(req) {
   });
 
   if (error) {
-    return NextResponse.json({ error: error.message });
-  }
-
-  // ✅ store session (YOUR SYSTEM)
-  if (data?.session) {
-    await setSession(data.session);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   // ✅ ensure user exists in your DB
@@ -42,5 +36,8 @@ export async function POST(req) {
     ]);
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    user,
+  });
 }

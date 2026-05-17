@@ -37,7 +37,6 @@ export default function SchulteTable({
   setDifficulty,
   setMode,
 }) {
-console.log("mate user", user)
   /* ===========================================
      STATE
   =========================================== */

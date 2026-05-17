@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/lib/supabaseServer";
 
 export async function POST(req) {
   try {
+    const supabaseServer = await createUserClient();
+
     const { userId } = await req.json();
 
     if (!userId) {
@@ -56,19 +58,27 @@ export async function POST(req) {
               .eq("mission_id", mission.id)
               .single();
 
-          if (fetchError && fetchError.code !== "PGRST116") {
+          if (
+            fetchError &&
+            fetchError.code !== "PGRST116"
+          ) {
             continue;
           }
 
           if (!existing) {
-            await supabaseServer.from("user_missions").insert([
-              {
-                user_id: userId,
-                mission_id: mission.id,
-                is_completed: completed,
-              },
-            ]);
-          } else if (!existing.is_completed && completed) {
+            await supabaseServer
+              .from("user_missions")
+              .insert([
+                {
+                  user_id: userId,
+                  mission_id: mission.id,
+                  is_completed: completed,
+                },
+              ]);
+          } else if (
+            !existing.is_completed &&
+            completed
+          ) {
             await supabaseServer
               .from("user_missions")
               .update({ is_completed: true })
