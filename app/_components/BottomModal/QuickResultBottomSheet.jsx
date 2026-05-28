@@ -1,11 +1,30 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { HiDocumentReport } from "react-icons/hi";
 import { IoIosArrowRoundForward } from "react-icons/io";
+import { IoClose } from "react-icons/io5";
+import {
+  FaTrophy,
+  FaLock,
+  FaGlobe,
+  FaChartLine,
+  FaEye,
+  FaBolt,
+  FaBrain,
+  FaMedal,
+  FaRocket,
+  FaBullseye,
+  FaFire,
+  FaMeh,
+  FaCheckCircle,
+  FaArrowUp,
+  FaArrowDown,
+  FaMinus,
+  FaStar,
+  FaHeartbeat,
+  FaShieldAlt,
+} from "react-icons/fa";
 import { PiConfettiFill } from "react-icons/pi";
-import PerformanceInfo from "./PerformanceInfo";
-import DynamicInsight from "./DynamicInsight";
+import { HiDocumentReport } from "react-icons/hi";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Constants
@@ -13,53 +32,194 @@ import DynamicInsight from "./DynamicInsight";
 const GUEST_HISTORY_KEY = "schulte_history_guest";
 const USER_HISTORY_KEY_PREFIX = "schulte_history_user_";
 const REPORT_INTERVAL = 10;
-
-// Periodicity keys stored in localStorage
 const GAMES_PLAYED_KEY = "schulte_games_played_total";
 const BEST_SCORE_KEY = "schulte_best_score";
-const LAST_MODAL_GAME_KEY = "schulte_last_modal_game";
+const LAST_UPGRADE_GAME_KEY = "schulte_last_upgrade_show";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Smart modal visibility logic
-   Rules:
-     - Game 1 : never show (let them enjoy first game clean)
-     - Personal best : always show (peak dopamine moment)
-     - Every 3rd game (game 3, 6, 9…) : show full modal
-     - All other games : show mini nudge only (1 line, not intrusive)
+   History helper (pure fn, no component dependency)
 ───────────────────────────────────────────────────────────────────────────── */
-function getModalMode(score) {
+function loadHistory(userId) {
   try {
-    const total = parseInt(localStorage.getItem(GAMES_PLAYED_KEY) || "0") + 1;
-    localStorage.setItem(GAMES_PLAYED_KEY, total);
-
-    const prevBest = parseInt(localStorage.getItem(BEST_SCORE_KEY) || "0");
-    const isPersonalBest = score > prevBest;
-    if (isPersonalBest) localStorage.setItem(BEST_SCORE_KEY, score);
-
-    if (total === 1) return "none";
-    if (isPersonalBest) return "full";
-    if (total % 3 === 0) return "full";
-    return "mini";
+    if (userId) {
+      const h = JSON.parse(
+        localStorage.getItem(`${USER_HISTORY_KEY_PREFIX}${userId}`) || "[]",
+      );
+      if (h.length) return h;
+    }
+    const gh = JSON.parse(localStorage.getItem(GUEST_HISTORY_KEY) || "[]");
+    if (gh.length) return gh;
+    return JSON.parse(localStorage.getItem("schulte_last_10_games") || "[]");
   } catch {
-    return "mini";
+    return [];
   }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Spring physics
+   Stat deltas — compare current game vs rolling average of previous games.
+   Returns { scoreDelta, accuracyDelta, reactionDelta, durationDelta }
+   All deltas: positive = improved (lower reaction/duration, higher score/accuracy)
+   as a % change. null = no history.
 ───────────────────────────────────────────────────────────────────────────── */
-function springStep(pos, vel, target, stiffness = 160, damping = 20, mass = 1, dt = 1 / 60) {
-  const force = -stiffness * (pos - target) - damping * vel;
-  const acc = force / mass;
-  const newVel = vel + acc * dt;
-  const newPos = pos + newVel * dt;
-  return [newPos, newVel];
+function computeDeltas(current, history) {
+  const prev = history.filter((g) => g.completedAt !== current.completedAt);
+  if (!prev.length) return null;
+
+  const avg = (field) =>
+    prev.reduce((a, g) => a + (g[field] || 0), 0) / prev.length;
+
+  const avgScore = avg("score");
+  const avgAccuracy = avg("accuracy");
+  const avgReaction = avg("avgReactionTimeMs");
+  const avgDuration = avg("durationMs");
+
+  return {
+    // positive delta = current is better
+    scoreDelta: avgScore
+      ? +(((current.score - avgScore) / avgScore) * 100).toFixed(1)
+      : null,
+    accuracyDelta: avgAccuracy
+      ? +(((current.accuracy - avgAccuracy) / avgAccuracy) * 100).toFixed(1)
+      : null,
+    // for reaction & duration: lower is better, so flip sign
+    reactionDelta: avgReaction
+      ? +(
+          (-(current.avgReactionTimeMs - avgReaction) / avgReaction) *
+          100
+        ).toFixed(1)
+      : null,
+    durationDelta: avgDuration
+      ? +((-(current.durationMs - avgDuration) / avgDuration) * 100).toFixed(1)
+      : null,
+  };
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Confetti canvas
+   Insight builder
 ───────────────────────────────────────────────────────────────────────────── */
-function ConfettiCanvas() {
+function buildInsight(gameSummaryData, history, isPersonalBest) {
+  if (isPersonalBest)
+    return {
+      text: "That's a new personal best. Your brain just rewrote its own ceiling.",
+      type: "personal_best",
+    };
+
+  const prev = history.filter(
+    (g) => g.completedAt !== gameSummaryData.completedAt,
+  );
+  if (!prev.length)
+    return {
+      text: "Baseline set. Every game from here is data.",
+      type: "neutral",
+    };
+
+  const avgPrev =
+    prev.reduce((a, g) => a + (g.avgReactionTimeMs || 0), 0) / prev.length;
+  if (!avgPrev || isNaN(avgPrev))
+    return {
+      text: "Keep going — patterns take a few games to emerge.",
+      type: "neutral",
+    };
+
+  const diff = ((gameSummaryData.avgReactionTimeMs - avgPrev) / avgPrev) * 100;
+
+  if (diff < -16)
+    return {
+      text: "Blazing fast. You're in a flow state — ride it.",
+      type: "massive_positive",
+    };
+  if (diff < -8)
+    return {
+      text: "Clearly sharper than usual. Something clicked today.",
+      type: "positive",
+    };
+  if (diff < -3)
+    return {
+      text: "Incrementally faster. The compound effect is real.",
+      type: "slight_positive",
+    };
+  if (diff > 16)
+    return {
+      text: "Your brain's running on empty. Rest is training too.",
+      type: "negative",
+    };
+  if (diff > 8)
+    return {
+      text: "Slower today. Hydration, sleep, or stress? Worth checking.",
+      type: "slight_negative",
+    };
+  return {
+    text: "Dialled in. Consistent performance is underrated.",
+    type: "neutral",
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Strategic upgrade visibility
+   Philosophy: only show when the user is emotionally primed — never coldly.
+   Triggers (in priority):
+     1. Personal best → always show full (peak dopamine)
+     2. Massive improvement (diff < -16%) → show full ("you're on fire, see where you rank")
+     3. First time daily goal hit → show full ("you earned this")
+     4. Every 5th game → show mini (non-intrusive, planted seed)
+     5. Every 10th game → show full (periodic reminder)
+     6. Otherwise → "none" (silence is powerful)
+───────────────────────────────────────────────────────────────────────────── */
+function getUpgradeMode({
+  isPersonalBest,
+  insightType,
+  isComplete,
+  totalGames,
+}) {
+  if (isPersonalBest) return "full";
+  if (insightType === "massive_positive") return "full";
+  if (isComplete) return "full";
+  if (totalGames > 0 && totalGames % 10 === 0) return "full";
+  if (totalGames > 0 && totalGames % 5 === 0) return "mini";
+  return "none";
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Emotional upgrade copy — adapts to the trigger context
+───────────────────────────────────────────────────────────────────────────── */
+function getUpgradeCopy(isPersonalBest, insightType, isComplete) {
+  if (isPersonalBest)
+    return {
+      headline: "You just hit a personal best.",
+      subline: "See exactly where that puts you against the world.",
+      cta: "See my global rank",
+      Icon: FaTrophy,
+      accent: "#fbbf24",
+    };
+  if (insightType === "massive_positive")
+    return {
+      headline: "You're in a flow state right now.",
+      subline: "Your rank is climbing — unlock it before the session fades.",
+      cta: "Unlock my rank",
+      Icon: FaRocket,
+      accent: "#4ade80",
+    };
+  if (isComplete)
+    return {
+      headline: "You completed all 10 games.",
+      subline: "Your full Brain Report is ready. You earned this.",
+      cta: "View my Brain Report",
+      Icon: FaBrain,
+      accent: "#818cf8",
+    };
+  return {
+    headline: "Your rank is waiting.",
+    subline: "Hundreds of players are benchmarked — where do you fit?",
+    cta: "Find out",
+    Icon: FaGlobe,
+    accent: "#a78bfa",
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ConfettiCanvas — only fires on genuinely better games
+───────────────────────────────────────────────────────────────────────────── */
+function ConfettiCanvas({ intensity = "normal" }) {
   const canvasRef = useRef(null);
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -67,114 +227,749 @@ function ConfettiCanvas() {
     const ctx = canvas.getContext("2d");
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    const W = canvas.width, H = canvas.height;
-    const COLORS = ["#ff0080","#7928ca","#00c6ff","#00ff88","#ffdd00","#ff6b35","#c77dff","#48cae4"];
-    const SHAPES = ["rect","circle","strip"];
-    const particles = Array.from({ length: 120 }, (_, i) => {
-      const fromLeft = i < 60;
+    const W = canvas.width,
+      H = canvas.height;
+
+    const COLORS =
+      intensity === "personal_best"
+        ? [
+            "#ffd700",
+            "#ffed4a",
+            "#ff9500",
+            "#ff0080",
+            "#c77dff",
+            "#00ff88",
+            "#4f8ef7",
+          ]
+        : [
+            "#4ade80",
+            "#22c55e",
+            "#00c6ff",
+            "#a3e635",
+            "#34d399",
+            "#6ee7b7",
+            "#86efac",
+          ];
+
+    const SHAPES = ["rect", "circle", "strip", "star"];
+    const count = intensity === "personal_best" ? 200 : 130;
+
+    const particles = Array.from({ length: count }, (_, i) => {
+      const fromLeft = i < count / 2;
+      const isPB = intensity === "personal_best";
       return {
-        x: fromLeft ? W * 0.2 : W * 0.8, y: H * 0.5,
-        vx: (Math.random() - (fromLeft ? 0.25 : 0.75)) * 15,
-        vy: -(Math.random() * 10 + 5),
+        x: isPB ? W * (fromLeft ? 0.12 : 0.88) : fromLeft ? W * 0.2 : W * 0.8,
+        y: isPB ? H * 0.35 : H * 0.45,
+        vx: (Math.random() - (fromLeft ? 0.18 : 0.82)) * (isPB ? 20 : 16),
+        vy: -(Math.random() * (isPB ? 16 : 12) + (isPB ? 7 : 5)),
         rot: Math.random() * Math.PI * 2,
-        rotV: (Math.random() - 0.5) * 0.28,
-        w: Math.random() * 9 + 4, h: Math.random() * 5 + 3,
+        rotV: (Math.random() - 0.5) * (isPB ? 0.4 : 0.28),
+        w: Math.random() * (isPB ? 13 : 10) + 4,
+        h: Math.random() * 6 + 3,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
         shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
-        alpha: 1, gravity: 0.28 + Math.random() * 0.12,
+        alpha: 1,
+        gravity: 0.2 + Math.random() * 0.15,
+        wobble: Math.random() * 0.09,
+        wobbleSpeed: Math.random() * 0.08 + 0.02,
+        wobblePhase: Math.random() * Math.PI * 2,
       };
     });
-    let raf, elapsed = 0, last = performance.now();
+
+    let raf,
+      elapsed = 0,
+      last = performance.now();
     const draw = (now) => {
       const dt = Math.min((now - last) / 16.67, 2);
-      last = now; elapsed += dt * 16.67;
+      last = now;
+      elapsed += dt * 16.67;
       ctx.clearRect(0, 0, W, H);
       let anyAlive = false;
       for (const p of particles) {
-        p.vy += p.gravity * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.rotV * dt;
-        if (elapsed > 2500) p.alpha = Math.max(0, p.alpha - 0.018 * dt);
+        p.vy += p.gravity * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.rotV * dt;
+        p.wobblePhase += p.wobbleSpeed;
+        const wx = Math.sin(p.wobblePhase) * p.wobble * p.w;
+        const fadeAt = intensity === "personal_best" ? 3200 : 2400;
+        if (elapsed > fadeAt) p.alpha = Math.max(0, p.alpha - 0.017 * dt);
         if (p.alpha > 0) anyAlive = true;
-        ctx.save(); ctx.globalAlpha = p.alpha; ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color;
-        if (p.shape === "circle") { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2); ctx.fill(); }
-        else if (p.shape === "strip") { ctx.fillRect(-p.w / 2, -1.5, p.w, 3); }
-        else { ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.translate(p.x + wx, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if (p.shape === "circle") {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.shape === "strip") {
+          ctx.fillRect(-p.w / 2, -1.5, p.w, 3);
+        } else if (p.shape === "star") {
+          ctx.beginPath();
+          for (let s = 0; s < 5; s++) {
+            const a = (s * 4 * Math.PI) / 5 - Math.PI / 2;
+            const r = s % 2 === 0 ? p.w / 2 : p.w / 4;
+            ctx[s === 0 ? "moveTo" : "lineTo"](
+              Math.cos(a) * r,
+              Math.sin(a) * r,
+            );
+          }
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        }
         ctx.restore();
       }
       if (anyAlive) raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [intensity]);
+
   return (
-    <canvas ref={canvasRef} style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none", zIndex:10, borderRadius:"inherit" }} />
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 20,
+        borderRadius: "inherit",
+      }}
+    />
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Mini nudge — shown on most games, 1 line, non-intrusive
+   InsightBanner
 ───────────────────────────────────────────────────────────────────────────── */
-function MiniNudge({ onUpgrade, isPersonalBest }) {
+function InsightBanner({ insight, animate }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (insight) {
+      const t = setTimeout(() => setShow(true), 120);
+      return () => clearTimeout(t);
+    }
+  }, [insight]);
+  if (!insight) return null;
+
+  const themes = {
+    massive_positive: {
+      bg: "linear-gradient(135deg,#052e16,#14532d)",
+      border: "rgba(74,222,128,0.4)",
+      iconColor: "#4ade80",
+      text: "#bbf7d0",
+      Icon: FaRocket,
+      glow: "0 0 24px rgba(74,222,128,0.18)",
+    },
+    positive: {
+      bg: "linear-gradient(135deg,#0a2e1a,#0f3d22)",
+      border: "rgba(34,197,94,0.3)",
+      iconColor: "#22c55e",
+      text: "#dcfce7",
+      Icon: FaArrowUp,
+      glow: "0 0 16px rgba(34,197,94,0.12)",
+    },
+    slight_positive: {
+      bg: "linear-gradient(135deg,#0f2d1a,#143320)",
+      border: "rgba(74,222,128,0.2)",
+      iconColor: "#86efac",
+      text: "#d1fae5",
+      Icon: FaChartLine,
+      glow: "none",
+    },
+    negative: {
+      bg: "linear-gradient(135deg,#2d0c0c,#3d1515)",
+      border: "rgba(239,68,68,0.32)",
+      iconColor: "#f87171",
+      text: "#fecaca",
+      Icon: FaBrain,
+      glow: "0 0 16px rgba(239,68,68,0.1)",
+    },
+    slight_negative: {
+      bg: "linear-gradient(135deg,#2a1010,#351818)",
+      border: "rgba(239,68,68,0.2)",
+      iconColor: "#fca5a5",
+      text: "#fee2e2",
+      Icon: FaMeh,
+      glow: "none",
+    },
+    neutral: {
+      bg: "linear-gradient(135deg,#1a1a2e,#1e1e3a)",
+      border: "rgba(167,139,250,0.25)",
+      iconColor: "#a78bfa",
+      text: "#e9d5ff",
+      Icon: FaBullseye,
+      glow: "none",
+    },
+    personal_best: {
+      bg: "linear-gradient(135deg,#1c1400,#2d2000)",
+      border: "rgba(250,204,21,0.45)",
+      iconColor: "#fbbf24",
+      text: "#fef3c7",
+      Icon: FaTrophy,
+      glow: "0 0 28px rgba(250,204,21,0.22)",
+    },
+  };
+  const t = themes[insight.type] || themes.neutral;
+  const { Icon } = t;
+
   return (
     <div
-      onClick={onUpgrade}
-      className="mt-3 flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer group"
+      className="flex items-center gap-3 rounded-xl px-4 py-3 mb-3 transition-all duration-500"
       style={{
-        background: isPersonalBest
-          ? "linear-gradient(90deg, rgba(74,222,128,0.08), rgba(74,222,128,0.04))"
-          : "rgba(124,58,237,0.08)",
-        border: isPersonalBest ? "1px solid rgba(74,222,128,0.2)" : "1px solid rgba(124,58,237,0.2)",
+        background: t.bg,
+        border: `1px solid ${t.border}`,
+        boxShadow: t.glow,
+        opacity: show ? 1 : 0,
+        transform: show ? "translateY(0)" : "translateY(6px)",
       }}
     >
-      <span className="text-xs" style={{ color: isPersonalBest ? "#4ade80" : "#a78bfa" }}>
-        {isPersonalBest ? "🏆 Personal best! See your global rank" : "🔒 Your global rank is hidden"}
-      </span>
-      <span
-        className="text-xs font-semibold px-2 py-0.5 rounded-full transition-opacity group-hover:opacity-80"
-        style={{
-          background: isPersonalBest ? "rgba(74,222,128,0.15)" : "rgba(124,58,237,0.2)",
-          color: isPersonalBest ? "#4ade80" : "#c084fc",
-          border: isPersonalBest ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(124,58,237,0.3)",
-        }}
+      <div
+        className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full"
+        style={{ background: "rgba(255,255,255,0.07)" }}
       >
-        Unlock $4.99 →
-      </span>
+        <Icon size={15} color={t.iconColor} />
+      </div>
+      <p
+        className="text-sm font-semibold leading-snug"
+        style={{ color: t.text }}
+      >
+        {insight.text}
+      </p>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Full upgrade modal — shown every 3rd game or on personal best
+   NeuroCoachHeader
 ───────────────────────────────────────────────────────────────────────────── */
-function FullUpgradeModal({ onUpgrade, onClose, formattedUsers, score, isPersonalBest }) {
-  const [visible, setVisible] = useState(false);
+function NeuroCoachHeader({ user, onLogin }) {
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <div className="avatar online">
+        <div className="w-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+          <img
+            src="https://api.dicebear.com/7.x/bottts/svg?seed=Brainy"
+            alt="Neuro Coach"
+          />
+        </div>
+      </div>
+      <div>
+        <div className="font-extrabold text-base leading-tight">
+          Neuro Coach
+        </div>
+        <div className="text-xs opacity-60">Analyzing your session…</div>
+      </div>
+      {!user && (
+        <button
+          onClick={onLogin}
+          className="ml-auto btn btn-xs btn-outline btn-primary rounded-full text-xs"
+        >
+          Login to save
+        </button>
+      )}
+    </div>
+  );
+}
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DailyGoalBar
+───────────────────────────────────────────────────────────────────────────── */
+function DailyGoalBar({ gamesRemaining, REPORT_INTERVAL }) {
+  const completed = REPORT_INTERVAL - gamesRemaining;
+  const pct = Math.round((completed / REPORT_INTERVAL) * 100);
+  return (
+    <div
+      className="rounded-xl mb-4 p-3"
+      style={{ border: "2px solid #a855f7" }}
+    >
+      <div className="relative w-full h-3 rounded-full bg-base-300 overflow-hidden mb-1.5">
+        <div
+          className="absolute top-0 left-0 h-full rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: "#1a1a1a" }}
+        />
+      </div>
+      <div className="flex items-center justify-end gap-1.5 text-xs font-semibold opacity-70">
+        {gamesRemaining === 0 ? (
+          <>
+            <FaCheckCircle size={11} color="#22c55e" /> Daily goal reached!
+          </>
+        ) : (
+          <>
+            {gamesRemaining} more game{gamesRemaining !== 1 ? "s" : ""} to reach
+            daily goal
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   StatTile — color driven by delta vs previous (green = better, red = worse)
+───────────────────────────────────────────────────────────────────────────── */
+function StatTile({ label, value, delta }) {
+  // delta: positive = user improved, negative = user got worse, null = no history
+  const hasHistory = delta !== null && delta !== undefined;
+  const improved = hasHistory && delta > 1;
+  const worsened = hasHistory && delta < -1;
+  const neutral = !hasHistory || (!improved && !worsened);
+
+  const palette = improved
+    ? { bg: "#16a34a", text: "#fff", sub: "rgba(255,255,255,0.82)" }
+    : worsened
+      ? { bg: "#dc2626", text: "#fff", sub: "rgba(255,255,255,0.85)" }
+      : {
+          bg: "rgba(128,128,128,0.10)",
+          text: "inherit",
+          sub: "rgba(128,128,128,0.7)",
+          border: "1px solid rgba(128,128,128,0.18)",
+        };
+
+  const DeltaIcon = improved ? FaArrowUp : worsened ? FaArrowDown : FaMinus;
+  const sign = improved ? "+" : "";
+
+  return (
+    <div
+      className="rounded-xl flex flex-col items-center justify-center py-3 px-1 gap-0.5"
+      style={{
+        background: palette.bg,
+        border: palette.border || "none",
+        minHeight: 84,
+      }}
+    >
+      {hasHistory && (
+        <div
+          className="flex items-center gap-0.5 text-[10px] font-bold"
+          style={{ color: palette.sub }}
+        >
+          <DeltaIcon size={8} />
+          {sign}
+          {Math.abs(delta)}%
+        </div>
+      )}
+      <div
+        className="text-xl font-black leading-tight text-center"
+        style={{ color: palette.text }}
+      >
+        {value}
+      </div>
+      <div
+        className="text-[10px] font-bold uppercase tracking-wide text-center"
+        style={{ color: palette.text, opacity: 0.85 }}
+      >
+        {label}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   StatsRow
+───────────────────────────────────────────────────────────────────────────── */
+function StatsRow({ score, accuracy, avgReactionTimeMs, timeSec, deltas }) {
+  const reactionSec = (avgReactionTimeMs / 1000).toFixed(1);
+  return (
+    <div className="grid grid-cols-4 gap-2 mb-3">
+      <StatTile
+        label="Score"
+        value={score?.toLocaleString?.() ?? score}
+        delta={deltas?.scoreDelta}
+      />
+      <StatTile
+        label="Accuracy"
+        value={`${Math.round(accuracy)}%`}
+        delta={deltas?.accuracyDelta}
+      />
+      <StatTile
+        label="Reaction"
+        value={`${reactionSec}s`}
+        delta={deltas?.reactionDelta}
+      />
+      <StatTile
+        label="Time"
+        value={`${timeSec}s`}
+        delta={deltas?.durationDelta}
+      />
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BrainReportCard
+───────────────────────────────────────────────────────────────────────────── */
+function BrainReportCard({ onViewReport, gamesRemaining }) {
+  const locked = gamesRemaining > 0;
+  return (
+    <div
+      className="rounded-2xl overflow-hidden mb-3 flex items-stretch"
+      style={{
+        background:
+          "linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#a21caf 100%)",
+        minHeight: 110,
+      }}
+    >
+      <div className="flex-1 p-4 flex flex-col justify-between">
+        <div>
+          <div className="font-black text-white text-base leading-tight mb-1">
+            View Your complete Brain report.
+          </div>
+          <div className="text-xs text-white/70">
+            Detailed insights about all your games, powered by AI.
+          </div>
+        </div>
+        <button
+          disabled={locked}
+          onClick={() => !locked && onViewReport?.()}
+          className="mt-3 flex items-center gap-2 self-start px-4 py-2 rounded-full font-bold text-sm transition-all active:scale-95"
+          style={{
+            background: locked ? "rgba(255,255,255,0.15)" : "#f59e0b",
+            color: "#1a1a1a",
+            border: "none",
+            cursor: locked ? "not-allowed" : "pointer",
+            opacity: locked ? 0.6 : 1,
+          }}
+        >
+          {locked ? (
+            <>
+              <FaLock size={11} /> {gamesRemaining} more to unlock
+            </>
+          ) : (
+            <>View My complete brain report</>
+          )}
+          {!locked && (
+            <span
+              className="flex items-center justify-center w-6 h-6 rounded-full"
+              style={{ background: "#1a1a1a" }}
+            >
+              <IoIosArrowRoundForward color="#f59e0b" size={16} />
+            </span>
+          )}
+        </button>
+      </div>
+      <div
+        className="flex items-center justify-center pr-4"
+        style={{ minWidth: 90 }}
+      >
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <rect
+            x="10"
+            y="8"
+            width="52"
+            height="64"
+            rx="4"
+            fill="white"
+            fillOpacity="0.15"
+            stroke="white"
+            strokeOpacity="0.3"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="18"
+            y="20"
+            width="36"
+            height="3"
+            rx="1.5"
+            fill="white"
+            fillOpacity="0.5"
+          />
+          <rect
+            x="18"
+            y="27"
+            width="28"
+            height="3"
+            rx="1.5"
+            fill="white"
+            fillOpacity="0.4"
+          />
+          <rect
+            x="18"
+            y="34"
+            width="32"
+            height="3"
+            rx="1.5"
+            fill="white"
+            fillOpacity="0.3"
+          />
+          <polyline
+            points="18,58 28,46 36,52 46,40 58,44"
+            stroke="#f59e0b"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <circle cx="58" cy="44" r="3" fill="#f59e0b" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   GlobalRankBar
+───────────────────────────────────────────────────────────────────────────── */
+function GlobalRankBar({ onUpgrade, isProUser }) {
+  if (isProUser) return null;
+  return (
+    <div
+      className="rounded-xl flex items-center justify-between px-4 py-3 cursor-pointer active:scale-95 transition-transform"
+      style={{ background: "#16a34a" }}
+      onClick={onUpgrade}
+    >
+      <div className="flex items-center gap-2">
+        <FaGlobe size={14} color="#fff" />
+        <span className="font-black text-white text-sm">Your Global Rank</span>
+      </div>
+      <div
+        className="flex items-center gap-2 rounded-full px-4 py-1.5"
+        style={{ background: "#fff" }}
+      >
+        <span className="font-bold text-xs" style={{ color: "#1a1a1a" }}>
+          Get Pro to know
+        </span>
+        <FaMedal size={16} color="#f59e0b" />
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RecommendedPlayButton
+───────────────────────────────────────────────────────────────────────────── */
+function RecommendedPlayButton({
+  recommendation,
+  onTryRecommendation,
+  onPlayAgain,
+}) {
+  return (
+    <button
+      className="relative w-full mb-3 rounded-xl font-semibold flex gap-2 justify-center items-center px-6 py-3 transition-all duration-300 cursor-pointer active:scale-95 text-white"
+      style={{ background: "linear-gradient(135deg,#3b82f6,#06b6d4)" }}
+      onClick={() =>
+        recommendation ? onTryRecommendation?.(recommendation) : onPlayAgain()
+      }
+    >
+      <FaStar size={13} />
+      Recommended — Play {recommendation?.grid}×{recommendation?.grid}
+      <IoIosArrowRoundForward size={18} />
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SmartUpgradeBlock — strategic, emotionally-resonant upsell
+   Only shown when upgradeMode !== "none"
+───────────────────────────────────────────────────────────────────────────── */
+function SmartUpgradeBlock({
+  mode,
+  copy,
+  onOpen,
+  isPersonalBest,
+  insightType,
+}) {
+  const [entered, setEntered] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 80);
+    if (mode !== "none") {
+      const t = setTimeout(() => setEntered(true), 80);
+      return () => clearTimeout(t);
+    }
+  }, [mode]);
+
+  if (mode === "none") return null;
+
+  const { Icon, accent } = copy;
+
+  if (mode === "mini") {
+    return (
+      <div
+        onClick={onOpen}
+        className="mt-3 flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-300"
+        style={{
+          background: `rgba(${accent === "#fbbf24" ? "251,191,36" : "167,139,250"},0.08)`,
+          border: `1px solid ${accent}33`,
+          opacity: entered ? 1 : 0,
+          transform: entered ? "translateY(0)" : "translateY(8px)",
+        }}
+      >
+        <div
+          className="flex items-center gap-2 text-xs font-semibold"
+          style={{ color: accent }}
+        >
+          <Icon size={12} />
+          {copy.headline}
+        </div>
+        <span
+          className="text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"
+          style={{
+            background: `${accent}22`,
+            color: accent,
+            border: `1px solid ${accent}44`,
+          }}
+        >
+          Unlock $4.99 <IoIosArrowRoundForward size={11} />
+        </span>
+      </div>
+    );
+  }
+
+  // full
+  return (
+    <div
+      className="mt-3 rounded-2xl overflow-hidden cursor-pointer transition-all duration-400"
+      style={{
+        background: "linear-gradient(135deg,#0f0f1f,#1a1035)",
+        border: `1px solid ${accent}44`,
+        boxShadow: `0 0 32px ${accent}18`,
+        opacity: entered ? 1 : 0,
+        transform: entered
+          ? "translateY(0) scale(1)"
+          : "translateY(14px) scale(0.97)",
+        transition:
+          "opacity 0.4s ease, transform 0.45s cubic-bezier(0.34,1.4,0.64,1)",
+      }}
+      onClick={onOpen}
+    >
+      <div className="px-4 pt-4 pb-3">
+        {/* Header row */}
+        <div className="flex items-start gap-3 mb-3">
+          <div
+            className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
+            style={{
+              background: `${accent}20`,
+              border: `1px solid ${accent}44`,
+            }}
+          >
+            <Icon size={16} color={accent} />
+          </div>
+          <div>
+            <div
+              className="font-black text-sm leading-tight"
+              style={{ color: "#fff" }}
+            >
+              {copy.headline}
+            </div>
+            <div
+              className="text-xs mt-0.5"
+              style={{ color: "rgba(255,255,255,0.45)" }}
+            >
+              {copy.subline}
+            </div>
+          </div>
+        </div>
+
+        {/* Blurred rank bar teaser */}
+        <div
+          className="flex items-center gap-2 mb-3 p-2.5 rounded-xl"
+          style={{ background: "rgba(255,255,255,0.04)" }}
+        >
+          <FaLock size={10} color="rgba(255,255,255,0.3)" />
+          <div
+            className="flex-1 relative h-2 rounded-full overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.08)" }}
+          >
+            <div
+              className="absolute top-0 left-0 h-full rounded-full"
+              style={{
+                width: "72%",
+                background: `linear-gradient(90deg,${accent},#4f8ef7)`,
+              }}
+            />
+            <div
+              className="absolute top-0 right-0 h-full w-1/3"
+              style={{
+                background: "linear-gradient(90deg,transparent,#0f0f1f)",
+              }}
+            />
+          </div>
+          <span className="text-xs font-bold" style={{ color: accent }}>
+            Top ?%
+          </span>
+        </div>
+
+        {/* CTA */}
+        <button
+          className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 active:scale-95 transition-transform"
+          style={{
+            background: `linear-gradient(135deg,${accent},#4f8ef7)`,
+            color: "#0a0a14",
+            border: "none",
+          }}
+        >
+          {copy.cta}
+          <span
+            className="text-xs font-black px-2.5 py-1 rounded-full"
+            style={{ background: "rgba(0,0,0,0.2)", color: "#fff" }}
+          >
+            $4.99 once
+          </span>
+        </button>
+
+        <div
+          className="flex items-center justify-center gap-1.5 mt-2 text-xs"
+          style={{ color: "rgba(255,255,255,0.22)" }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full inline-block"
+            style={{ background: "rgba(74,222,128,0.5)" }}
+          />
+          No subscription · one-time unlock
+          <span
+            className="w-1.5 h-1.5 rounded-full inline-block"
+            style={{ background: "rgba(74,222,128,0.5)" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FullUpgradeModal
+───────────────────────────────────────────────────────────────────────────── */
+function FullUpgradeModal({
+  onUpgrade,
+  onClose,
+  formattedUsers,
+  score,
+  isPersonalBest,
+  copy,
+}) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 60);
     return () => clearTimeout(t);
   }, []);
-
   const handleClose = () => {
     setVisible(false);
-    setTimeout(onClose, 200);
+    setTimeout(onClose, 220);
   };
 
   const features = [
-    { icon: "🌍", label: "Global percentile rank" },
-    { icon: "📈", label: "Reaction trend over time" },
-    { icon: "👁", label: "Visual blind spot map" },
-    { icon: "⚡", label: "Fatigue curve per game" },
-    { icon: "🧠", label: "Brain age estimate" },
-    { icon: "🏆", label: "Country leaderboard rank" },
+    { Icon: FaGlobe, label: "Global percentile rank" },
+    { Icon: FaChartLine, label: "Reaction trend over time" },
+    { Icon: FaEye, label: "Visual blind spot map" },
+    { Icon: FaBolt, label: "Fatigue curve per game" },
+    { Icon: FaBrain, label: "Brain age estimate" },
+    { Icon: FaTrophy, label: "Country leaderboard rank" },
   ];
+
+  const accent = copy?.accent || "#a78bfa";
 
   return (
     <div
       className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center"
       style={{
-        background: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(0,0,0,0.75)",
+        backdropFilter: "blur(6px)",
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.2s ease",
+        transition: "opacity 0.25s ease",
       }}
       onClick={handleClose}
     >
@@ -182,110 +977,143 @@ function FullUpgradeModal({ onUpgrade, onClose, formattedUsers, score, isPersona
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-sm mx-auto"
         style={{
-          transform: visible ? "translateY(0) scale(1)" : "translateY(40px) scale(0.97)",
-          transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease",
+          transform: visible
+            ? "translateY(0) scale(1)"
+            : "translateY(50px) scale(0.94)",
+          transition:
+            "transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease",
           opacity: visible ? 1 : 0,
         }}
       >
         <div
           className="rounded-t-2xl sm:rounded-2xl overflow-hidden"
-          style={{ background: "#0d0d1a", border: "1px solid rgba(255,255,255,0.08)" }}
+          style={{
+            background: "#0d0d1a",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
         >
-          {/* Top gradient band */}
           <div
             className="relative px-5 pt-5 pb-4"
-            style={{ background: "linear-gradient(135deg, #1a1040 0%, #0d1a2e 100%)" }}
+            style={{
+              background: "linear-gradient(135deg,#1a1040 0%,#0d1a2e 100%)",
+            }}
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 btn btn-xs btn-ghost btn-circle opacity-50 hover:opacity-100"
+              className="absolute top-4 right-4 btn btn-xs btn-ghost btn-circle opacity-40 hover:opacity-100"
             >
-              ✕
+              <IoClose size={16} />
             </button>
-
-            {/* Score display */}
             <div className="flex items-end gap-3 mb-3">
-              <div style={{ fontSize: 40, fontWeight: 700, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1 }}>
+              <div
+                style={{
+                  fontSize: 42,
+                  fontWeight: 800,
+                  color: "#fff",
+                  letterSpacing: "-2px",
+                  lineHeight: 1,
+                }}
+              >
                 {score?.toLocaleString?.() ?? score}
               </div>
               {isPersonalBest && (
                 <div
-                  className="mb-1 text-xs font-semibold px-2 py-1 rounded-full"
-                  style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}
+                  className="mb-1 flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-full"
+                  style={{
+                    background: "rgba(251,191,36,0.15)",
+                    color: "#fbbf24",
+                    border: "1px solid rgba(251,191,36,0.35)",
+                  }}
                 >
-                  🏆 Personal best
+                  <FaTrophy size={10} /> Personal best
                 </div>
               )}
             </div>
-
-            {/* Blurred rank bar */}
             <div className="flex items-center gap-3">
-              <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
-                🔒 Global rank
+              <div
+                className="flex items-center gap-1.5 text-xs"
+                style={{
+                  color: "rgba(255,255,255,0.35)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <FaLock size={10} /> Global rank
               </div>
-              <div className="flex-1 relative h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <div
+                className="flex-1 relative h-2 rounded-full overflow-hidden"
+                style={{ background: "rgba(255,255,255,0.08)" }}
+              >
                 <div
                   className="absolute top-0 left-0 h-full rounded-full"
-                  style={{ width: "68%", background: "linear-gradient(90deg, #7c3aed, #4f8ef7)" }}
+                  style={{
+                    width: "68%",
+                    background: `linear-gradient(90deg,${accent},#4f8ef7)`,
+                  }}
                 />
-                {/* blur fade on right to suggest hidden content */}
                 <div
                   className="absolute top-0 right-0 h-full w-2/5"
-                  style={{ background: "linear-gradient(90deg, transparent, #0d1a2e)" }}
+                  style={{
+                    background: "linear-gradient(90deg,transparent,#0d1a2e)",
+                  }}
                 />
               </div>
-              <div className="text-xs font-semibold" style={{ color: "#a78bfa", whiteSpace: "nowrap" }}>
+              <div
+                className="text-xs font-bold"
+                style={{ color: accent, whiteSpace: "nowrap" }}
+              >
                 Top ?%
               </div>
             </div>
           </div>
 
-          {/* Body */}
           <div className="px-5 py-4">
-            <div className="font-bold text-base mb-0.5" style={{ color: "#fff" }}>
-              See where you actually rank
+            <div
+              className="font-black text-base mb-0.5"
+              style={{ color: "#fff" }}
+            >
+              {copy?.headline || "See where you actually rank"}
             </div>
-            <div className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <div
+              className="text-xs mb-4"
+              style={{ color: "rgba(255,255,255,0.38)" }}
+            >
               {formattedUsers} sessions benchmarked — yours included
             </div>
-
-            {/* Feature grid */}
             <div className="grid grid-cols-2 gap-2 mb-4">
-              {features.map((f) => (
+              {features.map(({ Icon, label }) => (
                 <div
-                  key={f.label}
+                  key={label}
                   className="flex items-center gap-2 text-xs rounded-lg px-3 py-2"
-                  style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.65)" }}
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    color: "rgba(255,255,255,0.6)",
+                  }}
                 >
-                  <span>{f.icon}</span>
-                  <span>{f.label}</span>
+                  <Icon size={12} color="rgba(255,255,255,0.4)" />
+                  <span>{label}</span>
                 </div>
               ))}
             </div>
-
-            {/* CTA */}
             <button
               onClick={onUpgrade}
-              className="w-full font-bold text-sm py-3.5 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"
+              className="w-full font-black text-sm py-3.5 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"
               style={{
-                background: "linear-gradient(135deg, #7c3aed, #4f8ef7)",
-                color: "#fff",
+                background: `linear-gradient(135deg,${accent},#4f8ef7)`,
+                color: "#0a0a14",
                 border: "none",
               }}
             >
-              Unlock lifetime access
+              {copy?.cta || "Unlock lifetime access"}
               <span
-                className="text-xs font-bold px-2.5 py-1 rounded-full"
-                style={{ background: "rgba(255,255,255,0.2)" }}
+                className="text-xs font-black px-2.5 py-1 rounded-full"
+                style={{ background: "rgba(0,0,0,0.18)", color: "#fff" }}
               >
                 $4.99 once
               </span>
             </button>
-
-            {/* Social proof + dismiss */}
             <div
-              className="flex items-center justify-center gap-1.5 mt-2.5 text-xs"
-              style={{ color: "rgba(255,255,255,0.25)" }}
+              className="flex items-center justify-center gap-2 mt-2.5 text-xs"
+              style={{ color: "rgba(255,255,255,0.22)" }}
             >
               <span
                 className="inline-block w-1.5 h-1.5 rounded-full"
@@ -297,13 +1125,21 @@ function FullUpgradeModal({ onUpgrade, onClose, formattedUsers, score, isPersona
                 style={{ background: "rgba(74,222,128,0.5)" }}
               />
             </div>
-
             <button
               onClick={handleClose}
               className="w-full mt-2 text-xs py-1.5 transition-colors"
-              style={{ color: "rgba(255,255,255,0.2)", background: "none", border: "none", cursor: "pointer" }}
-              onMouseOver={(e) => (e.target.style.color = "rgba(255,255,255,0.45)")}
-              onMouseOut={(e) => (e.target.style.color = "rgba(255,255,255,0.2)")}
+              style={{
+                color: "rgba(255,255,255,0.18)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseOver={(e) =>
+                (e.target.style.color = "rgba(255,255,255,0.45)")
+              }
+              onMouseOut={(e) =>
+                (e.target.style.color = "rgba(255,255,255,0.18)")
+              }
             >
               Not now — keep playing free
             </button>
@@ -332,84 +1168,105 @@ export default function QuickResultBottomSheet({
   dailyUsers = 1200,
 }) {
   const [isDesktop, setIsDesktop] = useState(false);
-  const [insight, setInsight] = useState("");
+  const [insight, setInsight] = useState(null);
+  const [deltas, setDeltas] = useState(null);
   const [recommendation, setRecommendation] = useState(null);
-  const [isFirstShow, setIsFirstShow] = useState(true);
-  const [insightType, setInsightType] = useState("neutral");
 
-  // Upgrade modal state
-  const [upgradeModalMode, setUpgradeModalMode] = useState("none"); // "none" | "mini" | "full"
+  const [upgradeMode, setUpgradeMode] = useState("none"); // "none" | "mini" | "full"
+  const [upgradeCopy, setUpgradeCopy] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isPersonalBest, setIsPersonalBest] = useState(false);
-  const modalModeDeterminedRef = useRef(false);
+  const [totalGames, setTotalGames] = useState(0);
 
-  // Spring bar
-  const [displayProgress, setDisplayProgress] = useState(0);
-  const springState = useRef({ pos: 0, vel: 0 });
-  const animFrameRef = useRef(null);
+  const [confettiMode, setConfettiMode] = useState("none"); // "none"|"normal"|"personal_best"
 
-  // Confetti
-  const [showConfetti, setShowConfetti] = useState(false);
+  // Card entry animation
+  const [cardVisible, setCardVisible] = useState(false);
+
+  const initRef = useRef(false);
   const confettiFiredRef = useRef(false);
-
-  const formattedUsers = useMemo(() => dailyUsers.toLocaleString() + "+", [dailyUsers]);
-
-  const progress = Math.min(100, Math.max(0, ((REPORT_INTERVAL - gamesRemaining) / REPORT_INTERVAL) * 100));
-  const completed = REPORT_INTERVAL - gamesRemaining;
+  const formattedUsers = useMemo(
+    () => dailyUsers.toLocaleString() + "+",
+    [dailyUsers],
+  );
   const isComplete = gamesRemaining === 0;
 
-  /* ── Determine upgrade modal mode once per visible=true ── */
+  /* ── Card entry animation ── */
   useEffect(() => {
-    if (!visible || isProUser || modalModeDeterminedRef.current) return;
-    modalModeDeterminedRef.current = true;
-
-    const score = gameSummaryData?.score ?? 0;
-    const prevBest = parseInt(localStorage.getItem(BEST_SCORE_KEY) || "0");
-    const pb = score > prevBest;
-    setIsPersonalBest(pb);
-
-    const mode = getModalMode(score);
-    setUpgradeModalMode(mode);
-  }, [visible, isProUser, gameSummaryData]);
-
-  /* Reset on close */
-  useEffect(() => {
-    if (!visible) {
-      modalModeDeterminedRef.current = false;
-      setUpgradeModalMode("none");
-      setShowUpgradeModal(false);
-      setIsPersonalBest(false);
-      springState.current = { pos: 0, vel: 0 };
-      confettiFiredRef.current = false;
-      setDisplayProgress(0);
-      setShowConfetti(false);
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (visible) {
+      const t = setTimeout(() => setCardVisible(true), 30);
+      return () => clearTimeout(t);
+    } else {
+      setCardVisible(false);
     }
   }, [visible]);
 
-  /* ── Spring bar animation ── */
+  /* ── Core init: runs once per visible=true ── */
   useEffect(() => {
-    if (!visible) return;
-    const startDelay = setTimeout(() => {
-      const target = progress;
-      const tick = () => {
-        const { pos, vel } = springState.current;
-        const [newPos, newVel] = springStep(pos, vel, target);
-        springState.current = { pos: newPos, vel: newVel };
-        setDisplayProgress(newPos);
-        if (isComplete && !confettiFiredRef.current && newPos >= target * 0.97) {
-          confettiFiredRef.current = true;
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 4000);
-        }
-        const settled = Math.abs(newPos - target) < 0.05 && Math.abs(newVel) < 0.05;
-        if (!settled) animFrameRef.current = requestAnimationFrame(tick);
-        else { setDisplayProgress(target); springState.current = { pos: target, vel: 0 }; }
-      };
-      animFrameRef.current = requestAnimationFrame(tick);
-    }, 300);
-    return () => { clearTimeout(startDelay); if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
-  }, [visible, progress, isComplete]);
+    if (!visible || initRef.current || !gameSummaryData) return;
+    initRef.current = true;
+
+    const history = loadHistory(user?.id);
+
+    // Personal best check
+    const score = gameSummaryData.score ?? 0;
+    const prevBest = parseInt(localStorage.getItem(BEST_SCORE_KEY) || "0");
+    const pb = score > prevBest;
+    if (pb) localStorage.setItem(BEST_SCORE_KEY, score);
+    setIsPersonalBest(pb);
+
+    // Total games counter
+    const total = parseInt(localStorage.getItem(GAMES_PLAYED_KEY) || "0") + 1;
+    localStorage.setItem(GAMES_PLAYED_KEY, total);
+    setTotalGames(total);
+
+    // Deltas
+    const d = computeDeltas(gameSummaryData, history);
+    setDeltas(d);
+
+    // Insight
+    const ins = buildInsight(gameSummaryData, history, pb);
+    setInsight(ins);
+
+    // Upgrade mode — strategic, not mechanical
+    if (!isProUser) {
+      const mode = getUpgradeMode({
+        isPersonalBest: pb,
+        insightType: ins.type,
+        isComplete,
+        totalGames: total,
+      });
+      setUpgradeMode(mode);
+      setUpgradeCopy(getUpgradeCopy(pb, ins.type, isComplete));
+    }
+
+    // Confetti — only on genuinely better sessions
+    const shouldConfetti =
+      pb ||
+      ins.type === "massive_positive" ||
+      (ins.type === "positive" && (d?.scoreDelta ?? 0) > 10);
+
+    if (shouldConfetti && !confettiFiredRef.current) {
+      confettiFiredRef.current = true;
+      const mode = pb ? "personal_best" : "normal";
+      setConfettiMode(mode);
+      setTimeout(() => setConfettiMode("none"), pb ? 5500 : 3800);
+    }
+  }, [visible, gameSummaryData, isProUser, isComplete, user]);
+
+  /* ── Reset on close ── */
+  useEffect(() => {
+    if (!visible) {
+      initRef.current = false;
+      confettiFiredRef.current = false;
+      setUpgradeMode("none");
+      setShowUpgradeModal(false);
+      setIsPersonalBest(false);
+      setDeltas(null);
+      setInsight(null);
+      setConfettiMode("none");
+    }
+  }, [visible]);
 
   /* ── Desktop detect ── */
   useEffect(() => {
@@ -422,247 +1279,119 @@ export default function QuickResultBottomSheet({
   /* ── ESC close ── */
   useEffect(() => {
     if (!visible) return;
-    const handleKey = (e) => e.key === "Escape" && onClose?.();
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    const h = (e) => e.key === "Escape" && onClose?.();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [visible, onClose]);
 
-  useEffect(() => {
-    if (recommendation) {
-      setIsFirstShow(true);
-      const timer = setTimeout(() => setIsFirstShow(false), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [recommendation]);
-
-  /* ── History helpers ── */
-  const getHistory = () => {
-    try {
-      if (user?.id) {
-        const key = `${USER_HISTORY_KEY_PREFIX}${user.id}`;
-        const history = JSON.parse(localStorage.getItem(key) || "[]");
-        if (history.length) return history;
-      }
-      const guestHistory = JSON.parse(localStorage.getItem(GUEST_HISTORY_KEY) || "[]");
-      if (guestHistory.length) return guestHistory;
-      return JSON.parse(localStorage.getItem("schulte_last_10_games") || "[]");
-    } catch { return []; }
-  };
-
-  /* ── Insight calculation ── */
-  useEffect(() => {
-    if (!gameSummaryData || !visible) return;
-    const timer = setTimeout(() => {
-      const history = getHistory();
-      const previousGames = history.filter((g) => g.completedAt !== gameSummaryData.completedAt);
-      if (!previousGames.length) { setInsight("🎯 First recorded game — baseline created"); setInsightType("neutral"); return; }
-      const avgPrev = previousGames.reduce((a, g) => a + (g.avgReactionTimeMs || 0), 0) / previousGames.length;
-      if (!avgPrev || isNaN(avgPrev)) { setInsight("🎯 Not enough data yet — keep playing!"); setInsightType("neutral"); return; }
-      const diff = ((gameSummaryData.avgReactionTimeMs - avgPrev) / avgPrev) * 100;
-      if (diff < -12) { setInsight("🚀 Massive improvement. Your brain is adapting fast."); setInsightType("positive"); }
-      else if (diff < -6) { setInsight("⚡ Noticeably faster reactions than usual."); setInsightType("positive"); }
-      else if (diff < -2) { setInsight("📈 Slight improvement detected."); setInsightType("positive"); }
-      else if (diff > 12) { setInsight("🧠 Slower responses. Possible fatigue."); setInsightType("negative"); }
-      else if (diff > 6) { setInsight("😐 Slight slowdown compared to usual."); setInsightType("negative"); }
-      else { setInsight("🎯 Stable performance. Consistency is excellent."); setInsightType("neutral"); }
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [gameSummaryData, visible]);
-
-  /* ── Recommendation logic ── */
+  /* ── Recommendation ── */
   useEffect(() => {
     if (!visible) return;
     const pool = isDesktop
-      ? [{ grid: 4, mode: "alphabet" }, { grid: 5, mode: "maths" }, { grid: 6, mode: "number" }]
-      : [{ grid: 3, mode: "alphabet" }, { grid: 4, mode: "number" }];
+      ? [
+          { grid: 4, mode: "alphabet" },
+          { grid: 5, mode: "maths" },
+          { grid: 6, mode: "number" },
+        ]
+      : [
+          { grid: 3, mode: "alphabet" },
+          { grid: 4, mode: "number" },
+        ];
     setRecommendation(pool[Math.floor(Math.random() * pool.length)]);
   }, [visible, isDesktop]);
 
   if (!visible || !gameSummaryData) return null;
 
   const {
-    score = 0, accuracy = 0, durationMs = 0,
-    avgReactionTimeMs = 0, gridSize = "?", mode = "number",
+    score = 0,
+    accuracy = 0,
+    durationMs = 0,
+    avgReactionTimeMs = 0,
   } = gameSummaryData;
-
   const timeSec = (durationMs / 1000).toFixed(2);
 
   const containerStyle = isDesktop
     ? "fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-    : "fixed bottom-0 left-0 right-0 z-50 px-4 pb-4";
+    : "fixed bottom-0 left-0 right-0 z-50 px-3 pb-4";
 
-  const cardStyle = isDesktop
-    ? "relative bg-base-100 p-6 w-full max-w-md animate-scale-in"
-    : "relative bg-base-100 rounded-2xl p-4 animate-slide-up border border-1";
-
-  const barGradient =
-    displayProgress < 30 ? "linear-gradient(120deg, #ff0080, #7928ca)"
-    : displayProgress < 60 ? "linear-gradient(120deg, #c020c8, #2060e8)"
-    : displayProgress < 85 ? "linear-gradient(120deg, #7928ca, #00c6ff)"
-    : "linear-gradient(120deg, #00c6ff, #00ff88)";
-
-  const barGlow =
-    displayProgress < 70 ? "0 0 25px rgba(120,0,255,0.4)" : "0 0 30px rgba(0,255,150,0.6)";
-
-  const barClip = isComplete ? "none" : "polygon(0 0, 96% 0, 100% 100%, 0% 100%)";
+  const cardBase = isDesktop
+    ? "relative bg-base-100 rounded-2xl p-5 w-full max-w-md shadow-2xl overflow-hidden"
+    : "relative bg-base-100 rounded-2xl p-4 border border-base-300 shadow-xl overflow-hidden";
 
   return (
     <>
       <div className={containerStyle} onClick={isDesktop ? onClose : undefined}>
-        <div className={cardStyle} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={cardBase}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            opacity: cardVisible ? 1 : 0,
+            transform: cardVisible
+              ? "translateY(0) scale(1)"
+              : isDesktop
+                ? "translateY(20px) scale(0.96)"
+                : "translateY(100%)",
+            transition:
+              "opacity 0.35s ease, transform 0.4s cubic-bezier(0.34,1.4,0.64,1)",
+          }}
+        >
+          {/* Confetti */}
+          {confettiMode !== "none" && (
+            <ConfettiCanvas intensity={confettiMode} />
+          )}
 
           {/* Close */}
-          <button onClick={onClose} className="absolute top-3 right-3 btn btn-sm btn-ghost rounded-none">✕</button>
-
-          {/* Neuro Coach header */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="avatar online">
-              <div className="w-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Brainy" alt="Neuro Coach" />
-              </div>
-            </div>
-            <div>
-              <div className="font-bold leading-tight">Neuro Coach</div>
-              <div className="text-xs opacity-60">Analyzing your brain performance…</div>
-            </div>
-
-            {/* Login nudge for guests — compact, top right area */}
-            {!user && (
-              <button
-                onClick={onLogin}
-                className="ml-auto btn btn-xs btn-outline btn-primary rounded-full text-xs"
-              >
-                Login to save
-              </button>
-            )}
-          </div>
-
-          {/* Performance stats */}
-          <PerformanceInfo
-            score={score}
-            timeSec={timeSec}
-            accuracy={accuracy}
-            mode={mode}
-            gridSize={gridSize}
-            avgReactionTimeMs={avgReactionTimeMs}
-          />
-
-          {/* Play again button */}
           <button
-            className={`
-              relative w-full mb-2 rounded-none font-semibold
-              flex gap-2 justify-center items-center
-              px-6 py-3 transition-all duration-300
-              cursor-pointer active:scale-95
-              ${isFirstShow
-                ? "bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 text-white"
-                : "bg-gradient-to-r hover:bg-base-200 from-blue-500 via-cyan-500 to-blue-600 text-white"
-              }
-            `}
-            onClick={() => recommendation ? onTryRecommendation?.(recommendation) : onPlayAgain()}
+            onClick={onClose}
+            className="absolute top-3 right-3 btn btn-sm btn-ghost btn-circle text-base-content/50 hover:text-base-content z-30"
           >
-            Recommended <IoIosArrowRoundForward />
-            Play {recommendation?.grid}×{recommendation?.grid}
+            <IoClose size={16} />
           </button>
 
-          <DynamicInsight
+          <NeuroCoachHeader user={user} onLogin={onLogin} />
+          <DailyGoalBar
             gamesRemaining={gamesRemaining}
             REPORT_INTERVAL={REPORT_INTERVAL}
-            insightType={insightType}
+          />
+          <StatsRow
+            score={score}
+            accuracy={accuracy}
+            avgReactionTimeMs={avgReactionTimeMs}
+            timeSec={timeSec}
+            deltas={deltas}
+          />
+          <InsightBanner insight={insight} />
+          <BrainReportCard
+            onViewReport={onViewReport}
+            gamesRemaining={gamesRemaining}
+          />
+          <RecommendedPlayButton
+            recommendation={recommendation}
+            onTryRecommendation={onTryRecommendation}
+            onPlayAgain={onPlayAgain}
           />
 
-          {/* Brain Report button */}
-          <button
-            disabled={gamesRemaining > 0}
-            className={`
-              relative w-full mb-2 font-semibold text-white
-              px-6 py-3 transition-all duration-300
-              flex items-center justify-center gap-1
-              ${gamesRemaining > 0
-                ? "bg-gray-400 cursor-not-allowed opacity-60"
-                : "bg-gradient-to-r from-emerald-500 via-green-500 to-lime-500 active:scale-95 cursor-pointer"
-              }
-            `}
-            onClick={() => { if (gamesRemaining === 0) onViewReport(); }}
-          >
-            <HiDocumentReport />
-            {gamesRemaining > 0 ? "Brain Report Locked 🔒" : "View My Brain Report"}
-          </button>
-
-          {/* Progress bar */}
-          <div className="w-full mt-3">
-            <div className="relative h-14 bg-black overflow-hidden border border-white/10 rounded-md">
-              {showConfetti && <ConfettiCanvas />}
-              <div
-                className="absolute top-0 left-0 h-full animate-gradient-slide"
-                style={{
-                  width: `${displayProgress}%`,
-                  transition: "none",
-                  clipPath: barClip,
-                  backgroundImage: barGradient,
-                  backgroundSize: "200% 200%",
-                  backgroundRepeat: "no-repeat",
-                  boxShadow: barGlow,
-                }}
-              />
-              <div
-                className="absolute top-0 h-full w-3 bg-white/50 blur-md"
-                style={{ left: `calc(${displayProgress}% - 6px)`, transition: "none", opacity: isComplete ? 0 : 1 }}
-              />
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="shine" />
-              </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center leading-tight" style={{ zIndex: 11 }}>
-                <span className="text-white font-bold tracking-wider text-sm md:text-base drop-shadow-[0_0_10px_rgba(0,0,0,0.9)]">
-                  {gamesRemaining > 0
-                    ? progress > 80 ? "🔥 FINAL PUSH" : progress > 50 ? "⚡ KEEP GOING" : "🚀 START STRONG"
-                    : "🎉 UNLOCKED"}
-                </span>
-                <span className="text-[10px] md:text-xs text-white/70">
-                  {completed}/{REPORT_INTERVAL} COMPLETED
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Smart upgrade section ── */}
-          {!isProUser && upgradeModalMode === "mini" && (
-            <MiniNudge
-              onUpgrade={() => setShowUpgradeModal(true)}
+          {/* Strategic upgrade — only when emotionally primed */}
+          {!isProUser && (
+            <SmartUpgradeBlock
+              mode={upgradeMode}
+              copy={upgradeCopy}
+              onOpen={() => setShowUpgradeModal(true)}
               isPersonalBest={isPersonalBest}
+              insightType={insight?.type}
             />
           )}
 
-          {/* Trigger full modal automatically for game 3/6/9 and personal bests */}
-          {!isProUser && upgradeModalMode === "full" && !showUpgradeModal && (
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="mt-3 w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-3 active:scale-95 transition-transform"
-              style={{
-                background: isPersonalBest
-                  ? "linear-gradient(135deg, #064e3b, #065f46)"
-                  : "linear-gradient(135deg, #1e1040, #1a2a4a)",
-                border: isPersonalBest ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(124,58,237,0.3)",
-                color: isPersonalBest ? "#4ade80" : "#a78bfa",
-              }}
-            >
-              {isPersonalBest ? "🏆 Personal best — see your global rank" : "🔒 Unlock your full Brain Report"}
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{
-                  background: isPersonalBest ? "rgba(74,222,128,0.2)" : "rgba(124,58,237,0.25)",
-                  border: isPersonalBest ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(124,58,237,0.3)",
-                }}
-              >
-                $4.99
-              </span>
-            </button>
+          {/* Always-visible rank bar (replaces the static GlobalRankBar when upgrade block is "none") */}
+          {!isProUser && upgradeMode === "none" && (
+            <GlobalRankBar
+              onUpgrade={() => setShowUpgradeModal(true)}
+              isProUser={isProUser}
+            />
           )}
-
         </div>
       </div>
 
-      {/* Full upgrade modal overlay — rendered outside bottom sheet */}
       {!isProUser && showUpgradeModal && (
         <FullUpgradeModal
           onUpgrade={onUpgrade}
@@ -670,6 +1399,7 @@ export default function QuickResultBottomSheet({
           formattedUsers={formattedUsers}
           score={score}
           isPersonalBest={isPersonalBest}
+          copy={upgradeCopy}
         />
       )}
     </>

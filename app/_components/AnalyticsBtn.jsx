@@ -1,27 +1,56 @@
 "use client";
+
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
+
 import { IoMdAnalytics } from "react-icons/io";
-import { IoClose } from "react-icons/io5";
 
 export default function AnalyticsBtn() {
-  const [dismissed, setDismissed] = useState(false);
-
   return (
-    <div className="fixed sm:top-40 top-36 left-4 z-10 ">
+    <Link
+      href="/my-profile/analytics"
+      className="
+        group
+        flex
+        items-center
+        gap-3
+        border
+        border-base-300
+        bg-base-100
+        px-4
+        py-3
+        transition-all
+        duration-200
+        hover:border-primary
+        active:scale-[0.98]
+      "
+    >
       <div
-        className={`tooltip tooltip-right ${dismissed ? "tooltip-hidden" : ""}`}
-        data-tip="My Game Analytics"
+        className="
+          flex
+          h-11
+          w-11
+          items-center
+          justify-center
+          border
+          border-base-300
+          bg-base-200
+          text-primary
+          transition-all
+          duration-200
+          group-hover:border-primary
+        "
       >
-        <div className="relative flex items-center">
-          {/* Analytics button */}
-          <Link href="/my-profile/analytics" passHref>
-            <button className="btn btn-secondary btn-circle btn-sm shadow-md hover:scale-105 transition-all">
-              <IoMdAnalytics size={20} />
-            </button>
-          </Link>
-        </div>
+        <IoMdAnalytics size={22} />
       </div>
-    </div>
+
+      <div>
+        <p className="text-sm font-bold text-base-content">Analytics</p>
+
+        <p className="text-xs text-base-content/60">
+          View performance insights
+        </p>
+      </div>
+    </Link>
   );
 }

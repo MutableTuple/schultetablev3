@@ -237,3 +237,18 @@
 .animate-gradient-slide {
   animation: gradientSlide 3s linear infinite;
 }
+.pdf-page {
+  page-break-after: always;
+  break-after: page;
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  .pdf-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}

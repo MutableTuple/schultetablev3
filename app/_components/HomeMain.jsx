@@ -1,63 +1,47 @@
 "use client";
+
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
+
 import RightDrawer from "./RightDrawer";
+import LeftSidebar from "./LeftSidebar";
 
 const SchulteTable = dynamic(() => import("./Schultetable/SchulteTable"), {
   ssr: false,
   loading: () => (
-    <div className="flex justify-center items-center h-40">
+    <div className="flex items-center justify-center h-40">
       <span className="loading loading-spinner loading-lg text-primary" />
     </div>
   ),
 });
-
-const GridAndDifficultySelector = dynamic(
-  () => import("./GridAndDifficultySelector"),
-  {
-    ssr: false,
-  }
-);
-
-const UserAvatar = dynamic(() => import("./UserAvatar"), { ssr: false });
-const GoToLeaderboard = dynamic(() => import("./GoToLeaderboard"), {
-  ssr: false,
-});
-
-const AnalyticsBtn = dynamic(() => import("./AnalyticsBtn"), {
-  ssr: false,
-});
-
-import { getRandomGameSettings } from "../_utils/randomGameSettings";
 
 export default function HomeMain({ user, error }) {
   const [gridSize, setGridSize] = useState(3);
   const [difficulty, setDifficulty] = useState("Medium");
   const [gameStarted, setGameStarted] = useState(false);
   const [mode, setMode] = useState("number");
-  const setting = getRandomGameSettings;
+
   return (
     <div className="drawer drawer-end lg:drawer-open min-h-screen">
+      {/* RIGHT DRAWER TOGGLE */}
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
 
-      <GridAndDifficultySelector
-        gridSize={gridSize}
-        setGridSize={setGridSize}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
-        gameStarted={gameStarted}
-        mode={mode}
-        setMode={setMode}
-      />
-
-      <GoToLeaderboard />
-      <AnalyticsBtn />
-      <UserAvatar user={user} />
-
-      <div className="drawer-content relative p-4 flex items-center justify-center min-h-screen overflow-auto">
+      {/* MAIN CONTENT */}
+      <div className="drawer-content min-h-screen p-4">
+        {/* MOBILE RIGHT DRAWER BUTTON */}
         <label
           htmlFor="my-drawer"
-          className="btn btn-ghost btn-circle absolute top-4 right-4 z-50 drawer-button lg:hidden"
+          className="
+            btn
+            btn-ghost
+            btn-circle
+            fixed
+            top-4
+            right-4
+            z-50
+            drawer-button
+            lg:hidden
+          "
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -75,22 +59,56 @@ export default function HomeMain({ user, error }) {
           </svg>
         </label>
 
-        {/* ✅ Lazy loaded with spinner */}
-        <SchulteTable
-          gridSize={gridSize}
-          difficulty={difficulty}
-          gameStarted={gameStarted}
-          setGameStarted={setGameStarted}
-          user={user}
-          mode={mode}
-          setGridSize={setGridSize}
-          setDifficulty={setDifficulty}
-          setMode={setMode}
-        />
+        {/* MAIN LAYOUT */}
+        <div
+          className="
+            flex
+            items-start
+            gap-6
+          "
+        >
+          {/* LEFT SIDEBAR */}
+          <LeftSidebar
+            gridSize={gridSize}
+            setGridSize={setGridSize}
+            difficulty={difficulty}
+            setDifficulty={setDifficulty}
+            gameStarted={gameStarted}
+            mode={mode}
+            setMode={setMode}
+            user={user}
+          />
+
+          {/* GAME AREA */}
+          <main
+            className="
+              flex-1
+              min-w-0
+              flex
+              items-center
+              justify-center
+              min-h-[calc(100vh-2rem)]
+            "
+          >
+            <SchulteTable
+              gridSize={gridSize}
+              difficulty={difficulty}
+              gameStarted={gameStarted}
+              setGameStarted={setGameStarted}
+              user={user}
+              mode={mode}
+              setGridSize={setGridSize}
+              setDifficulty={setDifficulty}
+              setMode={setMode}
+            />
+          </main>
+        </div>
       </div>
 
-      <div className="drawer-side">
+      {/* RIGHT DRAWER */}
+      <div className="drawer-side z-[60]">
         <label htmlFor="my-drawer" className="drawer-overlay" />
+
         <RightDrawer
           user={user}
           gridSize={gridSize}

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { createUserClient } from "@/_lib/supabaseServer";
-
+import { createUserClient } from "@/app/_lib/supabaseServer";
 // simple memory store
 const rateLimit = new Map();
 
@@ -14,10 +13,7 @@ export async function PATCH(req) {
     const { userId, name, socialLink, bio, nationality, image } = body;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Missing userId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
     // ---------- RATE LIMIT ----------
@@ -31,7 +27,7 @@ export async function PATCH(req) {
         if (count >= LIMIT) {
           return NextResponse.json(
             { error: "Too many updates. Please wait 5 seconds." },
-            { status: 429 }
+            { status: 429 },
           );
         }
 
@@ -72,17 +68,14 @@ export async function PATCH(req) {
       .maybeSingle();
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(data);
   } catch (err) {
     return NextResponse.json(
       { error: err.message || "Server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -57,7 +57,9 @@ function KpiCard({ icon, label, value, badge, context, barPercent, unlocked }) {
 
       {/* Value */}
       {unlocked ? (
-        <p className="text-2xl font-bold tracking-tight leading-none">{value}</p>
+        <p className="text-2xl font-bold tracking-tight leading-none">
+          {value}
+        </p>
       ) : (
         <p className="text-2xl font-bold blur-[6px] select-none opacity-40 leading-none">
           ••••
@@ -77,15 +79,17 @@ function KpiCard({ icon, label, value, badge, context, barPercent, unlocked }) {
           className={`h-full rounded-full transition-all duration-500 ${
             unlocked ? barColors[badge.cls] : "bg-base-300"
           }`}
-          style={{ width: unlocked ? `${Math.min(100, Math.max(0, barPercent))}%` : "0%" }}
+          style={{
+            width: unlocked
+              ? `${Math.min(100, Math.max(0, barPercent))}%`
+              : "0%",
+          }}
         />
       </div>
 
       {/* Context explanation */}
       <p className="text-[11px] leading-relaxed opacity-60">
-        {unlocked
-          ? context
-          : "Upgrade to Pro to unlock this insight."}
+        {unlocked ? context : "Upgrade to Pro to unlock this insight."}
       </p>
     </div>
   );
@@ -103,7 +107,7 @@ export default function KpiStrip({ intel, isPro }) {
       // Lower is better — invert the bar
       barPercent: Math.max(
         0,
-        100 - ((intel.avg_reaction_last10 - 150) / 250) * 100
+        100 - ((intel.avg_reaction_last10 - 150) / 250) * 100,
       ),
       free: true,
     },
@@ -137,7 +141,7 @@ export default function KpiStrip({ intel, isPro }) {
       // Score is -5 to +10, normalize to 0–100
       barPercent: Math.max(
         0,
-        Math.min(100, ((intel.overall_trend_score + 5) / 15) * 100)
+        Math.min(100, ((intel.overall_trend_score + 5) / 15) * 100),
       ),
       free: false,
     },
