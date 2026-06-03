@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 export async function GET(req) {
   try {
@@ -14,7 +14,9 @@ export async function GET(req) {
       );
     }
 
-    const { count, error } = await supabaseServer
+    const supabase = await createUserClient();
+
+    const { count, error } = await supabase
       .from("SingleGameStat")
       .select("id", { count: "exact", head: true })
       .eq("grid_size", gridSize)
@@ -27,6 +29,8 @@ export async function GET(req) {
 
     return NextResponse.json({ count });
   } catch (err) {
+    console.error(err);
+
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

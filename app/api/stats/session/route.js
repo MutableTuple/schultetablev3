@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 export async function POST(req) {
   try {
@@ -13,7 +13,9 @@ export async function POST(req) {
       );
     }
 
-    const { data, error } = await supabaseServer
+    const supabase = await createUserClient();
+
+    const { data, error } = await supabase
       .from("SingleGameStat")
       .insert([
         {
@@ -32,6 +34,8 @@ export async function POST(req) {
 
     return NextResponse.json(data);
   } catch (err) {
+    console.error(err);
+
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

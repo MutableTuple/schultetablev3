@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 export async function GET() {
   try {
-    const { data, error } = await supabaseServer
+    const supabase = await createUserClient();
+
+    const { data, error } = await supabase
       .from("Notification")
       .select("*")
-      .order("created_at", { ascending: false }); // optional but recommended
+      .order("created_at", { ascending: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

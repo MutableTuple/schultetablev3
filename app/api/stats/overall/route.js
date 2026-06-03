@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 // Safe to cache — this doesn't need real-time precision
-export const revalidate = 60; // cache for 1 minute
+export const revalidate = 60;
 
 export async function GET() {
   try {
+    const supabase = await createUserClient();
+
     const twentyFourHoursAgo = new Date(
       Date.now() - 24 * 60 * 60 * 1000,
     ).toISOString();
 
-    const { count, error } = await supabaseServer
+    const { count, error } = await supabase
       .from("SingleGameStat")
       .select("id", { count: "exact", head: true })
       .gt("time_taken", 0)
@@ -22,6 +24,8 @@ export async function GET() {
 
     return NextResponse.json({ count });
   } catch (err) {
+    console.error(err);
+
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

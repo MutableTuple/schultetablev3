@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 export async function GET(req) {
   try {
@@ -14,21 +14,25 @@ export async function GET(req) {
       );
     }
 
-    const { data, error } = await supabaseServer
+    const supabase = await createUserClient();
+
+    const { data, error } = await supabase
       .from("SingleGameStat")
       .select("user, time_taken, grid_size, difficulty")
       .eq("grid_size", gridSize)
       .eq("difficulty", difficulty)
       .gt("time_taken", 0)
-      .order("time_taken", { ascending: true }) // DB sorts
-      .limit(1); // Only return fastest
+      .order("time_taken", { ascending: true })
+      .limit(1);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data[0] || null);
+    return NextResponse.json(data?.[0] || null);
   } catch (err) {
+    console.error(err);
+
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
