@@ -18,6 +18,7 @@ export default function NotFound() {
           404+-
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-error align-super ml-1 animate-pulse" />
         </span>
+
         {/* Shadow echo */}
         <span
           className="absolute inset-0 text-base-content/10 pointer-events-none"
@@ -44,10 +45,11 @@ export default function NotFound() {
         className="mb-2 text-2xl font-bold text-base-content"
         style={{ fontFamily: "'Syne', sans-serif" }}
       >
-        You've wandered off the map.
+        You&apos;ve wandered off the map.
       </h1>
+
       <p className="mb-8 max-w-sm text-sm leading-relaxed text-base-content/60">
-        This page doesn't exist — it may have been moved, deleted, or never
+        This page doesn&apos;t exist — it may have been moved, deleted, or never
         existed at all.
       </p>
 
@@ -88,12 +90,14 @@ export default function NotFound() {
         >
           Dashboard
         </Link>
+
         <Link
           href="/support"
           className="hover:text-base-content transition-colors"
         >
           Support
         </Link>
+
         <button
           onClick={() => history.back()}
           className="hover:text-base-content transition-colors"

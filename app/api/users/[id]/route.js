@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/app/_lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 export async function GET(req, { params }) {
   try {
@@ -9,11 +9,13 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "Missing user id" }, { status: 400 });
     }
 
-    const { data, error } = await supabaseServer
+    const supabase = await createUserClient();
+
+    const { data, error } = await supabase
       .from("User")
       .select("*")
       .eq("id", userId)
-      .single(); // important
+      .single();
 
     if (error) {
       if (error.code === "PGRST116") {
@@ -25,6 +27,8 @@ export async function GET(req, { params }) {
 
     return NextResponse.json(data);
   } catch (err) {
+    console.error(err);
+
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

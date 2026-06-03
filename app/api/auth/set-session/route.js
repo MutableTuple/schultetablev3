@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { setSession } from "@/app/_lib/auth";
 import { supabase } from "@/app/_lib/supabase";
-import { supabaseServer } from "@/app/_lib/supabaseServer";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
 export async function POST(req) {
   const { access_token, refresh_token } = await req.json();
 
-  // 🔥 get user from token
+  // Get user from token
   const { data } = await supabase.auth.getUser(access_token);
 
   const session = {
@@ -15,18 +15,20 @@ export async function POST(req) {
     user: data.user,
   };
 
-  // ✅ store in YOUR cookies
+  // Store in cookies
   await setSession(session);
 
-  // ✅ create user in DB if needed
-  const { data: existing } = await supabaseServer
+  const db = await createUserClient();
+
+  // Create user if needed
+  const { data: existing } = await db
     .from("User")
     .select("*")
     .eq("id", data.user.id)
     .maybeSingle();
 
   if (!existing) {
-    await supabaseServer.from("User").insert([
+    await db.from("User").insert([
       {
         id: data.user.id,
         name: data.user.user_metadata?.full_name,
