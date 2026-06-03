@@ -25,7 +25,7 @@ import {
 } from "react-icons/fa";
 import { PiConfettiFill } from "react-icons/pi";
 import { HiDocumentReport } from "react-icons/hi";
-
+import { trackEvent } from "@/app/_lib/ga";
 /* ─────────────────────────────────────────────────────────────────────────────
    Constants
 ───────────────────────────────────────────────────────────────────────────── */
@@ -35,7 +35,9 @@ const REPORT_INTERVAL = 10;
 const GAMES_PLAYED_KEY = "schulte_games_played_total";
 const BEST_SCORE_KEY = "schulte_best_score";
 const LAST_UPGRADE_GAME_KEY = "schulte_last_upgrade_show";
-
+const DAILY_GAMES_KEY = "schulte_daily_games";
+const DAILY_GAMES_DATE_KEY = "schulte_daily_games_date";
+const DAILY_GOAL = 10;
 /* ─────────────────────────────────────────────────────────────────────────────
    History helper (pure fn, no component dependency)
 ───────────────────────────────────────────────────────────────────────────── */
@@ -54,7 +56,38 @@ function loadHistory(userId) {
     return [];
   }
 }
+function getDailyGameCount() {
+  const today = new Date().toISOString().split("T")[0];
 
+  const storedDate = localStorage.getItem(DAILY_GAMES_DATE_KEY);
+
+  // new day → reset
+  if (storedDate !== today) {
+    localStorage.setItem(DAILY_GAMES_DATE_KEY, today);
+    localStorage.setItem(DAILY_GAMES_KEY, "0");
+    return 0;
+  }
+
+  return Number(localStorage.getItem(DAILY_GAMES_KEY) || 0);
+}
+
+function incrementDailyGames() {
+  const today = new Date().toISOString().split("T")[0];
+
+  const storedDate = localStorage.getItem(DAILY_GAMES_DATE_KEY);
+
+  if (storedDate !== today) {
+    localStorage.setItem(DAILY_GAMES_DATE_KEY, today);
+    localStorage.setItem(DAILY_GAMES_KEY, "1");
+    return 1;
+  }
+
+  const current = Number(localStorage.getItem(DAILY_GAMES_KEY) || 0) + 1;
+
+  localStorage.setItem(DAILY_GAMES_KEY, current.toString());
+
+  return current;
+}
 /* ─────────────────────────────────────────────────────────────────────────────
    Stat deltas — compare current game vs rolling average of previous games.
    Returns { scoreDelta, accuracyDelta, reactionDelta, durationDelta }
@@ -626,7 +659,16 @@ function BrainReportCard({ onViewReport, gamesRemaining }) {
         </div>
         <button
           disabled={locked}
-          onClick={() => !locked && onViewReport?.()}
+          onClick={() => {
+            if (locked) return;
+
+            trackEvent("brain_report_clicked", {
+              source: "quick_result_sheet",
+              games_remaining: gamesRemaining,
+            });
+
+            onViewReport?.();
+          }}
           className="mt-3 flex items-center gap-2 self-start px-4 py-2 rounded-full font-bold text-sm transition-all active:scale-95"
           style={{
             background: locked ? "rgba(255,255,255,0.15)" : "#f59e0b",
@@ -752,9 +794,15 @@ function RecommendedPlayButton({
     <button
       className="relative w-full mb-3 rounded-xl font-semibold flex gap-2 justify-center items-center px-6 py-3 transition-all duration-300 cursor-pointer active:scale-95 text-white"
       style={{ background: "linear-gradient(135deg,#3b82f6,#06b6d4)" }}
-      onClick={() =>
-        recommendation ? onTryRecommendation?.(recommendation) : onPlayAgain()
-      }
+      onClick={() => {
+        trackEvent("recommended_play_clicked", {
+          recommendation: `${recommendation?.grid}x${recommendation?.grid}_${recommendation?.mode}`,
+          grid: recommendation?.grid,
+          mode: recommendation?.mode,
+        });
+
+        recommendation ? onTryRecommendation?.(recommendation) : onPlayAgain();
+      }}
     >
       <FaStar size={13} />
       Recommended — Play {recommendation?.grid}×{recommendation?.grid}
@@ -1095,7 +1143,14 @@ function FullUpgradeModal({
               ))}
             </div>
             <button
-              onClick={onUpgrade}
+              onClick={() => {
+                trackEvent("purchase_cta_clicked", {
+                  product: "lifetime_pro",
+                  price: 4.99,
+                });
+
+                onUpgrade?.();
+              }}
               className="w-full font-black text-sm py-3.5 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"
               style={{
                 background: `linear-gradient(135deg,${accent},#4f8ef7)`,
@@ -1167,6 +1222,7 @@ export default function QuickResultBottomSheet({
   onLogin,
   dailyUsers = 1200,
 }) {
+  console.log("ISIPRERE", isProUser);
   const [isDesktop, setIsDesktop] = useState(false);
   const [insight, setInsight] = useState(null);
   const [deltas, setDeltas] = useState(null);
@@ -1189,7 +1245,11 @@ export default function QuickResultBottomSheet({
     () => dailyUsers.toLocaleString() + "+",
     [dailyUsers],
   );
-  const isComplete = gamesRemaining === 0;
+  const dailyGames = getDailyGameCount();
+
+  const dailyGamesRemaining = Math.max(0, DAILY_GOAL - dailyGames);
+
+  const isComplete = dailyGamesRemaining === 0;
 
   /* ── Card entry animation ── */
   useEffect(() => {
@@ -1216,9 +1276,9 @@ export default function QuickResultBottomSheet({
     setIsPersonalBest(pb);
 
     // Total games counter
-    const total = parseInt(localStorage.getItem(GAMES_PLAYED_KEY) || "0") + 1;
-    localStorage.setItem(GAMES_PLAYED_KEY, total);
-    setTotalGames(total);
+    const dailyGames = incrementDailyGames();
+
+    setTotalGames(dailyGames);
 
     // Deltas
     const d = computeDeltas(gameSummaryData, history);
@@ -1234,7 +1294,7 @@ export default function QuickResultBottomSheet({
         isPersonalBest: pb,
         insightType: ins.type,
         isComplete,
-        totalGames: total,
+        totalGames: dailyGames,
       });
       setUpgradeMode(mode);
       setUpgradeCopy(getUpgradeCopy(pb, ins.type, isComplete));
@@ -1376,7 +1436,14 @@ export default function QuickResultBottomSheet({
             <SmartUpgradeBlock
               mode={upgradeMode}
               copy={upgradeCopy}
-              onOpen={() => setShowUpgradeModal(true)}
+              onOpen={() => {
+                trackEvent("upgrade_offer_clicked", {
+                  source: "smart_upgrade_block",
+                  trigger: upgradeMode,
+                });
+
+                setShowUpgradeModal(true);
+              }}
               isPersonalBest={isPersonalBest}
               insightType={insight?.type}
             />
@@ -1385,7 +1452,13 @@ export default function QuickResultBottomSheet({
           {/* Always-visible rank bar (replaces the static GlobalRankBar when upgrade block is "none") */}
           {!isProUser && upgradeMode === "none" && (
             <GlobalRankBar
-              onUpgrade={() => setShowUpgradeModal(true)}
+              onUpgrade={() => {
+                trackEvent("upgrade_offer_clicked", {
+                  source: "global_rank_bar",
+                });
+
+                setShowUpgradeModal(true);
+              }}
               isProUser={isProUser}
             />
           )}

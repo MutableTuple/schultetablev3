@@ -12,7 +12,7 @@ import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
 import QuickResultBottomSheet from "../BottomModal/QuickResultBottomSheet";
 import dynamic from "next/dynamic";
 import LeaderBoardPopup from "../Notifications/LeaderBoardPopup";
-
+import { useRouter } from "next/navigation";
 const GameDataSummaryModalAdvanced = dynamic(
   () => import("../GameDataSummaryModalAdvanced"),
   {
@@ -37,6 +37,8 @@ export default function SchulteTable({
   setDifficulty,
   setMode,
 }) {
+  console.log("CUR USERS", user);
+  const router = useRouter();
   /* ===========================================
      STATE
   =========================================== */
@@ -58,7 +60,7 @@ export default function SchulteTable({
   // const [gameLocked, setGameLocked] = useState(false);
   const [showQuickSheet, setShowQuickSheet] = useState(false);
   const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
-const [leaderboardGamesPlayed, setLeaderboardGamesPlayed] = useState(1);
+  const [leaderboardGamesPlayed, setLeaderboardGamesPlayed] = useState(1);
   const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
     if (typeof window === "undefined") return 0;
     const saved = localStorage.getItem("games_since_last_report");
@@ -212,40 +214,36 @@ const [leaderboardGamesPlayed, setLeaderboardGamesPlayed] = useState(1);
       console.error("Failed to save game history", e);
     }
   };
-const maybeShowLeaderboardPopup = () => {
-  if (typeof window === "undefined") return;
+  const maybeShowLeaderboardPopup = () => {
+    if (typeof window === "undefined") return;
 
-  const now = Date.now();
+    const now = Date.now();
 
-  const lastShown =
-    Number(localStorage.getItem("lb_popup_last")) || 0;
+    const lastShown = Number(localStorage.getItem("lb_popup_last")) || 0;
 
-  const gamesSince =
-    Number(localStorage.getItem("lb_popup_games")) || 0;
+    const gamesSince = Number(localStorage.getItem("lb_popup_games")) || 0;
 
-  const guestTotalGames =
-    Number(localStorage.getItem("lb_guest_total_games")) || 0;
+    const guestTotalGames =
+      Number(localStorage.getItem("lb_guest_total_games")) || 0;
 
-  const newGamesSince = gamesSince + 1;
-  const newGuestTotal = guestTotalGames + 1;
+    const newGamesSince = gamesSince + 1;
+    const newGuestTotal = guestTotalGames + 1;
 
-  localStorage.setItem("lb_popup_games", newGamesSince);
-  localStorage.setItem("lb_guest_total_games", newGuestTotal);
+    localStorage.setItem("lb_popup_games", newGamesSince);
+    localStorage.setItem("lb_guest_total_games", newGuestTotal);
 
-  const cooldownPassed =
-    now - lastShown > 12 * 60 * 1000;
+    const cooldownPassed = now - lastShown > 12 * 60 * 1000;
 
-  const shouldShow =
-    newGamesSince >= 5 &&
-    (newGamesSince >= 10 || Math.random() < 0.35);
+    const shouldShow =
+      newGamesSince >= 5 && (newGamesSince >= 10 || Math.random() < 0.35);
 
-  if (cooldownPassed && shouldShow) {
-    setShowLeaderboardPopup(true);
+    if (cooldownPassed && shouldShow) {
+      setShowLeaderboardPopup(true);
 
-    localStorage.setItem("lb_popup_last", now);
-    localStorage.setItem("lb_popup_games", 0);
-  }
-};
+      localStorage.setItem("lb_popup_last", now);
+      localStorage.setItem("lb_popup_games", 0);
+    }
+  };
   const handleTileClick = async (num) => {
     if (!gameStarted) return;
 
@@ -443,8 +441,8 @@ const maybeShowLeaderboardPopup = () => {
       return newCount;
     });
 
-maybeShowLeaderboardPopup();
-window.dispatchEvent(new Event("game-finished"));
+    maybeShowLeaderboardPopup();
+    window.dispatchEvent(new Event("game-finished"));
   };
 
   /* ===========================================
@@ -506,26 +504,24 @@ window.dispatchEvent(new Event("game-finished"));
 
     return total;
   };
-const getPopupGamesPlayed = () => {
-  if (user?.games_played_count) {
-    return getTotalGamesPlayed(user.games_played_count);
-  }
+  const getPopupGamesPlayed = () => {
+    if (user?.games_played_count) {
+      return getTotalGamesPlayed(user.games_played_count);
+    }
 
-  return Number(
-    localStorage.getItem("lb_guest_total_games") || 1
-  );
-};
+    return Number(localStorage.getItem("lb_guest_total_games") || 1);
+  };
   return (
     <div className="flex flex-col items-center justify-center w-full h-full px-4 gap-2">
- <LeaderBoardPopup
-  open={showLeaderboardPopup}
-  gamesPlayed={getPopupGamesPlayed()}
-  onClose={() => setShowLeaderboardPopup(false)}
-  onView={() => {
-    setShowLeaderboardPopup(false);
-    window.location.href = "/leaderboard";
-  }}
-/>
+      <LeaderBoardPopup
+        open={showLeaderboardPopup}
+        gamesPlayed={getPopupGamesPlayed()}
+        onClose={() => setShowLeaderboardPopup(false)}
+        onView={() => {
+          setShowLeaderboardPopup(false);
+          window.location.href = "/leaderboard";
+        }}
+      />
       {!gameStarted && !showLargeScreenSummaryModal && (
         <div onClick={handleStartGame}>
           <StartBtn />
@@ -609,11 +605,11 @@ const getPopupGamesPlayed = () => {
         gamesRemaining={
           reportUnlocked ? 0 : Math.max(0, 10 - gamesSinceLastReport)
         }
-        user={user || null} // ✅ pass logged-in user
-        isProUser={user?.is_pro || false} // ✅ adjust if your column name differs
-        dailyUsers={1242 + Math.floor(Math.random() * 80)} // fake live counter
-        onLogin={() => toast("Login system hook here")}
-        onUpgrade={() => toast("Redirect to Pro page")}
+        user={user || null}
+        isProUser={user?.is_pro_user || false}
+        dailyUsers={1242 + Math.floor(Math.random() * 80)}
+        onLogin={() => router.push("/login")}
+        onUpgrade={() => router.push("/get-pro")}
         onClose={() => setShowQuickSheet(false)}
         onPlayAgain={() => {
           setShowQuickSheet(false);

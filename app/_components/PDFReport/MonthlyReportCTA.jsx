@@ -7,41 +7,30 @@
 
 import Link from "next/link";
 
-const user = {
-  name: "Schulte user",
-  firstName: "Champ👋",
-  handle: "@schultetable.com",
-  initials: "ST",
-  rank: "Top 11%",
-  streak: "18 Days",
-  globalScore: "184,417",
-  reaction: "427ms",
-};
-
 const leftBenefits = [
   {
     icon: "🧠",
     color: "success",
-    title: "Your memory is sharper than last month",
-    sub: "We found 3 moments where your recall improved noticeably",
+    title: "See if your memory is getting sharper",
+    sub: "Track recall patterns across every session — week by week",
   },
   {
     icon: "⚠️",
     color: "warning",
-    title: "One thing is quietly draining your focus",
-    sub: "We identified a pattern in your sessions — it's fixable",
+    title: "Discover what's quietly draining your focus",
+    sub: "Most users have one hidden pattern — the report pinpoints it",
   },
   {
     icon: "🏆",
     color: "info",
-    title: "You're outthinking 89% of people your age",
-    sub: "Your processing speed puts you in a rare global category",
+    title: "Find out where you rank globally",
+    sub: "Compare your processing speed against thousands of players",
   },
   {
     icon: "📈",
     color: "primary",
-    title: "Peak mental clarity in ~3 weeks if you keep going",
-    sub: "Better than 94% of users who started the same month",
+    title: "See your 30-day cognitive trajectory",
+    sub: "Are you improving, plateauing, or slipping? The data knows.",
   },
 ];
 
@@ -64,9 +53,9 @@ const lockedItems = [
 ];
 
 const reportStats = [
-  { label: "Global Score", value: user.globalScore },
-  { label: "Current Streak", value: user.streak },
-  { label: "Reaction", value: user.reaction },
+  { label: "Global Score", value: "???" },
+  { label: "Current Streak", value: "???" },
+  { label: "Reaction", value: "???" },
 ];
 
 // Tiny SVG line chart for the report card
@@ -99,7 +88,7 @@ function LineChart() {
   );
 }
 
-export default function MonthlyReportCTA() {
+export default function MonthlyReportCTAGuest() {
   return (
     <div
       data-theme="night"
@@ -114,7 +103,7 @@ export default function MonthlyReportCTA() {
         <div className="flex-1 flex flex-col gap-5 lg:max-w-[420px]">
           <div className="badge badge-outline badge-primary gap-2 py-3 px-4 text-xs font-bold uppercase tracking-widest w-fit">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse inline-block" />
-            May 2026 · Ready for you
+            May 2026 Report · Now Available
           </div>
 
           <div>
@@ -122,16 +111,17 @@ export default function MonthlyReportCTA() {
               className="font-black leading-[1.02] tracking-tight text-base-content"
               style={{ fontSize: "clamp(36px, 5vw, 58px)" }}
             >
-              {user.firstName},<br />
+              Is your brain
+              <br />
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                is your brain
+                actually getting
                 <br />
-                getting better?
+                better?
               </span>
             </h1>
             <p className="text-base-content/50 text-sm leading-relaxed mt-3 max-w-sm">
-              This month we tracked how your memory, focus, and mental sharpness
-              changed — day by day. The answer might surprise you.
+              Play SchulteTable and get a full monthly breakdown of your memory,
+              focus, and reaction speed — personalized to your sessions.
             </p>
           </div>
 
@@ -156,15 +146,16 @@ export default function MonthlyReportCTA() {
             ))}
           </div>
 
-          {/* urgency alert */}
-          <div className="alert bg-error/10 border border-error/20">
-            <span className="text-error text-xl">🔒</span>
+          {/* signup nudge */}
+          <div className="alert bg-primary/10 border border-primary/20">
+            <span className="text-primary text-xl">✨</span>
             <div>
               <div className="font-black text-sm text-base-content">
-                There's something we need to tell you
+                Sign up free to unlock your personal report
               </div>
               <div className="text-xs text-base-content/40">
-                We found a weak spot you're not aware of. It's in your report.
+                Create an account, play a few rounds, and see exactly how your
+                brain performs.
               </div>
             </div>
           </div>
@@ -191,12 +182,12 @@ export default function MonthlyReportCTA() {
           </div>
 
           <div className="flex gap-3 flex-wrap">
-            <Link href={"/get-pro"}>
+            <Link href={"/signup"}>
               <button
                 className="btn btn-primary btn-lg font-black shadow-lg hover:-translate-y-1 transition-transform"
                 style={{ boxShadow: "0 8px 32px oklch(var(--p)/0.3)" }}
               >
-                Show Me My Report →
+                Get My Brain Report →
               </button>
             </Link>
             <button className="btn btn-ghost btn-lg text-base-content/40">
@@ -205,7 +196,7 @@ export default function MonthlyReportCTA() {
           </div>
 
           <p className="text-xs text-base-content/25">
-            🔒 Instant access · PDF included · One-time payment
+            🔒 Free to start · Full report for $4.99 · One-time payment
           </p>
         </div>
 
@@ -271,6 +262,7 @@ export default function MonthlyReportCTA() {
                       "https://hflzumrbjzkzofgzeyao.supabase.co/storage/v1/object/public/media//Logo.png"
                     }
                     className="w-8"
+                    alt="SchulteTable Logo"
                   />
                   <div>
                     <div
@@ -347,9 +339,9 @@ export default function MonthlyReportCTA() {
                       consistency, reaction speed, and visual scanning ability.
                     </p>
                   </div>
-                  {/* focus score card */}
+                  {/* focus score card — blurred for guest */}
                   <div
-                    className="rounded-2xl p-3 text-right"
+                    className="rounded-2xl p-3 text-right relative overflow-hidden"
                     style={{
                       background: "#f8f6ff",
                       border: "1px solid #ede8ff",
@@ -367,6 +359,7 @@ export default function MonthlyReportCTA() {
                     >
                       Focus Score
                     </div>
+                    {/* blurred placeholder score */}
                     <div
                       style={{
                         fontSize: 42,
@@ -375,11 +368,13 @@ export default function MonthlyReportCTA() {
                         lineHeight: 1,
                         letterSpacing: "-0.04em",
                         marginTop: 2,
+                        filter: "blur(6px)",
+                        userSelect: "none",
                       }}
                     >
                       91
                     </div>
-                    <div style={{ marginTop: 6 }}>
+                    <div style={{ marginTop: 6, filter: "blur(3px)" }}>
                       <div
                         style={{
                           height: 4,
@@ -391,7 +386,7 @@ export default function MonthlyReportCTA() {
                         <div
                           style={{
                             height: "100%",
-                            width: "91%",
+                            width: "75%",
                             background:
                               "linear-gradient(90deg,#6c2ef2,#a855f7)",
                             borderRadius: 99,
@@ -411,21 +406,26 @@ export default function MonthlyReportCTA() {
                         </span>
                       </div>
                     </div>
+                    {/* lock badge overlay */}
                     <div
                       className="rounded-full mt-2 flex items-center justify-center"
-                      style={{ background: "#6c2ef2", padding: "3px 8px" }}
+                      style={{ background: "#e0d4ff", padding: "3px 8px" }}
                     >
                       <span
-                        style={{ fontSize: 9, color: "white", fontWeight: 700 }}
+                        style={{
+                          fontSize: 9,
+                          color: "#6c2ef2",
+                          fontWeight: 700,
+                        }}
                       >
-                        {user.rank} Worldwide
+                        🔒 Sign in
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* ── user row ── */}
+              {/* ── anonymous user row ── */}
               <div
                 className="px-5 py-3 flex items-center gap-3"
                 style={{
@@ -433,39 +433,40 @@ export default function MonthlyReportCTA() {
                   background: "#fafafa",
                 }}
               >
+                {/* generic avatar */}
                 <div
                   className="rounded-full w-9 h-9 flex items-center justify-center text-white font-black text-xs flex-shrink-0"
                   style={{
-                    background: "linear-gradient(135deg,#6c2ef2,#a855f7)",
+                    background: "linear-gradient(135deg,#aaa,#ccc)",
                   }}
                 >
-                  {user.initials}
+                  ?
                 </div>
                 <div className="flex-1">
                   <div style={{ fontSize: 13, fontWeight: 900, color: "#111" }}>
-                    {user.name}
+                    Your Report
                   </div>
                   <div style={{ fontSize: 10, color: "#bbb" }}>
-                    {user.handle}
+                    Sign up to claim it
                   </div>
                 </div>
                 <div
                   style={{
                     fontSize: 9,
-                    color: "#6c2ef2",
+                    color: "#aaa",
                     fontWeight: 800,
-                    background: "#f0ebff",
+                    background: "#f5f5f5",
                     padding: "3px 8px",
                     borderRadius: 999,
-                    border: "1px solid #d9ceff",
+                    border: "1px solid #e5e5e5",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  ▲ {user.rank} Worldwide
+                  🔒 Rank hidden
                 </div>
               </div>
 
-              {/* ── verdict + line chart ── */}
+              {/* ── teaser verdict + blurred line chart ── */}
               <div
                 className="px-5 py-3"
                 style={{ borderBottom: "1px solid #f0f0f0" }}
@@ -478,10 +479,10 @@ export default function MonthlyReportCTA() {
                     lineHeight: 1.3,
                   }}
                 >
-                  Your focus consistency improved
+                  Players who track their progress
                   <br />
                   <span style={{ color: "#6c2ef2" }}>
-                    faster than most players this month.
+                    improve 2× faster on average.
                   </span>
                 </div>
                 <p
@@ -492,13 +493,16 @@ export default function MonthlyReportCTA() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Your latest sessions show stronger visual scanning speed and
-                  improved sustained attention.
+                  Your report would show visual scanning speed, focus
+                  consistency trends, and your cognitive trajectory over time.
                 </p>
-                <LineChart />
+                {/* blurred chart as teaser */}
+                <div style={{ filter: "blur(2px)", opacity: 0.5 }}>
+                  <LineChart />
+                </div>
               </div>
 
-              {/* ── stats row ── */}
+              {/* ── stats row — blurred ── */}
               <div
                 className="grid grid-cols-3 gap-2 px-5 py-3"
                 style={{ borderBottom: "1px solid #f0f0f0" }}
@@ -527,9 +531,11 @@ export default function MonthlyReportCTA() {
                       style={{
                         fontSize: 16,
                         fontWeight: 900,
-                        color: "#111",
+                        color: "#ccc",
                         letterSpacing: "-0.03em",
                         marginTop: 2,
+                        filter: "blur(4px)",
+                        userSelect: "none",
                       }}
                     >
                       {s.value}
@@ -598,7 +604,7 @@ export default function MonthlyReportCTA() {
                   </div>
                 </div>
 
-                {/* lock overlay */}
+                {/* lock overlay — signup focused */}
                 <div
                   className="absolute inset-0 flex items-center justify-center"
                   style={{
@@ -618,7 +624,7 @@ export default function MonthlyReportCTA() {
                     <div
                       style={{ fontSize: 13, fontWeight: 900, color: "#111" }}
                     >
-                      The full picture, {user.firstName}
+                      This report is about you
                     </div>
                     <div
                       style={{
@@ -629,13 +635,16 @@ export default function MonthlyReportCTA() {
                         margin: "4px auto 0",
                       }}
                     >
-                      What's holding you back + your personalised fix
+                      Sign up free, play a few rounds, and unlock your
+                      personalized cognitive report
                     </div>
-                    <button className="btn btn-primary btn-sm mt-3 w-full font-black">
-                      Unlock for $4.99
-                    </button>
+                    <Link href="/signup">
+                      <button className="btn btn-primary btn-sm mt-3 w-full font-black">
+                        Sign Up Free →
+                      </button>
+                    </Link>
                     <div style={{ fontSize: 10, color: "#bbb", marginTop: 6 }}>
-                      One-time · instant access
+                      Report · $4.99 one-time after signup
                     </div>
                   </div>
                 </div>
