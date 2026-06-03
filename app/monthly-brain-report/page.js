@@ -5,7 +5,6 @@ import Navbar from "../_components/Navbar";
 
 export default async function page() {
   const user = await getCurrentUser();
-  console.log("USER REPORT", user);
   return (
     <div>
       <Navbar />

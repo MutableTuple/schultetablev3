@@ -27,7 +27,6 @@ export async function POST(req) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    console.log("API USER:", user);
 
     // If no user -> store NULL
     const finalUserId = user?.id || null;

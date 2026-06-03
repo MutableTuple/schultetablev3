@@ -37,7 +37,6 @@ export default function SchulteTable({
   setDifficulty,
   setMode,
 }) {
-  console.log("CUR USERS", user);
   const router = useRouter();
   /* ===========================================
      STATE

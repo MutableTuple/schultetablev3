@@ -11,8 +11,6 @@ export async function GET(req, { params }) {
       error: userError,
     } = await supabase.auth.getUser();
 
-    console.log("API USER:", user); // 🔥 debug
-
     if (userError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -208,55 +208,10 @@ export default function Report({ user }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const analytics = useGameAnalytics(user.user);
 
-  console.log("gdata", analytics.gameData);
-  console.log("adata", analytics.stats);
-  console.log("aloading", analytics.loading);
-
-  console.log("user por?", user?.is_pro_user);
   // ✅ Set to true when subscription is active
   const isPro = user.user?.is_pro_user;
   useEffect(() => {
     if (analytics.loading) return;
-
-    console.log("╔══════════════════════════════════════════╗");
-    console.log("║       useGameAnalytics — full dump       ║");
-    console.log("╚══════════════════════════════════════════╝");
-    console.group("📊 rawStats");
-    console.table(analytics.rawStats);
-    console.groupEnd();
-    console.group("🧠 brainMetrics");
-    console.table(analytics.brainMetrics);
-    console.groupEnd();
-    console.group("⚡ speedMetrics");
-    console.table(analytics.speedMetrics);
-    console.groupEnd();
-    console.group("🎯 focusMetrics");
-    console.log(analytics.focusMetrics);
-    console.groupEnd();
-    console.group("😴 fatigueMetrics");
-    console.table(analytics.fatigueMetrics);
-    console.groupEnd();
-    console.group("🏆 performanceMetrics");
-    console.log(analytics.performanceMetrics);
-    console.groupEnd();
-    console.group("🎓 masteryMetrics");
-    console.log(analytics.masteryMetrics);
-    console.groupEnd();
-    console.group("📈 trends");
-    console.table(analytics.trends);
-    console.groupEnd();
-    console.group("🏅 rankings");
-    console.table(analytics.rankings);
-    console.groupEnd();
-    console.group("🎖️ achievements");
-    console.table(analytics.achievements);
-    console.groupEnd();
-    console.group("💡 insights");
-    analytics.insights.forEach((s, i) => console.log(i + 1, s));
-    console.groupEnd();
-    console.log("🧬 mentalProfile:", analytics.mentalProfile);
-    console.log("🎮 gameData rows:", analytics.gameData.length);
-    console.log("Full object:", analytics);
   }, [analytics.loading]);
   // ============================================
   // DOWNLOAD PDF

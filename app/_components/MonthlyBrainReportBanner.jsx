@@ -99,7 +99,6 @@ export default function MonthlyBrainReportBanner({
           .order("created_at", { ascending: false });
 
         if (gamesError) {
-          console.log("Games fetch error:", gamesError);
           setGameData([]);
         } else {
           setGameData(Array.isArray(games) ? games : []);
@@ -127,7 +126,6 @@ export default function MonthlyBrainReportBanner({
           });
 
         if (analyticsError) {
-          console.log("Analytics RPC error:", analyticsError);
           setAnalytics(null);
         } else if (analyticsData?.length > 0) {
           setAnalytics(analyticsData[0]);
@@ -135,7 +133,6 @@ export default function MonthlyBrainReportBanner({
           setAnalytics(null);
         }
       } catch (err) {
-        console.log("Analytics fetch failed:", err);
         setGameData([]);
         setAnalytics(null);
       } finally {
@@ -237,7 +234,6 @@ export default function MonthlyBrainReportBanner({
         totalGames: safeData.length,
       };
     } catch (err) {
-      console.log("Comparison failed:", err);
       return {
         accuracyDiff: "0.0",
         reactionImprovement: "0.0",

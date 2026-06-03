@@ -1222,7 +1222,6 @@ export default function QuickResultBottomSheet({
   onLogin,
   dailyUsers = 1200,
 }) {
-  console.log("ISIPRERE", isProUser);
   const [isDesktop, setIsDesktop] = useState(false);
   const [insight, setInsight] = useState(null);
   const [deltas, setDeltas] = useState(null);
