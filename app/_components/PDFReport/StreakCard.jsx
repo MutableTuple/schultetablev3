@@ -231,68 +231,23 @@ export default function StreakCard({
 
         {/* IMPACT */}
 
-        <div className="mt-5 border border-zinc-200 bg-zinc-50 p-4">
-          <div className="uppercase tracking-[0.2em] text-[8px] text-zinc-400">
-            Why Streaks Matter
+        {/* AI SUMMARY */}
+
+        <div className="mt-6 border border-zinc-200 bg-[#570df8] text-white p-6">
+          <div className="uppercase tracking-[0.2em] text-[8px] opacity-70">
+            AI Summary
           </div>
 
-          <h2 className="text-lg font-black mt-2">
-            Consistency creates long-term gains.
-          </h2>
+          <h3 className="text-2xl font-black mt-3">
+            Elite Consistency Potential
+          </h3>
 
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <ImpactCard
-              icon={<FiTarget />}
-              title="Better Focus"
-              desc="Regular training improves attention stability."
-            />
-
-            <ImpactCard
-              icon={<FiZap />}
-              title="Faster Reactions"
-              desc="Consistent repetition sharpens neural timing."
-            />
-
-            <ImpactCard
-              icon={<FiClock />}
-              title="Reduced Fatigue"
-              desc="Stable routines reduce cognitive overload."
-            />
-
-            <ImpactCard
-              icon={<FiTrendingUp />}
-              title="Stable Growth"
-              desc="Long streaks improve consistency."
-            />
-          </div>
-        </div>
-
-        {/* METRICS */}
-
-        <div className="grid grid-cols-4 gap-2 mt-4">
-          <MetricCard
-            icon={<FiCalendar />}
-            label="Current"
-            value={`${data.currentStreak}D`}
-          />
-
-          <MetricCard
-            icon={<FiAward />}
-            label="Record"
-            value={`${data.longestStreak}D`}
-          />
-
-          <MetricCard
-            icon={<FiClock />}
-            label="Best Time"
-            value={data.bestTime}
-          />
-
-          <MetricCard
-            icon={<FiTrendingUp />}
-            label="Growth"
-            value={data.streakGrowth}
-          />
+          <p className="mt-4 text-sm leading-relaxed opacity-90">
+            A consistency score of {data.consistency}% places you among the
+            strongest performing users. Maintaining your current pace will
+            likely lead to continued gains in focus, processing speed, attention
+            control and cognitive endurance.
+          </p>
         </div>
       </div>
 

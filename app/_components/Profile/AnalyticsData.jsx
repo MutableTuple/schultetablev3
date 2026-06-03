@@ -229,3 +229,21 @@ export default function AnalyticsData({
     </div>
   );
 }
+
+{
+  /*
+  Step 6: Nightly Backup Refresh (Recommended)
+
+Even with triggers I would run:
+
+SELECT refresh_lifetime_stats(user_id)
+FROM "LifetimeUserStats";
+
+and
+
+SELECT refresh_monthly_stats(user_id)
+FROM "LifetimeUserStats";
+
+once every night.
+  */
+}

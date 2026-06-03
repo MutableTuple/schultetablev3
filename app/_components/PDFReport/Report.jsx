@@ -1,20 +1,22 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import React, { useState, useEffect } from "react";
+
 import {
   FiDownload,
-  FiChevronLeft,
-  FiChevronRight,
-  FiGrid,
-  FiBookOpen,
+  FiPrinter,
+  FiLoader,
+  FiCheck,
+  FiLock,
+  FiZap,
+  FiTrendingUp,
+  FiBarChart2,
+  FiTarget,
+  FiX,
 } from "react-icons/fi";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { useGameAnalytics } from "@/app/_hooks/useGameAnalytics";
 import CoverPage from "./CoverPage";
 import FocusScore from "./FocusScore";
 import RankCard from "./RankCard";
@@ -22,247 +24,259 @@ import PerformanceGraph from "./PerformanceGraph";
 import Heatmap from "./Heatmap";
 import StreakCard from "./StreakCard";
 import ComparisonCard from "./ComparisonCard";
+import MonthlyReportCTA from "./MonthlyReportCTA";
+import StreakInsightsPage from "./StreakInsightsPage";
+// ============================================
+// PAGE WRAPPER
+// ============================================
 
-// ─── page list ───────────────────────────────────────────────────────────────
+const proUser = false;
 
-const PAGE_COMPONENTS = [
-  { label: "Cover", Component: CoverPage },
-  { label: "Focus Score", Component: FocusScore },
-  { label: "Rank", Component: RankCard },
-  { label: "Performance", Component: PerformanceGraph },
-  { label: "Heatmap", Component: Heatmap },
-  { label: "Streak", Component: StreakCard },
-  { label: "Comparison", Component: ComparisonCard },
-];
+proUser ? <yes></yes> : <MonthlyReportCTA />;
 
-// ─── A4 aspect ratio helper ───────────────────────────────────────────────────
-// The real page is 794×1123 px. We render it at whatever width fits,
-// preserving ratio via a scaled inner div.
-
-function A4Page({ children, style, className = "" }) {
+function ReportPage({ children }) {
   return (
-    <div
-      className={`relative w-full ${className}`}
-      style={{ paddingBottom: "141.6%", ...style }} // 1123/794 ≈ 1.416
-    >
-      <div className="absolute inset-0 bg-white overflow-hidden">
+    <div className="flex justify-center">
+      <div
+        className="
+          pdf-page
+          relative
+          w-[794px]
+          h-[1123px]
+          bg-white
+          overflow-hidden
+          border
+          border-zinc-200
+          shadow-lg
+        "
+      >
         {children}
       </div>
     </div>
   );
 }
 
-// ─── shadow pages (stack depth effect) ───────────────────────────────────────
+// ============================================
+// UPGRADE MODAL
+// ============================================
 
-function ShadowPages({ count = 3 }) {
+function Benefit({ icon, text }) {
   return (
-    <>
-      {Array.from({ length: count }).map((_, i) => {
-        const depth = count - i;
-        return (
-          <div
-            key={i}
-            className="absolute inset-0 bg-white border border-zinc-200"
-            style={{
-              transform: `translate(${depth * 3}px, ${depth * 3}px)`,
-              zIndex: -depth,
-              borderRadius: 2,
-            }}
-          />
-        );
-      })}
-    </>
+    <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-100 p-3 rounded-sm">
+      <div className="text-[#570df8]">{icon}</div>
+      <span className="font-semibold text-sm text-zinc-700">{text}</span>
+    </div>
   );
 }
 
-// ─── Book (single-page flip) view ────────────────────────────────────────────
-
-const FLIP_VARIANTS = {
-  enter: (dir) => ({
-    rotateY: dir > 0 ? 25 : -25,
-    x: dir > 0 ? 60 : -60,
-    opacity: 0,
-    scale: 0.97,
-  }),
-  center: {
-    rotateY: 0,
-    x: 0,
-    opacity: 1,
-    scale: 1,
-    transition: { type: "spring", stiffness: 280, damping: 30 },
-  },
-  exit: (dir) => ({
-    rotateY: dir > 0 ? -25 : 25,
-    x: dir > 0 ? -60 : 60,
-    opacity: 0,
-    scale: 0.97,
-    transition: { duration: 0.22 },
-  }),
-};
-
-function BookView({ pages, currentPage, direction, onNext, onPrev }) {
-  const { Component } = pages[currentPage];
-
+function UpgradeModal({ onClose }) {
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* page stack wrapper */}
-      <div
-        className="relative w-full max-w-[640px] mx-auto"
-        style={{ perspective: 1400 }}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="
+        fixed inset-0
+        bg-black/70
+        backdrop-blur-sm
+        z-[9999]
+        flex items-center justify-center
+        p-6
+      "
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.93, opacity: 0, y: 20 }}
+        transition={{ type: "spring", stiffness: 300, damping: 28 }}
+        className="
+          bg-white
+          max-w-lg
+          w-full
+          p-8
+          shadow-2xl
+          relative
+          rounded-sm
+        "
       >
-        {/* shadow stack */}
-        <ShadowPages count={3} />
-
-        {/* animated page */}
-        <AnimatePresence custom={direction} mode="wait">
-          <motion.div
-            key={currentPage}
-            custom={direction}
-            variants={FLIP_VARIANTS}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="relative w-full border border-zinc-200 shadow-xl"
-            style={{
-              transformOrigin: direction > 0 ? "left center" : "right center",
-              borderRadius: 2,
-            }}
-          >
-            <A4Page>
-              <Component />
-            </A4Page>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* nav controls */}
-      <div className="flex items-center gap-4">
+        {/* Close button */}
         <button
-          onClick={onPrev}
-          disabled={currentPage === 0}
-          className="h-10 w-10 flex items-center justify-center border border-zinc-300 bg-white hover:bg-zinc-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded"
+          onClick={onClose}
+          className="
+            absolute top-4 right-4
+            text-zinc-400 hover:text-zinc-700
+            transition-colors
+            p-1
+          "
         >
-          <FiChevronLeft size={18} />
+          <FiX size={18} />
         </button>
 
-        <span className="text-sm text-zinc-500 min-w-[90px] text-center">
-          {currentPage + 1} / {pages.length}
-        </span>
-
-        <button
-          onClick={onNext}
-          disabled={currentPage === pages.length - 1}
-          className="h-10 w-10 flex items-center justify-center border border-zinc-300 bg-white hover:bg-zinc-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded"
-        >
-          <FiChevronRight size={18} />
-        </button>
-      </div>
-
-      {/* dot strip */}
-      <div className="flex gap-2">
-        {pages.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              /* handled via onNext/onPrev flow */
-            }}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === currentPage
-                ? "w-6 bg-[#570df8]"
-                : "w-1.5 bg-zinc-300 hover:bg-zinc-400"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Grid (all pages) view ───────────────────────────────────────────────────
-
-const GRID_ITEM_VARIANTS = {
-  hidden: { opacity: 0, y: 24, scale: 0.96 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.07,
-      type: "spring",
-      stiffness: 260,
-      damping: 28,
-    },
-  }),
-};
-
-function GridView({ pages, onSelectPage }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {pages.map(({ label, Component }, i) => (
-        <motion.div
-          key={i}
-          custom={i}
-          variants={GRID_ITEM_VARIANTS}
-          initial="hidden"
-          animate="visible"
-          whileHover={{ y: -4, scale: 1.015 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onSelectPage(i)}
-          className="cursor-pointer group"
-        >
-          {/* stacked shadow */}
-          <div className="relative">
-            <ShadowPages count={2} />
-            <div
-              className="relative border border-zinc-200 shadow-md overflow-hidden transition-shadow group-hover:shadow-xl"
-              style={{ borderRadius: 2 }}
-            >
-              <A4Page>
-                {/* thumbnail – pointer-events off so clicks pass through */}
-                <div
-                  className="absolute inset-0 pointer-events-none scale-[0.28] origin-top-left"
-                  style={{ width: "357%", height: "357%" }}
-                >
-                  <Component />
-                </div>
-              </A4Page>
-            </div>
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-[#570df8] text-white flex items-center justify-center text-xl rounded-sm shadow-lg shadow-[#570df8]/30">
+            <FiLock />
           </div>
-          <p className="mt-2 text-xs text-zinc-500 font-medium text-center group-hover:text-zinc-800 transition-colors">
-            {label}
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-zinc-900">
+              Unlock Brain Pro
+            </h2>
+            <p className="text-zinc-500 text-sm">
+              Advanced Cognitive Analytics
+            </p>
+          </div>
+        </div>
+
+        {/* Banner */}
+        <div className="mt-6 bg-[#570df8]/5 border border-[#570df8]/20 p-5 rounded-sm">
+          <h3 className="text-lg font-black text-zinc-900 leading-snug">
+            Your Brain Is Performing Better Than{" "}
+            <span className="text-[#570df8]">89%</span> Of Players
+          </h3>
+          <p className="mt-2 text-zinc-500 text-sm leading-relaxed">
+            Unlock the complete report and discover your strengths, weaknesses,
+            trends and AI insights.
           </p>
-        </motion.div>
-      ))}
-    </div>
+        </div>
+
+        {/* Benefits */}
+        <div className="grid grid-cols-2 gap-3 mt-5">
+          <Benefit icon={<FiZap />} text="AI Insights" />
+          <Benefit icon={<FiTrendingUp />} text="Performance Trends" />
+          <Benefit icon={<FiBarChart2 />} text="Heatmaps" />
+          <Benefit icon={<FiTarget />} text="Global Rankings" />
+        </div>
+
+        {/* Price */}
+        <div className="text-center mt-8">
+          <div className="text-5xl font-black text-zinc-900">₹399</div>
+          <div className="text-zinc-400 text-sm mt-1">
+            per month · cancel anytime
+          </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="grid grid-cols-2 gap-3 mt-7">
+          <button
+            onClick={onClose}
+            className="
+              h-12
+              border border-zinc-200
+              text-zinc-600
+              font-semibold
+              text-sm
+              hover:bg-zinc-50
+              transition-colors
+              rounded-sm
+            "
+          >
+            Maybe Later
+          </button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            className="
+              h-12
+              bg-[#570df8]
+              hover:bg-[#4b0de0]
+              text-white
+              font-bold
+              text-sm
+              shadow-lg shadow-[#570df8]/25
+              transition-colors
+              rounded-sm
+            "
+          >
+            Unlock Brain Pro
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
-// ─── main Report ─────────────────────────────────────────────────────────────
+// ============================================
+// MAIN REPORT
+// ============================================
 
-export default function Report() {
-  const [view, setView] = useState("book");
-  const [currentPage, setCurrentPage] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [downloading, setDownloading] = useState(false);
+export default function Report({ user }) {
+  const [downloadState, setDownloadState] = useState("idle"); // "idle" | "generating" | "success"
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const analytics = useGameAnalytics(user.user);
 
-  const go = (delta) => {
-    const next = currentPage + delta;
-    if (next < 0 || next >= PAGE_COMPONENTS.length) return;
-    setDirection(delta);
-    setCurrentPage(next);
-  };
+  console.log("gdata", analytics.gameData);
+  console.log("adata", analytics.stats);
+  console.log("aloading", analytics.loading);
 
-  const selectPage = (index) => {
-    setDirection(index > currentPage ? 1 : -1);
-    setCurrentPage(index);
-    setView("book");
-  };
+  console.log("user por?", user?.is_pro_user);
+  // ✅ Set to true when subscription is active
+  const isPro = user.user?.is_pro_user;
+  useEffect(() => {
+    if (analytics.loading) return;
+
+    console.log("╔══════════════════════════════════════════╗");
+    console.log("║       useGameAnalytics — full dump       ║");
+    console.log("╚══════════════════════════════════════════╝");
+    console.group("📊 rawStats");
+    console.table(analytics.rawStats);
+    console.groupEnd();
+    console.group("🧠 brainMetrics");
+    console.table(analytics.brainMetrics);
+    console.groupEnd();
+    console.group("⚡ speedMetrics");
+    console.table(analytics.speedMetrics);
+    console.groupEnd();
+    console.group("🎯 focusMetrics");
+    console.log(analytics.focusMetrics);
+    console.groupEnd();
+    console.group("😴 fatigueMetrics");
+    console.table(analytics.fatigueMetrics);
+    console.groupEnd();
+    console.group("🏆 performanceMetrics");
+    console.log(analytics.performanceMetrics);
+    console.groupEnd();
+    console.group("🎓 masteryMetrics");
+    console.log(analytics.masteryMetrics);
+    console.groupEnd();
+    console.group("📈 trends");
+    console.table(analytics.trends);
+    console.groupEnd();
+    console.group("🏅 rankings");
+    console.table(analytics.rankings);
+    console.groupEnd();
+    console.group("🎖️ achievements");
+    console.table(analytics.achievements);
+    console.groupEnd();
+    console.group("💡 insights");
+    analytics.insights.forEach((s, i) => console.log(i + 1, s));
+    console.groupEnd();
+    console.log("🧬 mentalProfile:", analytics.mentalProfile);
+    console.log("🎮 gameData rows:", analytics.gameData.length);
+    console.log("Full object:", analytics);
+  }, [analytics.loading]);
+  // ============================================
+  // DOWNLOAD PDF
+  // ============================================
 
   const downloadPDF = async () => {
-    setDownloading(true);
+    if (!isPro) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     try {
+      setDownloadState("generating");
+
       const response = await fetch("/api/generate-report");
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to generate PDF");
+      }
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -272,142 +286,179 @@ export default function Report() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert("PDF generation failed. Please try again.");
-    } finally {
-      setDownloading(false);
+
+      setDownloadState("success");
+      setTimeout(() => setDownloadState("idle"), 2500);
+    } catch (error) {
+      console.error(error);
+      setDownloadState("idle");
+      alert("Failed to download PDF");
     }
   };
 
+  // ============================================
+  // PRINT
+  // ============================================
+
+  const printReport = () => {
+    window.print();
+  };
+
+  // ============================================
+  // PAGES
+  // ============================================
+
+  const pages = [
+    <CoverPage user={user} analytics={analytics} />,
+    <FocusScore user={user} analytics={analytics} />,
+    <RankCard user={user} analytics={analytics} />,
+    <PerformanceGraph user={user} analytics={analytics} />,
+    <Heatmap user={user} analytics={analytics} />,
+    // <StreakCard user={user} analytics={analytics} />,
+    <StreakInsightsPage user={user} analytics={analytics} />,
+    <ComparisonCard user={user} analytics={analytics} />,
+  ];
+  if (!isPro) {
+    return <MonthlyReportCTA />;
+  }
   return (
     <div className="min-h-screen bg-zinc-100">
-      {/* ── DaisyUI download spinner modal ──────────────────────────── */}
-      <AnimatePresence>
-        {downloading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.88, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.88, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 340, damping: 28 }}
-              className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4 min-w-[220px]"
-            >
-              {/* DaisyUI spinner */}
-              <span className="loading loading-spinner loading-lg text-[#570df8]" />
+      {/* ===================================== */}
+      {/* TOP NAV */}
+      {/* ===================================== */}
 
-              <div className="text-center">
-                <p className="font-semibold text-zinc-900 text-base">
-                  Building your PDF
-                </p>
-                <p className="text-zinc-400 text-sm mt-0.5">
-                  This takes a few seconds…
-                </p>
-              </div>
-
-              {/* animated progress bar */}
-              <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-[#570df8] rounded-full"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "90%" }}
-                  transition={{ duration: 6, ease: "easeInOut" }}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── top nav ───────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-50 bg-white border-b border-zinc-200 px-4 md:px-10 py-4">
-        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div
+        className="
+          sticky top-0 z-50
+          bg-white
+          border-b border-zinc-200
+          px-4 md:px-10
+          py-4
+          print:hidden
+        "
+      >
+        <div
+          className="
+            max-w-[1600px] mx-auto
+            flex flex-col lg:flex-row
+            items-start lg:items-center
+            justify-between gap-5
+          "
+        >
+          {/* LEFT */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900">
+            <h1 className="text-3xl font-black tracking-tight text-zinc-900">
               SchulteTable Report
             </h1>
-            <p className="text-zinc-500 mt-0.5 text-sm">
+            <p className="text-zinc-500 mt-1 text-sm">
               Premium monthly cognitive analytics
             </p>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center border border-zinc-300 rounded overflow-hidden bg-white">
-              <button
-                onClick={() => setView("book")}
-                className={`h-9 px-3 flex items-center gap-1.5 text-sm font-medium transition-colors ${
-                  view === "book"
-                    ? "bg-zinc-900 text-white"
-                    : "text-zinc-600 hover:bg-zinc-50"
-                }`}
-              >
-                <FiBookOpen size={14} />
-                <span className="hidden sm:inline">Book</span>
-              </button>
-              <button
-                onClick={() => setView("grid")}
-                className={`h-9 px-3 flex items-center gap-1.5 text-sm font-medium transition-colors ${
-                  view === "grid"
-                    ? "bg-zinc-900 text-white"
-                    : "text-zinc-600 hover:bg-zinc-50"
-                }`}
-              >
-                <FiGrid size={14} />
-                <span className="hidden sm:inline">All pages</span>
-              </button>
-            </div>
-
-            <motion.button
+          {/* RIGHT */}
+          <div className="flex items-center gap-3">
+            {/* DOWNLOAD — animated */}
+            {/* <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={downloadPDF}
-              disabled={downloading}
-              whileTap={{ scale: 0.97 }}
-              className="h-9 px-4 bg-[#570df8] hover:bg-[#4b0de0] disabled:opacity-60 text-white text-sm font-semibold flex items-center gap-2 transition-colors rounded"
+              className="
+                h-11 min-w-[200px] px-5
+                bg-[#570df8] hover:bg-[#4b0de0]
+                text-white font-semibold text-sm
+                flex items-center justify-center gap-2
+                transition-colors
+                shadow-lg shadow-[#570df8]/20
+                rounded-sm
+              "
             >
-              <FiDownload size={14} />
-              Download PDF
-            </motion.button>
+              <AnimatePresence mode="wait">
+                {downloadState === "idle" && (
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center gap-2"
+                  >
+                    {!isPro && <FiLock size={13} className="opacity-70" />}
+                    {isPro && <FiDownload size={14} />}
+                    Download PDF
+                  </motion.div>
+                )}
+
+                {downloadState === "generating" && (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center gap-2"
+                  >
+                    <FiLoader className="animate-spin" size={14} />
+                    Generating Report...
+                  </motion.div>
+                )}
+
+                {downloadState === "success" && (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center gap-2"
+                  >
+                    <FiCheck size={14} />
+                    Report Ready!
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button> */}
+
+            {/* PRINT */}
+            <button
+              onClick={printReport}
+              className="
+                h-11 px-5
+                border border-zinc-300
+                bg-white hover:bg-zinc-50
+                text-zinc-700 font-semibold text-sm
+                flex items-center gap-2
+                transition-colors
+                rounded-sm
+              "
+            >
+              <FiPrinter size={14} />
+              Print
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ── content (BookView / GridView — unchanged) ─────────────────── */}
-      <div className="max-w-[1600px] mx-auto py-10 px-4 md:px-10">
-        <AnimatePresence mode="wait">
-          {view === "book" ? (
-            <motion.div
-              key="book"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.2 }}
-            >
-              <BookView
-                pages={PAGE_COMPONENTS}
-                currentPage={currentPage}
-                direction={direction}
-                onNext={() => go(1)}
-                onPrev={() => go(-1)}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="grid"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.2 }}
-            >
-              <GridView pages={PAGE_COMPONENTS} onSelectPage={selectPage} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* ===================================== */}
+      {/* REPORT PAGES */}
+      {/* ===================================== */}
+
+      <div className="max-w-[1600px] mx-auto py-10 px-4 md:px-8">
+        <div className="flex flex-col items-center gap-10">
+          {pages.map((page, index) => (
+            <ReportPage key={index}>{page}</ReportPage>
+          ))}
+        </div>
       </div>
+
+      {/* ===================================== */}
+      {/* UPGRADE MODAL */}
+      {/* ===================================== */}
+
+      <AnimatePresence>
+        {showUpgradeModal && (
+          <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

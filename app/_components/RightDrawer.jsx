@@ -8,10 +8,8 @@ import { getCurrentUserGameData } from "../_lib/data-service";
 import GetProBtn from "./GetProBtn";
 import NotLoggedInRightDrawerNotif from "./NotLoggedInRightDrawerNotif";
 
-import { HiDocumentReport } from "react-icons/hi";
-
 import Confetti from "react-confetti";
-import { motion } from "framer-motion";
+import MonthlyBrainReportBanner from "./MonthlyBrainReportBanner";
 
 export default function RightDrawer({ user, gridSize, difficulty, mode }) {
   const userId = user?.id;
@@ -152,141 +150,14 @@ export default function RightDrawer({ user, gridSize, difficulty, mode }) {
             "
           />
 
-          <div className="relative z-10">
-            <h2
-              className="
-                text-lg
-                font-black
-                uppercase
-                tracking-wide
-                flex items-center gap-1
-              "
-            >
-              <HiDocumentReport />
-              Monthly Brain Report
-            </h2>
-
-            <p
-              className="
-                mt-1
-                text-sm
-                text-base-content/60
-              "
-            >
-              Unlock your AI-powered cognitive performance report.
-            </p>
-
-            {/* PROGRESS */}
-            <div className="mt-4">
-              <div
-                className="
-                  h-4
-                  overflow-hidden
-                  rounded-full
-                  bg-base-300
-                "
-              >
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: `${progressPercentage}%`,
-                  }}
-                  transition={{
-                    duration: 0.8,
-                  }}
-                  className="
-                    h-full
-                    rounded-full
-                    bg-gradient-to-r
-                    from-primary
-                    via-secondary
-                    to-accent
-                  "
-                />
-              </div>
-
-              <div
-                className="
-                  mt-2
-                  flex
-                  items-center
-                  justify-between
-                  text-xs
-                  font-semibold
-                "
-              >
-                <span>
-                  {totalGames}/{requiredGames} games
-                </span>
-
-                <span>{Math.floor(progressPercentage)}%</span>
-              </div>
-
-              {!reportUnlocked ? (
-                <p
-                  className="
-                    mt-2
-                    text-xs
-                    text-base-content/70
-                  "
-                >
-                  Play{" "}
-                  <span className="font-bold">
-                    {requiredGames - totalGames}
-                  </span>{" "}
-                  more games to unlock your brain report.
-                </p>
-              ) : (
-                <div className="mt-4">
-                  {isPro ? (
-                    <button
-                      className="
-                        btn
-                        btn-primary
-                        btn-block
-                        font-black
-                      "
-                    >
-                      Download Brain Report
-                    </button>
-                  ) : (
-                    <div
-                      className="
-                        border
-                        border-warning
-                        bg-warning/10
-                        p-3
-                      "
-                    >
-                      <p
-                        className="
-                          text-xs
-                          font-semibold
-                        "
-                      >
-                        Brain Report unlocked 🎉
-                      </p>
-
-                      <p
-                        className="
-                          mt-1
-                          text-xs
-                          text-base-content/70
-                        "
-                      >
-                        Upgrade to Pro to download your detailed cognitive
-                        report.
-                      </p>
-
-                      <div className="mt-3">
-                        <GetProBtn />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          <MonthlyBrainReportBanner
+            progressPercentage={progressPercentage}
+            totalGames={totalGames}
+            requiredGames={requiredGames}
+            reportUnlocked={reportUnlocked}
+            isPro={isPro}
+            user={user}
+          />
         </div>
       </div>
 

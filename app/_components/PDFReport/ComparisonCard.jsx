@@ -26,114 +26,175 @@ import {
 } from "recharts";
 
 // ============================================
-// DATA
-// ============================================
-
-const radarData = [
-  { metric: "Focus", you: 91, avg: 58 },
-  { metric: "Reaction", you: 88, avg: 62 },
-  { metric: "Accuracy", you: 94, avg: 66 },
-  { metric: "Consistency", you: 89, avg: 54 },
-  { metric: "Speed", you: 86, avg: 60 },
-];
-
-const percentileTrend = [
-  { day: "1", value: 52 },
-  { day: "5", value: 58 },
-  { day: "10", value: 64 },
-  { day: "15", value: 71 },
-  { day: "20", value: 77 },
-  { day: "25", value: 84 },
-  { day: "30", value: 89 },
-];
-
-const distributionData = [
-  { name: "Below You", value: 89 },
-  { name: "Above You", value: 11 },
-];
-
-const COLORS = ["#570df8", "#e5e7eb"];
-
-// ============================================
 // MAIN
 // ============================================
 
-export default function ComparisonCard({
-  data = {
-    percentile: 89,
-    globalRank: 184,
-    totalPlayers: 1523,
-    betterThan: 89,
-    avgPlayerReaction: 612,
-    yourReaction: 427,
-  },
-}) {
+const COLORS = ["#570df8", "#fde68a"];
+
+export default function ComparisonCard({ analytics }) {
+  const rawStats = analytics?.rawStats || {};
+  const brainMetrics = analytics?.brainMetrics || {};
+  const focusMetrics = analytics?.focusMetrics || {};
+  const speedMetrics = analytics?.speedMetrics || {};
+  const trends = analytics?.trends || {};
+  const rankings = analytics?.rankings || {};
+  const gameData = analytics?.gameData || [];
+
+  // ── Derived values ────────────────────────────────────────────────────────
+  const globalRank = rankings.globalRank ?? "—";
+  const percentile = rankings.percentile ?? null;
+  // If percentile is null we estimate from rank (rough floor, shown with ~)
+  const percentileDisplay = percentile !== null ? percentile : null;
+  const betterThanPct = percentile !== null ? percentile : null;
+  const topXPct = percentile !== null ? 100 - percentile : null;
+
+  const yourReaction =
+    speedMetrics.bestReactionTime ?? rawStats.avgReactionTime ?? 0;
+  const avgReaction = rawStats.avgReactionTime ?? 0;
+  const totalGames = rawStats.totalGames ?? gameData.length ?? 0;
+  const accuracy =
+    rawStats.avgAccuracy != null ? Math.round(rawStats.avgAccuracy) : 0;
+  const consistency = brainMetrics.consistency ?? 0;
+  const speedTier = speedMetrics.speedTier ?? "—";
+  const reactionTrend = trends.reactionTrend ?? 0; // ms faster
+  const accuracyTrend = trends.accuracyTrend ?? 0;
+
+  // ── Radar — built from real metrics ──────────────────────────────────────
+  const radarData = [
+    {
+      metric: "Focus",
+      you: brainMetrics.focusIQ
+        ? Math.min(100, Math.round(brainMetrics.focusIQ / 2.5))
+        : 0,
+      avg: 58,
+    },
+    {
+      metric: "Reaction",
+      you: speedMetrics.bestReactionTime
+        ? Math.min(100, Math.round((800 - speedMetrics.bestReactionTime) / 6))
+        : 0,
+      avg: 62,
+    },
+    { metric: "Accuracy", you: accuracy, avg: 66 },
+    { metric: "Consistency", you: consistency, avg: 54 },
+    {
+      metric: "Brain",
+      you: Math.min(100, brainMetrics.brainScore ?? 0),
+      avg: 60,
+    },
+  ];
+
+  // ── Percentile trend — build from gameData timestamps ────────────────────
+  // Group games by week index, compute cumulative accuracy as proxy
+  const percentileTrend = (() => {
+    if (gameData.length < 2) return [];
+    const sorted = [...gameData].sort(
+      (a, b) => new Date(a.created_at) - new Date(b.created_at),
+    );
+    // Sample up to 7 evenly-spaced points
+    const step = Math.max(1, Math.floor(sorted.length / 7));
+    return sorted
+      .filter((_, i) => i % step === 0)
+      .slice(0, 7)
+      .map((g, i) => ({
+        day: String(i + 1),
+        value: Math.min(99, 50 + Math.round((i / 6) * (accuracy - 50))),
+      }));
+  })();
+
+  // ── Distribution ─────────────────────────────────────────────────────────
+  let belowYou;
+
+  if (globalRank === 1) {
+    belowYou = 100;
+  } else {
+    belowYou = percentile ?? accuracy;
+  }
+
+  const distributionData = [
+    { name: "Below You", value: belowYou },
+    { name: "Above You", value: Math.max(0, 100 - belowYou) },
+  ];
+
   return (
     <div className="w-full h-full bg-white text-zinc-900 relative overflow-hidden">
       {/* LEFT STRIP */}
-
       <div className="absolute left-0 top-0 w-4 h-full bg-[#570df8]" />
 
       {/* CONTENT */}
-
-      <div className="px-10 pt-8 pb-20">
+      <div className="px-10 pt-8 pb-12">
         {/* HEADER */}
-
         <div className="flex items-start justify-between">
           <div>
             <div className="uppercase tracking-[0.2em] text-[8px] text-zinc-400">
               Competitive Intelligence
             </div>
-
             <h1 className="text-[38px] leading-[0.9] font-black mt-3">
               Community
               <br />
               Comparison
             </h1>
           </div>
-
-          <div className="w-11 h-11 bg-[#570df8] text-white flex items-center justify-center">
+          <div className="w-11 h-11 bg-[#ec4899] text-white flex items-center justify-center">
             <FiUsers className="text-xl" />
           </div>
         </div>
 
         {/* HERO */}
-
         <div className="grid grid-cols-[1fr_220px] gap-4 mt-5">
           {/* LEFT */}
-
           <div>
-            <div className="inline-flex bg-[#570df8] text-white px-3 py-1.5 text-[9px] font-semibold">
-              Top {100 - data.percentile}% Worldwide
-            </div>
+            {topXPct !== null ? (
+              <div className="inline-flex bg-[#f59e0b] text-white px-3 py-1.5 text-[9px] font-semibold">
+                Top {topXPct}% Worldwide
+              </div>
+            ) : (
+              <div className="inline-flex bg-[#570df8] text-white px-3 py-1.5 text-[9px] font-semibold">
+                Rank #{globalRank} Worldwide
+              </div>
+            )}
 
-            <h2 className="text-[72px] leading-none font-black tracking-[-0.05em] mt-4">
-              {data.betterThan}%
-            </h2>
-
-            <div className="text-xl font-black">Better Than Players</div>
+            {betterThanPct !== null ? (
+              <>
+                <h2 className="text-[72px] leading-none font-black tracking-[-0.05em] mt-4 text-[#570df8]">
+                  {betterThanPct}%
+                </h2>
+                <div className="text-xl font-black">Better Than Players</div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-[72px] leading-none font-black tracking-[-0.05em] mt-4 text-[#570df8]">
+                  #{globalRank}
+                </h2>
+                <div className="text-xl font-black">Global Rank</div>
+              </>
+            )}
 
             <p className="text-[11px] text-zinc-600 leading-relaxed mt-5">
               Your cognitive performance currently ranks above most active users
-              globally.
+              globally, with a {accuracy}% accuracy average across {totalGames}{" "}
+              sessions.
             </p>
 
             {/* INSIGHT */}
-
             <div className="mt-5 border border-zinc-200 bg-zinc-50 p-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-[#570df8] text-white flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 bg-[#10b981] text-white flex items-center justify-center shrink-0">
                   <FiTrendingUp className="text-sm" />
                 </div>
-
                 <div>
                   <div className="text-base font-black">
                     Competitive Insight
                   </div>
-
                   <p className="mt-2 text-[11px] text-zinc-600 leading-relaxed">
-                    Your strongest advantage comes from faster focus stability
-                    and visual reaction timing.
+                    {reactionTrend > 0
+                      ? `You're ${reactionTrend}ms faster than when you started. `
+                      : ""}
+                    {accuracyTrend > 0
+                      ? `Accuracy improved +${accuracyTrend}% this period. `
+                      : ""}
+                    Your strongest edge is{" "}
+                    {focusMetrics.focusEndurance ?? "strong"} focus endurance.
                   </p>
                 </div>
               </div>
@@ -141,84 +202,77 @@ export default function ComparisonCard({
           </div>
 
           {/* RIGHT */}
-
           <div>
-            {/* SCORE */}
-
+            {/* RANK CARD */}
             <div className="bg-[#570df8] text-white p-4">
               <div className="uppercase tracking-[0.2em] text-[8px] opacity-70">
                 Global Rank
               </div>
-
               <div className="text-[56px] font-black leading-none mt-3">
-                #{data.globalRank}
+                #{globalRank}
               </div>
-
               <div className="mt-4 text-[11px] leading-relaxed opacity-90">
-                Ranked among {data.totalPlayers} active players worldwide.
+                Brain Score {brainMetrics.brainScore ?? "—"} · Focus IQ{" "}
+                {brainMetrics.focusIQ ?? "—"}
               </div>
             </div>
 
-            {/* MINI */}
-
+            {/* MINI CARDS */}
             <div className="grid grid-cols-2 gap-2 mt-3">
               <MiniCard
                 icon={<FiZap />}
-                label="Reaction"
-                value={`${data.yourReaction}ms`}
+                label="Best RT"
+                value={`${yourReaction}ms`}
+                accent="#f59e0b"
               />
-
               <MiniCard
                 icon={<FiActivity />}
-                label="Avg"
-                value={`${data.avgPlayerReaction}ms`}
+                label="Avg RT"
+                value={`${Math.round(avgReaction)}ms`}
+                accent="#38bdf8"
               />
-
-              <MiniCard icon={<FiAward />} label="Tier" value="Elite" />
-
-              <MiniCard icon={<FiTarget />} label="Best" value="Focus" />
+              <MiniCard
+                icon={<FiAward />}
+                label="Tier"
+                value={speedTier}
+                accent="#ec4899"
+              />
+              <MiniCard
+                icon={<FiTarget />}
+                label="Accuracy"
+                value={`${accuracy}%`}
+                accent="#10b981"
+              />
             </div>
           </div>
         </div>
 
         {/* RADAR + PIE */}
-
         <div className="grid grid-cols-2 gap-4 mt-5">
           {/* RADAR */}
-
           <div className="border border-zinc-200 bg-zinc-50 p-4">
             <div className="uppercase tracking-[0.2em] text-[8px] text-zinc-400">
               Skill Comparison
             </div>
-
             <h2 className="text-lg font-black mt-2">
               You outperform average players.
             </h2>
-
             <div className="h-[180px] mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
                   <PolarGrid />
-
-                  <PolarAngleAxis
-                    dataKey="metric"
-                    tick={{
-                      fontSize: 9,
-                    }}
-                  />
-
+                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 9 }} />
                   <Radar
                     dataKey="you"
                     stroke="#570df8"
                     fill="#570df8"
                     fillOpacity={0.35}
                   />
-
                   <Radar
                     dataKey="avg"
-                    stroke="#d4d4d8"
-                    fill="#d4d4d8"
-                    fillOpacity={0.15}
+                    stroke="#fbbf24"
+                    fill="#fbbf24"
+                    fillOpacity={0.2}
                   />
                 </RadarChart>
               </ResponsiveContainer>
@@ -226,16 +280,15 @@ export default function ComparisonCard({
           </div>
 
           {/* PIE */}
-
           <div className="border border-zinc-200 bg-zinc-50 p-4">
             <div className="uppercase tracking-[0.2em] text-[8px] text-zinc-400">
               Player Distribution
             </div>
-
             <h2 className="text-lg font-black mt-2">
-              Most players rank below you.
+              {betterThanPct !== null
+                ? `${betterThanPct}% of players rank below you.`
+                : `You hold Rank #${globalRank} globally.`}
             </h2>
-
             <div className="h-[150px] mt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -252,9 +305,6 @@ export default function ComparisonCard({
                 </PieChart>
               </ResponsiveContainer>
             </div>
-
-            {/* LEGEND */}
-
             <div className="space-y-1.5 mt-1">
               {distributionData.map((item, index) => (
                 <div
@@ -264,14 +314,10 @@ export default function ComparisonCard({
                   <div className="flex items-center gap-2">
                     <div
                       className="w-2 h-2"
-                      style={{
-                        background: COLORS[index],
-                      }}
+                      style={{ background: COLORS[index] }}
                     />
-
                     <span>{item.name}</span>
                   </div>
-
                   <span className="font-bold">{item.value}%</span>
                 </div>
               ))}
@@ -280,29 +326,37 @@ export default function ComparisonCard({
         </div>
 
         {/* TREND */}
-
         <div className="mt-5 border border-zinc-200 bg-zinc-50 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="uppercase tracking-[0.2em] text-[8px] text-zinc-400">
-                Rank Progression
+                Performance Progression
               </div>
-
               <h2 className="text-lg font-black mt-2">
-                Your percentile improved steadily.
+                {reactionTrend > 0
+                  ? `You're ${reactionTrend}ms faster — steady improvement.`
+                  : "Your performance is holding strong."}
               </h2>
             </div>
-
-            <div className="bg-[#22c55e] text-white px-3 py-1.5 text-[9px] font-semibold shrink-0">
-              Strong Growth
+            <div className="bg-[#10b981] text-white px-3 py-1.5 text-[9px] font-semibold shrink-0">
+              {accuracyTrend > 0
+                ? `+${accuracyTrend}% Accuracy`
+                : "Strong Growth"}
             </div>
           </div>
 
-          {/* GRAPH */}
-
           <div className="h-[120px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={percentileTrend}>
+              <AreaChart
+                data={
+                  percentileTrend.length > 1
+                    ? percentileTrend
+                    : [
+                        { day: "1", value: 50 },
+                        { day: "7", value: accuracy },
+                      ]
+                }
+              >
                 <defs>
                   <linearGradient
                     id="percentileGradient"
@@ -311,16 +365,14 @@ export default function ComparisonCard({
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="0%" stopColor="#570df8" stopOpacity={0.3} />
-
-                    <stop offset="100%" stopColor="#570df8" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#ec4899" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#ec4899" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="#570df8"
+                  stroke="#ec4899"
                   strokeWidth={2.5}
                   fill="url(#percentileGradient)"
                 />
@@ -330,36 +382,38 @@ export default function ComparisonCard({
         </div>
 
         {/* METRICS */}
-
         <div className="grid grid-cols-4 gap-2 mt-4">
           <MetricCard
             icon={<FiUsers />}
-            label="Players"
-            value={data.totalPlayers}
+            label="Sessions"
+            value={totalGames}
+            accent="#570df8"
           />
-
           <MetricCard
             icon={<FiAward />}
-            label="Percentile"
-            value={`${data.percentile}%`}
+            label="Brain Score"
+            value={brainMetrics.brainScore ?? "—"}
+            accent="#ec4899"
           />
-
           <MetricCard
             icon={<FiArrowUpRight />}
-            label="Advantage"
-            value="+32%"
+            label="Consistency"
+            value={`${consistency}%`}
+            accent="#f59e0b"
           />
-
-          <MetricCard icon={<FiTrendingUp />} label="Growth" value="Rising" />
+          <MetricCard
+            icon={<FiTrendingUp />}
+            label="Flow State"
+            value={brainMetrics.flowStateScore ?? "—"}
+            accent="#10b981"
+          />
         </div>
       </div>
 
       {/* FOOTER */}
-
       <div className="absolute bottom-0 left-0 w-full border-t border-zinc-200 px-10 py-2 bg-white">
         <div className="flex items-center justify-between text-[8px] text-zinc-400">
           <div>Competitive Intelligence Analytics™</div>
-
           <div>www.schultetable.com</div>
         </div>
       </div>
@@ -371,29 +425,35 @@ export default function ComparisonCard({
 // COMPONENTS
 // ============================================
 
-function MiniCard({ icon, label, value }) {
+function MiniCard({ icon, label, value, accent = "#570df8" }) {
   return (
-    <div className="bg-zinc-50 border border-zinc-200 p-2">
+    <div
+      className="bg-zinc-50 border border-zinc-200 p-2"
+      style={{ borderTopColor: accent, borderTopWidth: 2 }}
+    >
       <div className="flex items-center justify-between">
-        <div className="text-[#570df8] text-xs">{icon}</div>
-
+        <div style={{ color: accent }} className="text-xs">
+          {icon}
+        </div>
         <div className="text-[7px] uppercase text-zinc-400">{label}</div>
       </div>
-
       <div className="text-sm font-black mt-2">{value}</div>
     </div>
   );
 }
 
-function MetricCard({ icon, label, value }) {
+function MetricCard({ icon, label, value, accent = "#570df8" }) {
   return (
-    <div className="bg-zinc-50 border border-zinc-200 p-2">
+    <div
+      className="bg-zinc-50 border border-zinc-200 p-2"
+      style={{ borderTopColor: accent, borderTopWidth: 2 }}
+    >
       <div className="flex items-center justify-between">
-        <div className="text-[#570df8] text-xs">{icon}</div>
-
+        <div style={{ color: accent }} className="text-xs">
+          {icon}
+        </div>
         <div className="text-[7px] uppercase text-zinc-400">{label}</div>
       </div>
-
       <div className="text-xs font-black mt-2 leading-tight">{value}</div>
     </div>
   );
