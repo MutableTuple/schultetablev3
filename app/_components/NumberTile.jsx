@@ -59,6 +59,8 @@ function NumberTile({ num, onClick, disabled }) {
         duration-150
 
         active:scale-[0.96]
+        w-full
+        p-4
 
         ${
           disabled

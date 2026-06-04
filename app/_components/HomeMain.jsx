@@ -64,7 +64,6 @@ export default function HomeMain({ user, error }) {
           className="
             flex
             items-start
-            gap-6
           "
         >
           {/* LEFT SIDEBAR */}

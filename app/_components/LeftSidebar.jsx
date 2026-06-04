@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-
-import { FiChevronUp, FiChevronDown, FiSettings } from "react-icons/fi";
+import { FiChevronUp, FiChevronDown, FiSettings, FiX } from "react-icons/fi";
 
 import GridAndDifficultySelector from "./GridAndDifficultySelector";
 import GoToLeaderboard from "./GoToLeaderboard";
@@ -27,38 +26,16 @@ export default function LeftSidebar({
       <aside
         className="
           hidden
-          md:flex
-          md:flex-col
-          md:gap-3
-          md:w-[300px]
-          md:shrink-0
-          md:sticky
-          md:top-4
-          md:self-start
+          md:flex md:flex-col md:gap-3
+          md:w-[300px] md:shrink-0
+          md:sticky md:top-4 md:self-start
           h-fit
         "
       >
-        {/* USER */}
-        <div
-          className="
-            border
-            border-base-300
-            bg-base-100
-            p-3
-          "
-        >
+        <div className="border border-base-300 bg-base-100 p-3">
           <UserAvatar user={user} />
         </div>
-
-        {/* SETTINGS */}
-        <div
-          className="
-            border
-            border-base-300
-            bg-base-100
-            p-4
-          "
-        >
+        <div className="border border-base-300 bg-base-100 p-4">
           <GridAndDifficultySelector
             gridSize={gridSize}
             setGridSize={setGridSize}
@@ -69,165 +46,106 @@ export default function LeftSidebar({
             setMode={setMode}
           />
         </div>
-
-        {/* NAVIGATION */}
         <div className="flex flex-col gap-3">
           <GoToLeaderboard />
-
           <AnalyticsBtn />
         </div>
       </aside>
 
       {/* ───────────────── MOBILE DRAWER ───────────────── */}
-      <div
-        className="
-          md:hidden
-          fixed
-          bottom-0
-          inset-x-0
-          z-50
-        "
-      >
+      <div className="md:hidden">
         {/* BACKDROP */}
         {mobileOpen && (
           <button
             aria-label="Close settings"
             onClick={() => setMobileOpen(false)}
-            className="
-              fixed
-              inset-0
-              bg-black/40
-            "
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
           />
         )}
 
-        {/* DRAWER */}
-        <div
-          className={`
-            relative
-            border-t
-            border-base-300
-            bg-base-100
-            transition-transform
-            duration-300
-            ease-in-out
-
-            ${mobileOpen ? "translate-y-0" : "translate-y-[calc(100%-82px)]"}
-          `}
-        >
-          {/* HANDLE */}
-          <div className="flex justify-center pt-3 pb-1">
-            <div
-              className="
-                h-1.5
-                w-10
-                bg-base-300
-              "
-            />
-          </div>
-
-          {/* TOGGLE BAR */}
+        {/* FLOATING PILL — only visible when closed */}
+        {!mobileOpen && (
           <button
-            onClick={() => setMobileOpen((prev) => !prev)}
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open settings"
             className="
-              flex
-              w-full
-              items-center
-              justify-between
-              px-4
-              py-3
-              transition-all
-              hover:bg-base-200
-              active:scale-[0.99]
+              fixed bottom-5 right-4 z-50
+              flex items-center gap-2
+              rounded-full border border-base-300
+              bg-base-100 px-4 py-2.5
+              shadow-lg active:scale-95 transition-transform duration-150
             "
+            style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
           >
-            {/* LEFT */}
-            <div className="flex items-center gap-3">
-              <div
-                className="
-                  flex
-                  h-11
-                  w-11
-                  items-center
-                  justify-center
-                  border
-                  border-base-300
-                  bg-base-200
-                  text-primary
-                "
-              >
-                <FiSettings size={20} />
-              </div>
-
-              <div className="text-left">
-                <p className="text-sm font-semibold text-base-content">
-                  Game Settings
-                </p>
-
-                <div
-                  className="
-                    mt-1.5
-                    flex
-                    flex-wrap
-                    items-center
-                    gap-1.5
-                  "
-                >
-                  <span className="badge badge-primary badge-sm">
-                    {gridSize}×{gridSize}
-                  </span>
-
-                  <span className="badge badge-secondary badge-sm capitalize">
-                    {difficulty}
-                  </span>
-
-                  <span className="badge badge-accent badge-sm capitalize">
-                    {mode}
-                  </span>
-                </div>
-              </div>
+            <FiSettings size={16} className="text-primary shrink-0" />
+            <span className="text-xs font-semibold text-base-content">
+              Settings
+            </span>
+            <div className="flex items-center gap-1 ml-1">
+              <span className="badge badge-primary badge-xs">
+                {gridSize}×{gridSize}
+              </span>
+              <span className="badge badge-secondary badge-xs capitalize">
+                {difficulty}
+              </span>
             </div>
-
-            {/* RIGHT */}
-            <div
-              className="
-                flex
-                h-10
-                w-10
-                items-center
-                justify-center
-                border
-                border-base-300
-                bg-base-200
-              "
-            >
-              {mobileOpen ? (
-                <FiChevronDown size={18} />
-              ) : (
-                <FiChevronUp size={18} />
-              )}
-            </div>
+            <FiChevronUp size={14} className="text-base-content/60 ml-1" />
           </button>
+        )}
 
-          {/* CONTENT */}
+        {/* DRAWER SHEET */}
+        {mobileOpen && (
           <div
-            className={`
-              transition-all
-              duration-300
-
-              ${mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"}
-            `}
+            className="
+              fixed bottom-0 inset-x-0 z-50
+              rounded-t-2xl border-t border-base-300
+              bg-base-100 shadow-2xl
+              flex flex-col
+              animate-slideUp
+            "
+            style={{
+              maxHeight: "82dvh",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
           >
-            <div className="flex flex-col gap-3 px-4 pb-6 pt-2">
-              {/* SETTINGS */}
-              <div
-                className="
-                  border
-                  border-base-300
-                  bg-base-100
-                  p-4
-                "
-              >
+            {/* DRAG HANDLE — never scrolls */}
+            <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+              <div className="h-1 w-10 rounded-full bg-base-300" />
+            </div>
+
+            {/* HEADER — never scrolls */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-base-200 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <FiSettings size={16} className="text-primary" />
+                <span className="text-sm font-bold text-base-content">
+                  Game Settings
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="badge badge-primary badge-sm">
+                  {gridSize}×{gridSize}
+                </span>
+                <span className="badge badge-secondary badge-sm capitalize">
+                  {difficulty}
+                </span>
+                <span className="badge badge-accent badge-sm capitalize">
+                  {mode}
+                </span>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="ml-1 flex h-8 w-8 items-center justify-center rounded-full border border-base-300 bg-base-200 active:scale-90 transition-transform"
+                >
+                  <FiX size={14} />
+                </button>
+              </div>
+            </div>
+
+            {/* SCROLLABLE CONTENT */}
+            <div className="overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3 px-4 pt-4 pb-6">
+              <div className="border border-base-300 bg-base-100 p-3">
+                <UserAvatar user={user} />
+              </div>
+              <div className="border border-base-300 bg-base-100 p-4">
                 <GridAndDifficultySelector
                   gridSize={gridSize}
                   setGridSize={setGridSize}
@@ -238,19 +156,24 @@ export default function LeftSidebar({
                   setMode={setMode}
                 />
               </div>
-
-              {/* BUTTONS */}
               <div className="grid grid-cols-2 gap-3">
                 <GoToLeaderboard />
-
                 <AnalyticsBtn />
               </div>
             </div>
-
-            <div className="h-safe-b" />
           </div>
-        </div>
+        )}
       </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+        }
+      `}</style>
     </>
   );
 }

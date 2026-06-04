@@ -118,7 +118,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="sunset">
       <head>
-        {/* <GoogleAnalytics gaId="G-66EJ7VMS98" /> */}
+        <GoogleAnalytics gaId="G-66EJ7VMS98" />
         {!isProUser && (
           <script
             async
@@ -176,7 +176,7 @@ export default async function RootLayout({ children }) {
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className={`${chakraPetch.className} antialiased`}>
-        <Toaster position="bottom-right" />
+        {/* <Toaster position="bottom-right" /> */}
         <GoogleOneTap />
         <div id="floating-root">{children}</div>
         <Footer />

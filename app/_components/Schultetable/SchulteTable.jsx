@@ -511,7 +511,7 @@ export default function SchulteTable({
     return Number(localStorage.getItem("lb_guest_total_games") || 1);
   };
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full px-4 gap-2">
+    <div className="flex flex-col items-center justify-center w-full h-full gap-2">
       <LeaderBoardPopup
         open={showLeaderboardPopup}
         gamesPlayed={getPopupGamesPlayed()}

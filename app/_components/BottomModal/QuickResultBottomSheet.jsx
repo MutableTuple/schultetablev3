@@ -58,63 +58,46 @@ function loadHistory(userId) {
 }
 function getDailyGameCount() {
   const today = new Date().toISOString().split("T")[0];
-
   const storedDate = localStorage.getItem(DAILY_GAMES_DATE_KEY);
-
-  // new day → reset
   if (storedDate !== today) {
     localStorage.setItem(DAILY_GAMES_DATE_KEY, today);
     localStorage.setItem(DAILY_GAMES_KEY, "0");
     return 0;
   }
-
   return Number(localStorage.getItem(DAILY_GAMES_KEY) || 0);
 }
 
 function incrementDailyGames() {
   const today = new Date().toISOString().split("T")[0];
-
   const storedDate = localStorage.getItem(DAILY_GAMES_DATE_KEY);
-
   if (storedDate !== today) {
     localStorage.setItem(DAILY_GAMES_DATE_KEY, today);
     localStorage.setItem(DAILY_GAMES_KEY, "1");
     return 1;
   }
-
   const current = Number(localStorage.getItem(DAILY_GAMES_KEY) || 0) + 1;
-
   localStorage.setItem(DAILY_GAMES_KEY, current.toString());
-
   return current;
 }
 /* ─────────────────────────────────────────────────────────────────────────────
-   Stat deltas — compare current game vs rolling average of previous games.
-   Returns { scoreDelta, accuracyDelta, reactionDelta, durationDelta }
-   All deltas: positive = improved (lower reaction/duration, higher score/accuracy)
-   as a % change. null = no history.
+   Stat deltas
 ───────────────────────────────────────────────────────────────────────────── */
 function computeDeltas(current, history) {
   const prev = history.filter((g) => g.completedAt !== current.completedAt);
   if (!prev.length) return null;
-
   const avg = (field) =>
     prev.reduce((a, g) => a + (g[field] || 0), 0) / prev.length;
-
   const avgScore = avg("score");
   const avgAccuracy = avg("accuracy");
   const avgReaction = avg("avgReactionTimeMs");
   const avgDuration = avg("durationMs");
-
   return {
-    // positive delta = current is better
     scoreDelta: avgScore
       ? +(((current.score - avgScore) / avgScore) * 100).toFixed(1)
       : null,
     accuracyDelta: avgAccuracy
       ? +(((current.accuracy - avgAccuracy) / avgAccuracy) * 100).toFixed(1)
       : null,
-    // for reaction & duration: lower is better, so flip sign
     reactionDelta: avgReaction
       ? +(
           (-(current.avgReactionTimeMs - avgReaction) / avgReaction) *
@@ -136,7 +119,6 @@ function buildInsight(gameSummaryData, history, isPersonalBest) {
       text: "That's a new personal best. Your brain just rewrote its own ceiling.",
       type: "personal_best",
     };
-
   const prev = history.filter(
     (g) => g.completedAt !== gameSummaryData.completedAt,
   );
@@ -145,7 +127,6 @@ function buildInsight(gameSummaryData, history, isPersonalBest) {
       text: "Baseline set. Every game from here is data.",
       type: "neutral",
     };
-
   const avgPrev =
     prev.reduce((a, g) => a + (g.avgReactionTimeMs || 0), 0) / prev.length;
   if (!avgPrev || isNaN(avgPrev))
@@ -153,9 +134,7 @@ function buildInsight(gameSummaryData, history, isPersonalBest) {
       text: "Keep going — patterns take a few games to emerge.",
       type: "neutral",
     };
-
   const diff = ((gameSummaryData.avgReactionTimeMs - avgPrev) / avgPrev) * 100;
-
   if (diff < -16)
     return {
       text: "Blazing fast. You're in a flow state — ride it.",
@@ -188,15 +167,7 @@ function buildInsight(gameSummaryData, history, isPersonalBest) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Strategic upgrade visibility
-   Philosophy: only show when the user is emotionally primed — never coldly.
-   Triggers (in priority):
-     1. Personal best → always show full (peak dopamine)
-     2. Massive improvement (diff < -16%) → show full ("you're on fire, see where you rank")
-     3. First time daily goal hit → show full ("you earned this")
-     4. Every 5th game → show mini (non-intrusive, planted seed)
-     5. Every 10th game → show full (periodic reminder)
-     6. Otherwise → "none" (silence is powerful)
+   Upgrade helpers
 ───────────────────────────────────────────────────────────────────────────── */
 function getUpgradeMode({
   isPersonalBest,
@@ -212,9 +183,6 @@ function getUpgradeMode({
   return "none";
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Emotional upgrade copy — adapts to the trigger context
-───────────────────────────────────────────────────────────────────────────── */
 function getUpgradeCopy(isPersonalBest, insightType, isComplete) {
   if (isPersonalBest)
     return {
@@ -250,7 +218,7 @@ function getUpgradeCopy(isPersonalBest, insightType, isComplete) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   ConfettiCanvas — only fires on genuinely better games
+   ConfettiCanvas
 ───────────────────────────────────────────────────────────────────────────── */
 function ConfettiCanvas({ intensity = "normal" }) {
   const canvasRef = useRef(null);
@@ -262,7 +230,6 @@ function ConfettiCanvas({ intensity = "normal" }) {
     canvas.height = canvas.offsetHeight;
     const W = canvas.width,
       H = canvas.height;
-
     const COLORS =
       intensity === "personal_best"
         ? [
@@ -283,10 +250,8 @@ function ConfettiCanvas({ intensity = "normal" }) {
             "#6ee7b7",
             "#86efac",
           ];
-
     const SHAPES = ["rect", "circle", "strip", "star"];
     const count = intensity === "personal_best" ? 200 : 130;
-
     const particles = Array.from({ length: count }, (_, i) => {
       const fromLeft = i < count / 2;
       const isPB = intensity === "personal_best";
@@ -308,7 +273,6 @@ function ConfettiCanvas({ intensity = "normal" }) {
         wobblePhase: Math.random() * Math.PI * 2,
       };
     });
-
     let raf,
       elapsed = 0,
       last = performance.now();
@@ -361,7 +325,6 @@ function ConfettiCanvas({ intensity = "normal" }) {
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
   }, [intensity]);
-
   return (
     <canvas
       ref={canvasRef}
@@ -381,7 +344,7 @@ function ConfettiCanvas({ intensity = "normal" }) {
 /* ─────────────────────────────────────────────────────────────────────────────
    InsightBanner
 ───────────────────────────────────────────────────────────────────────────── */
-function InsightBanner({ insight, animate }) {
+function InsightBanner({ insight }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
     if (insight) {
@@ -390,7 +353,6 @@ function InsightBanner({ insight, animate }) {
     }
   }, [insight]);
   if (!insight) return null;
-
   const themes = {
     massive_positive: {
       bg: "linear-gradient(135deg,#052e16,#14532d)",
@@ -451,7 +413,6 @@ function InsightBanner({ insight, animate }) {
   };
   const t = themes[insight.type] || themes.neutral;
   const { Icon } = t;
-
   return (
     <div
       className="flex items-center gap-3 rounded-xl px-4 py-3 mb-3 transition-all duration-500"
@@ -545,15 +506,12 @@ function DailyGoalBar({ gamesRemaining, REPORT_INTERVAL }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   StatTile — color driven by delta vs previous (green = better, red = worse)
+   StatTile
 ───────────────────────────────────────────────────────────────────────────── */
 function StatTile({ label, value, delta }) {
-  // delta: positive = user improved, negative = user got worse, null = no history
   const hasHistory = delta !== null && delta !== undefined;
   const improved = hasHistory && delta > 1;
   const worsened = hasHistory && delta < -1;
-  const neutral = !hasHistory || (!improved && !worsened);
-
   const palette = improved
     ? { bg: "#16a34a", text: "#fff", sub: "rgba(255,255,255,0.82)" }
     : worsened
@@ -564,10 +522,8 @@ function StatTile({ label, value, delta }) {
           sub: "rgba(128,128,128,0.7)",
           border: "1px solid rgba(128,128,128,0.18)",
         };
-
   const DeltaIcon = improved ? FaArrowUp : worsened ? FaArrowDown : FaMinus;
   const sign = improved ? "+" : "";
-
   return (
     <div
       className="rounded-xl flex flex-col items-center justify-center py-3 px-1 gap-0.5"
@@ -661,12 +617,10 @@ function BrainReportCard({ onViewReport, gamesRemaining }) {
           disabled={locked}
           onClick={() => {
             if (locked) return;
-
             trackEvent("brain_report_clicked", {
               source: "quick_result_sheet",
               games_remaining: gamesRemaining,
             });
-
             onViewReport?.();
           }}
           className="mt-3 flex items-center gap-2 self-start px-4 py-2 rounded-full font-bold text-sm transition-all active:scale-95"
@@ -800,7 +754,6 @@ function RecommendedPlayButton({
           grid: recommendation?.grid,
           mode: recommendation?.mode,
         });
-
         recommendation ? onTryRecommendation?.(recommendation) : onPlayAgain();
       }}
     >
@@ -812,8 +765,7 @@ function RecommendedPlayButton({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SmartUpgradeBlock — strategic, emotionally-resonant upsell
-   Only shown when upgradeMode !== "none"
+   SmartUpgradeBlock
 ───────────────────────────────────────────────────────────────────────────── */
 function SmartUpgradeBlock({
   mode,
@@ -829,11 +781,8 @@ function SmartUpgradeBlock({
       return () => clearTimeout(t);
     }
   }, [mode]);
-
   if (mode === "none") return null;
-
   const { Icon, accent } = copy;
-
   if (mode === "mini") {
     return (
       <div
@@ -866,8 +815,6 @@ function SmartUpgradeBlock({
       </div>
     );
   }
-
-  // full
   return (
     <div
       className="mt-3 rounded-2xl overflow-hidden cursor-pointer transition-all duration-400"
@@ -885,7 +832,6 @@ function SmartUpgradeBlock({
       onClick={onOpen}
     >
       <div className="px-4 pt-4 pb-3">
-        {/* Header row */}
         <div className="flex items-start gap-3 mb-3">
           <div
             className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
@@ -911,8 +857,6 @@ function SmartUpgradeBlock({
             </div>
           </div>
         </div>
-
-        {/* Blurred rank bar teaser */}
         <div
           className="flex items-center gap-2 mb-3 p-2.5 rounded-xl"
           style={{ background: "rgba(255,255,255,0.04)" }}
@@ -940,8 +884,6 @@ function SmartUpgradeBlock({
             Top ?%
           </span>
         </div>
-
-        {/* CTA */}
         <button
           className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 active:scale-95 transition-transform"
           style={{
@@ -958,7 +900,6 @@ function SmartUpgradeBlock({
             $4.99 once
           </span>
         </button>
-
         <div
           className="flex items-center justify-center gap-1.5 mt-2 text-xs"
           style={{ color: "rgba(255,255,255,0.22)" }}
@@ -998,7 +939,6 @@ function FullUpgradeModal({
     setVisible(false);
     setTimeout(onClose, 220);
   };
-
   const features = [
     { Icon: FaGlobe, label: "Global percentile rank" },
     { Icon: FaChartLine, label: "Reaction trend over time" },
@@ -1007,9 +947,7 @@ function FullUpgradeModal({
     { Icon: FaBrain, label: "Brain age estimate" },
     { Icon: FaTrophy, label: "Country leaderboard rank" },
   ];
-
   const accent = copy?.accent || "#a78bfa";
-
   return (
     <div
       className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center"
@@ -1113,7 +1051,6 @@ function FullUpgradeModal({
               </div>
             </div>
           </div>
-
           <div className="px-5 py-4">
             <div
               className="font-black text-base mb-0.5"
@@ -1148,7 +1085,6 @@ function FullUpgradeModal({
                   product: "lifetime_pro",
                   price: 4.99,
                 });
-
                 onUpgrade?.();
               }}
               className="w-full font-black text-sm py-3.5 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"
@@ -1226,16 +1162,12 @@ export default function QuickResultBottomSheet({
   const [insight, setInsight] = useState(null);
   const [deltas, setDeltas] = useState(null);
   const [recommendation, setRecommendation] = useState(null);
-
-  const [upgradeMode, setUpgradeMode] = useState("none"); // "none" | "mini" | "full"
+  const [upgradeMode, setUpgradeMode] = useState("none");
   const [upgradeCopy, setUpgradeCopy] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isPersonalBest, setIsPersonalBest] = useState(false);
   const [totalGames, setTotalGames] = useState(0);
-
-  const [confettiMode, setConfettiMode] = useState("none"); // "none"|"normal"|"personal_best"
-
-  // Card entry animation
+  const [confettiMode, setConfettiMode] = useState("none");
   const [cardVisible, setCardVisible] = useState(false);
 
   const initRef = useRef(false);
@@ -1245,12 +1177,9 @@ export default function QuickResultBottomSheet({
     [dailyUsers],
   );
   const dailyGames = getDailyGameCount();
-
   const dailyGamesRemaining = Math.max(0, DAILY_GOAL - dailyGames);
-
   const isComplete = dailyGamesRemaining === 0;
 
-  /* ── Card entry animation ── */
   useEffect(() => {
     if (visible) {
       const t = setTimeout(() => setCardVisible(true), 30);
@@ -1260,34 +1189,21 @@ export default function QuickResultBottomSheet({
     }
   }, [visible]);
 
-  /* ── Core init: runs once per visible=true ── */
   useEffect(() => {
     if (!visible || initRef.current || !gameSummaryData) return;
     initRef.current = true;
-
     const history = loadHistory(user?.id);
-
-    // Personal best check
     const score = gameSummaryData.score ?? 0;
     const prevBest = parseInt(localStorage.getItem(BEST_SCORE_KEY) || "0");
     const pb = score > prevBest;
     if (pb) localStorage.setItem(BEST_SCORE_KEY, score);
     setIsPersonalBest(pb);
-
-    // Total games counter
     const dailyGames = incrementDailyGames();
-
     setTotalGames(dailyGames);
-
-    // Deltas
     const d = computeDeltas(gameSummaryData, history);
     setDeltas(d);
-
-    // Insight
     const ins = buildInsight(gameSummaryData, history, pb);
     setInsight(ins);
-
-    // Upgrade mode — strategic, not mechanical
     if (!isProUser) {
       const mode = getUpgradeMode({
         isPersonalBest: pb,
@@ -1298,13 +1214,10 @@ export default function QuickResultBottomSheet({
       setUpgradeMode(mode);
       setUpgradeCopy(getUpgradeCopy(pb, ins.type, isComplete));
     }
-
-    // Confetti — only on genuinely better sessions
     const shouldConfetti =
       pb ||
       ins.type === "massive_positive" ||
       (ins.type === "positive" && (d?.scoreDelta ?? 0) > 10);
-
     if (shouldConfetti && !confettiFiredRef.current) {
       confettiFiredRef.current = true;
       const mode = pb ? "personal_best" : "normal";
@@ -1313,7 +1226,6 @@ export default function QuickResultBottomSheet({
     }
   }, [visible, gameSummaryData, isProUser, isComplete, user]);
 
-  /* ── Reset on close ── */
   useEffect(() => {
     if (!visible) {
       initRef.current = false;
@@ -1327,7 +1239,6 @@ export default function QuickResultBottomSheet({
     }
   }, [visible]);
 
-  /* ── Desktop detect ── */
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 1024);
     check();
@@ -1335,7 +1246,6 @@ export default function QuickResultBottomSheet({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* ── ESC close ── */
   useEffect(() => {
     if (!visible) return;
     const h = (e) => e.key === "Escape" && onClose?.();
@@ -1343,7 +1253,6 @@ export default function QuickResultBottomSheet({
     return () => window.removeEventListener("keydown", h);
   }, [visible, onClose]);
 
-  /* ── Recommendation ── */
   useEffect(() => {
     if (!visible) return;
     const pool = isDesktop
@@ -1369,37 +1278,140 @@ export default function QuickResultBottomSheet({
   } = gameSummaryData;
   const timeSec = (durationMs / 1000).toFixed(2);
 
-  const containerStyle = isDesktop
-    ? "fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-    : "fixed bottom-0 left-0 right-0 z-50 px-3 pb-4";
+  /* ── DESKTOP: centred modal overlay ── */
+  if (isDesktop) {
+    return (
+      <>
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+          onClick={onClose}
+        >
+          <div
+            className="relative bg-base-100 rounded-2xl p-5 w-full max-w-md shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              opacity: cardVisible ? 1 : 0,
+              transform: cardVisible
+                ? "translateY(0) scale(1)"
+                : "translateY(20px) scale(0.96)",
+              transition:
+                "opacity 0.35s ease, transform 0.4s cubic-bezier(0.34,1.4,0.64,1)",
+            }}
+          >
+            {confettiMode !== "none" && (
+              <ConfettiCanvas intensity={confettiMode} />
+            )}
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 btn btn-sm btn-ghost btn-circle text-base-content/50 hover:text-base-content z-30"
+            >
+              <IoClose size={16} />
+            </button>
+            <NeuroCoachHeader user={user} onLogin={onLogin} />
+            <DailyGoalBar
+              gamesRemaining={gamesRemaining}
+              REPORT_INTERVAL={REPORT_INTERVAL}
+            />
+            <StatsRow
+              score={score}
+              accuracy={accuracy}
+              avgReactionTimeMs={avgReactionTimeMs}
+              timeSec={timeSec}
+              deltas={deltas}
+            />
+            <InsightBanner insight={insight} />
+            <BrainReportCard
+              onViewReport={onViewReport}
+              gamesRemaining={gamesRemaining}
+            />
+            <RecommendedPlayButton
+              recommendation={recommendation}
+              onTryRecommendation={onTryRecommendation}
+              onPlayAgain={onPlayAgain}
+            />
+            {!isProUser && (
+              <SmartUpgradeBlock
+                mode={upgradeMode}
+                copy={upgradeCopy}
+                onOpen={() => {
+                  trackEvent("upgrade_offer_clicked", {
+                    source: "smart_upgrade_block",
+                    trigger: upgradeMode,
+                  });
+                  setShowUpgradeModal(true);
+                }}
+                isPersonalBest={isPersonalBest}
+                insightType={insight?.type}
+              />
+            )}
+            {!isProUser && upgradeMode === "none" && (
+              <GlobalRankBar
+                onUpgrade={() => {
+                  trackEvent("upgrade_offer_clicked", {
+                    source: "global_rank_bar",
+                  });
+                  setShowUpgradeModal(true);
+                }}
+                isProUser={isProUser}
+              />
+            )}
+          </div>
+        </div>
+        {!isProUser && showUpgradeModal && (
+          <FullUpgradeModal
+            onUpgrade={onUpgrade}
+            onClose={() => setShowUpgradeModal(false)}
+            formattedUsers={formattedUsers}
+            score={score}
+            isPersonalBest={isPersonalBest}
+            copy={upgradeCopy}
+          />
+        )}
+      </>
+    );
+  }
 
-  const cardBase = isDesktop
-    ? "relative bg-base-100 rounded-2xl p-5 w-full max-w-md shadow-2xl overflow-hidden"
-    : "relative bg-base-100 rounded-2xl p-4 border border-base-300 shadow-xl overflow-hidden";
-
+  /* ── MOBILE: bottom sheet with max-height + scroll ── */
   return (
     <>
-      <div className={containerStyle} onClick={isDesktop ? onClose : undefined}>
+      {/* Dim backdrop — doesn't block taps if sheet not visible */}
+      <div
+        className="fixed inset-0 z-40 bg-black/40"
+        style={{
+          opacity: cardVisible ? 1 : 0,
+          transition: "opacity 0.3s ease",
+          pointerEvents: cardVisible ? "auto" : "none",
+        }}
+        onClick={onClose}
+      />
+
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         <div
-          className={cardBase}
+          className="relative bg-base-100 rounded-t-2xl border-t border-base-300 shadow-xl overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
           style={{
+            /* KEY FIX: cap height to 88dvh so it never fills the full screen,
+               and let the inner content scroll */
+            maxHeight: "88dvh",
             opacity: cardVisible ? 1 : 0,
-            transform: cardVisible
-              ? "translateY(0) scale(1)"
-              : isDesktop
-                ? "translateY(20px) scale(0.96)"
-                : "translateY(100%)",
+            transform: cardVisible ? "translateY(0)" : "translateY(100%)",
             transition:
-              "opacity 0.35s ease, transform 0.4s cubic-bezier(0.34,1.4,0.64,1)",
+              "opacity 0.35s ease, transform 0.4s cubic-bezier(0.32,0.72,0,1)",
           }}
         >
-          {/* Confetti */}
+          {/* Drag handle */}
+          <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0">
+            <div className="h-1 w-10 rounded-full bg-base-300" />
+          </div>
+
           {confettiMode !== "none" && (
             <ConfettiCanvas intensity={confettiMode} />
           )}
 
-          {/* Close */}
+          {/* Close button */}
           <button
             onClick={onClose}
             className="absolute top-3 right-3 btn btn-sm btn-ghost btn-circle text-base-content/50 hover:text-base-content z-30"
@@ -1407,60 +1419,57 @@ export default function QuickResultBottomSheet({
             <IoClose size={16} />
           </button>
 
-          <NeuroCoachHeader user={user} onLogin={onLogin} />
-          <DailyGoalBar
-            gamesRemaining={gamesRemaining}
-            REPORT_INTERVAL={REPORT_INTERVAL}
-          />
-          <StatsRow
-            score={score}
-            accuracy={accuracy}
-            avgReactionTimeMs={avgReactionTimeMs}
-            timeSec={timeSec}
-            deltas={deltas}
-          />
-          <InsightBanner insight={insight} />
-          <BrainReportCard
-            onViewReport={onViewReport}
-            gamesRemaining={gamesRemaining}
-          />
-          <RecommendedPlayButton
-            recommendation={recommendation}
-            onTryRecommendation={onTryRecommendation}
-            onPlayAgain={onPlayAgain}
-          />
-
-          {/* Strategic upgrade — only when emotionally primed */}
-          {!isProUser && (
-            <SmartUpgradeBlock
-              mode={upgradeMode}
-              copy={upgradeCopy}
-              onOpen={() => {
-                trackEvent("upgrade_offer_clicked", {
-                  source: "smart_upgrade_block",
-                  trigger: upgradeMode,
-                });
-
-                setShowUpgradeModal(true);
-              }}
-              isPersonalBest={isPersonalBest}
-              insightType={insight?.type}
+          {/* Scrollable content area */}
+          <div className="overflow-y-auto overscroll-contain flex-1 px-4 pt-2 pb-5">
+            <NeuroCoachHeader user={user} onLogin={onLogin} />
+            <DailyGoalBar
+              gamesRemaining={gamesRemaining}
+              REPORT_INTERVAL={REPORT_INTERVAL}
             />
-          )}
-
-          {/* Always-visible rank bar (replaces the static GlobalRankBar when upgrade block is "none") */}
-          {!isProUser && upgradeMode === "none" && (
-            <GlobalRankBar
-              onUpgrade={() => {
-                trackEvent("upgrade_offer_clicked", {
-                  source: "global_rank_bar",
-                });
-
-                setShowUpgradeModal(true);
-              }}
-              isProUser={isProUser}
+            <StatsRow
+              score={score}
+              accuracy={accuracy}
+              avgReactionTimeMs={avgReactionTimeMs}
+              timeSec={timeSec}
+              deltas={deltas}
             />
-          )}
+            <InsightBanner insight={insight} />
+            <BrainReportCard
+              onViewReport={onViewReport}
+              gamesRemaining={gamesRemaining}
+            />
+            <RecommendedPlayButton
+              recommendation={recommendation}
+              onTryRecommendation={onTryRecommendation}
+              onPlayAgain={onPlayAgain}
+            />
+            {!isProUser && (
+              <SmartUpgradeBlock
+                mode={upgradeMode}
+                copy={upgradeCopy}
+                onOpen={() => {
+                  trackEvent("upgrade_offer_clicked", {
+                    source: "smart_upgrade_block",
+                    trigger: upgradeMode,
+                  });
+                  setShowUpgradeModal(true);
+                }}
+                isPersonalBest={isPersonalBest}
+                insightType={insight?.type}
+              />
+            )}
+            {!isProUser && upgradeMode === "none" && (
+              <GlobalRankBar
+                onUpgrade={() => {
+                  trackEvent("upgrade_offer_clicked", {
+                    source: "global_rank_bar",
+                  });
+                  setShowUpgradeModal(true);
+                }}
+                isProUser={isProUser}
+              />
+            )}
+          </div>
         </div>
       </div>
 

@@ -38,7 +38,7 @@ export default function BoardGrid({
   ========================== */
   const gridStyle = useMemo(
     () => ({
-      gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+      gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
       "--grid-size": gridSize,
     }),
     [gridSize],
@@ -59,6 +59,7 @@ export default function BoardGrid({
             border
             border-base-300
             bg-base-300
+            box-border
           "
         />
       )),
@@ -98,28 +99,32 @@ export default function BoardGrid({
         sm:px-4
         lg:px-8
         select-none
+        overflow-x-hidden
+        box-border
       "
     >
       {/* BOARD WRAPPER */}
       <div
         className="
           w-full
+          max-w-full
           border
           border-base-300
           bg-base-200
           p-2
           sm:p-3
+          box-border
+          overflow-hidden
         "
         style={{
-          maxWidth: "min(92vw, calc(100vh - 140px), 860px)",
+          maxWidth: "860px",
         }}
       >
         {/* GRID */}
         <div
-          className="grid w-full"
+          className="grid w-full box-border"
           style={{
             gap: gridSize >= 7 ? "4px" : "8px",
-
             ...gridStyle,
           }}
         >
