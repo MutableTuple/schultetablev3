@@ -3,7 +3,7 @@ import { supabase } from "./supabase";
 import showProgressToast from "../_components/Missions/ProgressToast";
 import showMissionCompletedToast from "../_components/Missions/MissionCompletedToast";
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 export async function getAllAds() {
   const res = await fetch("/api/ads");
