@@ -1,51 +1,19 @@
-"use client";
+import { NextResponse } from "next/server";
+import { createUserClient } from "@/app/_lib/supabaseServer";
 
-import { useEffect } from "react";
-import { supabase } from "@/app/_lib/supbaseClient";
+export async function GET(request) {
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get("code");
 
-export default function GoogleOneTap() {
-  useEffect(() => {
-    const init = async () => {
-      // ✅ 1. Don't show if already logged in
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  if (code) {
+    const supabase = await createUserClient();
 
-      if (session) return;
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-      // ✅ 2. Ensure Google script loaded
-      if (!window.google) return;
+    if (error) {
+      console.error("OAuth callback error:", error);
+    }
+  }
 
-      window.google.accounts.id.initialize({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-
-        callback: async (response) => {
-          const { credential } = response;
-
-          // 🔥 FIX: nonce mismatch issue
-          const { data, error } = await supabase.auth.signInWithIdToken({
-            provider: "google",
-            token: credential,
-            nonce: undefined, // ✅ CRITICAL FIX
-          });
-
-          if (error) {
-            console.error("One Tap error:", error);
-          } else {
-            // ✅ better than redirect → keeps app state clean
-            window.location.reload();
-          }
-        },
-      });
-
-      // ✅ optional: small delay (better UX)
-      setTimeout(() => {
-        window.google.accounts.id.prompt();
-      }, 1000);
-    };
-
-    init();
-  }, []);
-
-  return null;
+  return NextResponse.redirect(new URL("/", request.url));
 }
