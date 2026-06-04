@@ -177,7 +177,7 @@ export default async function RootLayout({ children }) {
       </head>
       <body className={`${chakraPetch.className} antialiased`}>
         {/* <Toaster position="bottom-right" /> */}
-        <GoogleOneTap />
+        {/* <GoogleOneTap /> */}
         <div id="floating-root">{children}</div>
         <Footer />
       </body>
