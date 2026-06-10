@@ -25,12 +25,13 @@ async function sendTokenToEmail(email, token) {
     console.error("Error sending email:", err);
   }
 }
-
 export async function RegisterUser(formData) {
   try {
-    const supabase = createUserClient();
+    const supabase = await createUserClient();
 
-    // ✅ CAPTCHA
+    // =========================
+    // CAPTCHA
+    // =========================
     const captchaToken = formData.get("captchaToken");
 
     if (!captchaToken) {
@@ -39,34 +40,45 @@ export async function RegisterUser(formData) {
 
     const verifyCaptcha = await fetch("https://hcaptcha.com/siteverify", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: `response=${captchaToken}&secret=${process.env.HCAPTCHA_SECRET}`,
     });
 
     const captchaResult = await verifyCaptcha.json();
 
     if (!captchaResult.success) {
+      console.error("Captcha failed:", captchaResult);
       return { error: "Captcha verification failed." };
     }
 
-    // ✅ Form fields
-    const fullName = formData.get("fullName");
-    const suggestedUsername = formData.get("suggestedUsername");
-    const email = formData.get("email");
-    const password = formData.get("password");
+    // =========================
+    // FORM DATA
+    // =========================
+    const fullName = formData.get("fullName")?.toString().trim();
+    const suggestedUsername = formData
+      .get("suggestedUsername")
+      ?.toString()
+      .trim();
+    const email = formData.get("email")?.toString().trim().toLowerCase();
+    const password = formData.get("password")?.toString();
 
     if (!email || !password || !fullName) {
-      return { error: "Missing required fields" };
+      return { error: "Missing required fields." };
     }
 
     const avatarSeed = suggestedUsername || fullName || uuidv4().slice(0, 8);
+
     const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(
       avatarSeed,
     )}`;
 
     const verificationToken = generate6DigitToken();
 
-    // ✅ SIGN UP
+    // =========================
+    // SIGNUP
+    // =========================
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -78,18 +90,42 @@ export async function RegisterUser(formData) {
       },
     });
 
-    if (error) {
-      console.error("Signup error:", error.message);
+    console.log("SIGNUP DATA:", data);
+    console.log("SIGNUP ERROR:", error);
 
-      if (error.message.toLowerCase().includes("user already registered")) {
-        return { error: "User already exists" };
+    if (error) {
+      console.error("Signup error:", error);
+
+      if (error.message?.toLowerCase().includes("already registered")) {
+        return { error: "User already exists." };
       }
 
       return { error: error.message };
     }
 
-    // ✅ INSERT USER (IMPORTANT: use same client, not admin)
-    const { error: dbError } = await supabase.from("User").insert([
+    if (!data?.user) {
+      console.error("No user returned from signup:", data);
+      return { error: "Failed to create user." };
+    }
+
+    console.log("SUPABASE USER ID:", data.user.id);
+    console.log("SUPABASE EMAIL:", data.user.email);
+
+    // =========================
+    // CHECK EXISTING USER
+    // =========================
+    const { data: existingUser } = await supabase
+      .from("User")
+      .select("id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    console.log("EXISTING USER:", existingUser);
+
+    // =========================
+    // UPSERT USER
+    // =========================
+    const { error: dbError } = await supabase.from("User").upsert(
       {
         id: data.user.id,
         name: fullName,
@@ -98,29 +134,40 @@ export async function RegisterUser(formData) {
         image: avatarUrl,
         verification_token: verificationToken,
       },
-    ]);
+      {
+        onConflict: "id",
+      },
+    );
 
     if (dbError) {
-      console.error("DB Error:", dbError);
-      return { error: "Failed to save user" };
+      console.error("DB ERROR:", dbError);
+      return {
+        error: dbError.message || "Failed to save user.",
+      };
     }
 
-    // ✅ Send email
+    console.log("USER SAVED SUCCESSFULLY");
+
+    // =========================
+    // EMAIL
+    // =========================
     await sendTokenToEmail(data.user.email, verificationToken);
 
     return {
       user: data.user,
-      message: "Verification code sent to email",
+      message: "Verification code sent to email.",
     };
   } catch (err) {
-    console.error("Register error:", err);
-    return { error: "Registration failed" };
+    console.error("REGISTER ERROR:", err);
+
+    return {
+      error: err instanceof Error ? err.message : "Registration failed.",
+    };
   }
 }
-
 export async function Login(formData) {
   try {
-    const supabase = createUserClient();
+    const supabase = await createUserClient();
 
     const email = formData.get("email");
     const password = formData.get("password");
