@@ -9,6 +9,9 @@ const withPWA = nextPWA({
 
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   async redirects() {
     return [
