@@ -182,7 +182,7 @@ export default function MonthlyReportCTAGuest() {
           </div>
 
           <div className="flex gap-3 flex-wrap">
-            <Link href={"/signup"}>
+            <Link href={"/register"}>
               <button
                 className="btn btn-primary btn-lg font-black shadow-lg hover:-translate-y-1 transition-transform"
                 style={{ boxShadow: "0 8px 32px oklch(var(--p)/0.3)" }}
@@ -638,7 +638,7 @@ export default function MonthlyReportCTAGuest() {
                       Sign up free, play a few rounds, and unlock your
                       personalized cognitive report
                     </div>
-                    <Link href="/signup">
+                    <Link href="/register">
                       <button className="btn btn-primary btn-sm mt-3 w-full font-black">
                         Sign Up Free →
                       </button>
