@@ -3,6 +3,7 @@ import { getCurrentUser } from "./_utils/getCurrentUser";
 import HomeMain from "./_components/HomeMain";
 import ClientShell from "./_components/ClientShell";
 import StickyGetProBtn from "./_components/StickyGetProBtn";
+import FloatingMonthlyReportBtnNudge from "./_components/FloatingMontlyReportBtnNudge";
 
 // ✅ SEO metadata export
 export const metadata = {
@@ -113,7 +114,7 @@ const jsonLd = [
 
 export default async function Home() {
   const { user, error } = await getCurrentUser();
-  
+
   return (
     <>
       {/* JSON-LD structured data */}
@@ -139,6 +140,8 @@ export default async function Home() {
       </p>
       <HomeMain user={user} error={error} />
       <ClientShell user={user} />
+      <FloatingMonthlyReportBtnNudge />
+
       {/* <StickyGetProBtn user={user} /> */}
     </>
   );
