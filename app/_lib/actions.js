@@ -146,7 +146,7 @@ export async function RegisterUser(formData) {
       };
     }
 
-    console.log("USER SAVED SUCCESSFULLY");
+    // console.log("USER SAVED SUCCESSFULLY");
 
     // =========================
     // EMAIL
