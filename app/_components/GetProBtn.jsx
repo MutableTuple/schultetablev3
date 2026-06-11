@@ -58,7 +58,7 @@ export default function GetProBtn() {
           setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
         }, 1000);
       } catch (error) {
-        console.error("Error fetching campaign:", error);
+        // console.error("Error fetching campaign:", error);
       }
     };
 

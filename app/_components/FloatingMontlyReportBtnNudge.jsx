@@ -10,29 +10,27 @@ const RESHOW_AFTER_MS = 24 * 60 * 60 * 1000;
 
 export default function FloatingMonthlyReportBtnNudge() {
   const [visible, setVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const dismissedAt = localStorage.getItem(STORAGE_KEY);
+
     if (!dismissedAt) {
       setVisible(true);
-    } else {
-      const elapsed = Date.now() - parseInt(dismissedAt, 10);
-      if (elapsed >= RESHOW_AFTER_MS) {
-        localStorage.removeItem(STORAGE_KEY);
-        setVisible(true);
-      }
+      return;
     }
-    // slight delay so the enter animation is visible
-    requestAnimationFrame(() => setMounted(true));
+
+    const elapsed = Date.now() - Number(dismissedAt);
+
+    if (elapsed >= RESHOW_AFTER_MS) {
+      localStorage.removeItem(STORAGE_KEY);
+      setVisible(true);
+    }
   }, []);
 
   const handleDismiss = () => {
-    setMounted(false);
-    setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, Date.now().toString());
-      setVisible(false);
-    }, 300);
+    localStorage.setItem(STORAGE_KEY, Date.now().toString());
+    setVisible(false);
+
     if (typeof window !== "undefined" && window.gtag) {
       window.gtag("event", "floating_cta_dismissed", {
         event_category: "engagement",
@@ -46,7 +44,6 @@ export default function FloatingMonthlyReportBtnNudge() {
       window.gtag("event", "floating_cta_click", {
         event_category: "engagement",
         event_label: "monthly_brain_report_nudge",
-        value: 1,
       });
     }
   };
@@ -54,85 +51,32 @@ export default function FloatingMonthlyReportBtnNudge() {
   if (!visible) return null;
 
   return (
-    <div className="sm:hidden fixed top-3 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
-      <div
-        className="relative pointer-events-auto flex items-center gap-1"
-        style={{
-          animation: mounted
-            ? "slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards, btnFloat 4s ease-in-out 0.35s infinite"
-            : "none",
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(-16px)",
-          transition: "opacity 0.3s ease, transform 0.3s ease",
-        }}
-      >
-        {/* Shimmer layer behind pill */}
-        <div
-          className="absolute inset-0 rounded-full pointer-events-none overflow-hidden"
-          aria-hidden="true"
-        >
-          <div
-            className="absolute inset-0"
-            style={{ animation: "shimmer 3.5s ease-in-out infinite" }}
-          />
-        </div>
-
-        {/* Main pill */}
+    <div className="sm:hidden fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
+      <div className="bg-black text-white rounded-full border border-white/10 shadow-2xl flex items-center overflow-hidden">
         <Link
           href="/monthly-brain-report"
           onClick={handleClick}
-          className="btn btn-sm rounded-full gap-2 shadow-md bg-accent border border-base-300 text-base-content hover:bg-base-200 overflow-hidden relative"
+          className="flex items-center gap-2 px-4 py-2"
         >
-          {/* Shimmer sweep inside pill */}
-          <span
-            className="absolute inset-y-0 w-1/2 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent)",
-              animation: "pillShimmer 3.5s ease-in-out infinite",
-            }}
-          />
+          <TbReportAnalytics size={18} />
 
-          <span
-            className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 relative z-10"
-            style={{ animation: "dotPulse 2s ease-in-out infinite" }}
-          />
-          <TbReportAnalytics size={15} className="text-primary relative z-10" />
-          <span className="whitespace-nowrap text-xs font-semibold relative z-10">
-            Get Monthly Report
+          <span className="text-sm font-medium">
+            Get Your Monthly Brain Report
+          </span>
+
+          <span className="px-2 py-0.5 text-[10px] rounded-full bg-white text-black font-semibold">
+            NEW
           </span>
         </Link>
 
-        {/* Close btn */}
         <button
           onClick={handleDismiss}
-          className="btn btn-circle btn-xs bg-accent border border-base-300 text-base-content/40 hover:text-base-content hover:bg-base-200 shadow-sm transition-all duration-200"
+          className="h-full px-3 text-white/60 hover:text-white transition-colors"
           aria-label="Dismiss"
         >
-          <IoClose size={12} />
+          <IoClose size={16} />
         </button>
       </div>
-
-      <style>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-16px) scale(0.95); }
-          to   { opacity: 1; transform: translateY(0)     scale(1);    }
-        }
-        @keyframes btnFloat {
-          0%, 100% { transform: translateY(0px);  }
-          50%       { transform: translateY(-3px); }
-        }
-        @keyframes dotPulse {
-          0%, 100% { opacity: 1;   transform: scale(1);   }
-          50%       { opacity: 0.3; transform: scale(0.6); }
-        }
-        @keyframes pillShimmer {
-          0%        { left: -60%; opacity: 0;   }
-          10%       { opacity: 1;               }
-          55%       { left: 130%; opacity: 0;   }
-          100%      { left: 130%; opacity: 0;   }
-        }
-      `}</style>
     </div>
   );
 }

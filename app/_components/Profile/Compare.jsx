@@ -118,7 +118,7 @@ export default function Compare({ user }) {
             game_summary.accuracy.endsWith("%")
           ) {
             const numericAccuracy = parseFloat(
-              game_summary.accuracy.replace("%", "")
+              game_summary.accuracy.replace("%", ""),
             );
             if (!isNaN(numericAccuracy)) {
               total.accuracy += numericAccuracy;

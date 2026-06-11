@@ -50,7 +50,7 @@ export default function ContactForm() {
       setFormData({ name: "", email: "", query: "" });
       setCaptcha(null);
     } catch (err) {
-      console.error(err.message);
+      // console.error(err.message);
       setSuccess("Something went wrong. Please try again.");
     } finally {
       setLoading(false);

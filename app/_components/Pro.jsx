@@ -10,8 +10,7 @@ import { IoSparkles } from "react-icons/io5";
 import { BiSolidBadgeDollar } from "react-icons/bi";
 export default function Pro({ user }) {
   const [isIndia, setIsIndia] = useState(null);
-  const userId = user?.[0]?.id;
-
+  const userId = user?.id;
   // Load LemonSqueezy script
   useEffect(() => {
     if (window.LemonSqueezy) return;
