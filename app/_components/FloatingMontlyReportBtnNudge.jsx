@@ -51,27 +51,27 @@ export default function FloatingMonthlyReportBtnNudge() {
   if (!visible) return null;
 
   return (
-    <div className="sm:hidden fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
-      <div className="bg-black text-white rounded-full border border-white/10 shadow-2xl flex items-center overflow-hidden">
+    <div className="sm:hidden fixed bottom-20 left-0 right-0 z-40 flex justify-center px-4">
+      <div className="bg-[var(--ink)] text-background rounded-full border border-background/10 shadow-2xl flex items-center overflow-hidden">
         <Link
           href="/monthly-brain-report"
           onClick={handleClick}
           className="flex items-center gap-2 px-4 py-2"
         >
-          <TbReportAnalytics size={18} />
+          <TbReportAnalytics size={18} className="text-primary" />
 
           <span className="text-sm font-medium">
             Get Your Monthly Brain Report
           </span>
 
-          <span className="px-2 py-0.5 text-[10px] rounded-full bg-white text-black font-semibold">
+          <span className="px-2 py-0.5 text-[10px] rounded-full bg-primary text-primary-foreground font-semibold">
             NEW
           </span>
         </Link>
 
         <button
           onClick={handleDismiss}
-          className="h-full px-3 text-white/60 hover:text-white transition-colors"
+          className="h-full px-3 text-background/60 hover:text-background transition-colors"
           aria-label="Dismiss"
         >
           <IoClose size={16} />

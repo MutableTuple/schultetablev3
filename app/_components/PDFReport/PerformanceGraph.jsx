@@ -11,27 +11,30 @@ import {
   FiTarget,
   FiTrendingUp,
   FiZap,
+  FiShield,
+  FiStar,
 } from "react-icons/fi";
 
 import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  PieChart,
-  Pie,
-  Cell,
+  RadialBarChart,
+  RadialBar,
   BarChart,
   Bar,
+  Cell,
   XAxis,
   Tooltip,
 } from "recharts";
+const ACCENT = "#570df8";
+const ACCENT_CYAN = "#06b6d4";
 
-const COLORS = ["#570df8", "#06b6d4", "#c4b5fd"];
-const BAR_COLORS = {
-  reaction: { you: "#570df8", avg: "#d4d4d8" },
-  focus: { you: "#06b6d4", avg: "#d4d4d8" },
-  accuracy: { you: "#10b981", avg: "#d4d4d8" },
-  consistency: { you: "#f59e0b", avg: "#d4d4d8" },
+const METRIC_COLORS = {
+  Reaction: "#570df8",
+  Focus: "#06b6d4",
+  Accuracy: "#10b981",
+  Consistency: "#f59e0b",
 };
 
 // ============================================
@@ -44,7 +47,6 @@ export default function PerformanceGraph({ user, analytics }) {
     brainMetrics,
     speedMetrics,
     focusMetrics,
-    fatigueMetrics,
     performanceMetrics,
     trends,
     gameData,
@@ -56,15 +58,13 @@ export default function PerformanceGraph({ user, analytics }) {
   const consistency = brainMetrics?.consistency ?? 0;
   const cogStability = brainMetrics?.cognitiveStability ?? 0;
   const attentionDrift = focusMetrics?.attentionDrift ?? 0;
-  const fatigueScore = fatigueMetrics?.fatigueScore ?? 0;
-  const bestAccuracy = performanceMetrics?.bestAccuracy ?? 0;
   const errorRate = performanceMetrics?.errorRate ?? 0;
-  const scorePerGame = performanceMetrics?.scorePerGame ?? 0;
-  const bestGame = performanceMetrics?.bestGame ?? null;
   const speedTier = speedMetrics?.speedTier ?? "—";
   const accuracyTrend = trends?.accuracyTrend ?? null;
   const reactionTrend = trends?.reactionTrend ?? null;
   const scoreTrend = trends?.scoreTrend ?? null;
+  const fullName = user?.user?.name?.trim() || "";
+  const userInitial = (fullName[0] || "?").toUpperCase();
 
   // ── Performance trend chart — real game scores over time ─────────────────
   const performanceTrend = (() => {
@@ -78,34 +78,28 @@ export default function PerformanceGraph({ user, analytics }) {
       }));
   })();
 
-  // ── Focus state pie — derived from attentionDrift + fatigueScore ──────────
-  const focused = Math.round(attentionDrift * 0.85);
-  const average = Math.round((100 - attentionDrift) * 0.6);
-  const distracted = Math.max(0, 100 - focused - average);
-
-  const focusBreakdown = [
-    { name: "Focused", value: focused },
-    { name: "Average", value: average },
-    { name: "Distracted", value: distracted },
-  ];
-
-  // ── Comparison bar data — you vs community benchmarks ────────────────────
-  // Community benchmarks: reaction ~600ms = 60 score, focus avg = 58, accuracy avg = 66, consistency avg = 55
+  // ── Your own 4 real metrics, normalized to a comparable 0-100 scale.
+  // No fabricated "community average" bars — that never had real data
+  // behind it (see the removed hardcoded 60/58/66/55 constants).
   const reactionScore = Math.round(
     Math.min(100, (1000 / Math.max(avgReaction, 1)) * 55),
   );
-  const focusScore = Math.round(attentionDrift);
+  const focusScoreValue = Math.round(attentionDrift);
   const accuracyScore = Math.round(avgAccuracy);
   const consistencyScore = Math.round(consistency);
 
-  const comparisonData = [
-    { name: "Reaction", you: reactionScore, avg: 60 },
-    { name: "Focus", you: focusScore, avg: 58 },
-    { name: "Accuracy", you: accuracyScore, avg: 66 },
-    { name: "Consistency", you: consistencyScore, avg: 55 },
+  const metricsSnapshot = [
+    { name: "Reaction", you: reactionScore },
+    { name: "Focus", you: focusScoreValue },
+    { name: "Accuracy", you: accuracyScore },
+    { name: "Consistency", you: consistencyScore },
   ];
 
-  // ── Peak & weak day ───────────────────────────────────────────────────────
+  const strongestMetric = metricsSnapshot.reduce((a, b) =>
+    b.you > a.you ? b : a,
+  );
+
+  // ── Peak & weak day — real data ───────────────────────────────────────────
   const sortedByScore = [...(gameData ?? [])].sort(
     (a, b) => (b.score ?? 0) - (a.score ?? 0),
   );
@@ -143,7 +137,8 @@ export default function PerformanceGraph({ user, analytics }) {
           ? "Moderate"
           : "Low";
 
-  // ── Trend headline ────────────────────────────────────────────────────────
+  // ── Trend headline — now has a real "declined" branch instead of
+  // quietly calling any non-positive trend "stable".
   const trendHeadline =
     scoreTrend != null && scoreTrend > 0
       ? `Your performance improved ${scoreTrend}% this period.`
@@ -151,259 +146,345 @@ export default function PerformanceGraph({ user, analytics }) {
         ? `You're ${reactionTrend}ms faster than when you started.`
         : accuracyTrend != null && accuracyTrend > 0
           ? `Your accuracy improved +${accuracyTrend}% this period.`
-          : "Your performance remained stable this period.";
-
-  // ── Bar comparison headline ───────────────────────────────────────────────
-  const comparisonHeadline =
-    reactionScore > 70 && accuracyScore > 85
-      ? "You outperform average players across the board."
-      : reactionScore > 60 || accuracyScore > 80
-        ? "You beat the average in key performance areas."
-        : "Your metrics are building toward above-average performance.";
+          : scoreTrend != null && scoreTrend < 0
+            ? "Your performance dipped slightly this period — more sessions can help you rebound."
+            : "Your performance remained stable this period.";
 
   return (
-    <div className="w-full h-full bg-white text-zinc-900 relative overflow-hidden">
-      {/* LEFT STRIP */}
-      <div className="absolute left-0 top-0 w-4 h-full bg-[#570df8]" />
-
-      {/* CONTENT */}
-      <div className="px-10 pt-8 pb-24">
-        {/* HEADER */}
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="uppercase tracking-[0.22em] text-[9px] text-zinc-400">
-              Deep Analytics
-            </div>
-            <h1 className="text-[42px] leading-[0.9] font-black mt-3">
-              Performance
-              <br />
-              Graphs
-            </h1>
-          </div>
-
-          <div className="w-12 h-12 bg-[#570df8] text-white flex items-center justify-center">
-            <FiBarChart2 className="text-2xl" />
-          </div>
+    <div
+      className="w-full h-full bg-white text-zinc-900 relative flex"
+      style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
+    >
+      {/* ── SIDEBAR ── */}
+      <div
+        className="w-24 h-full shrink-0 flex flex-col items-center py-5 relative"
+        style={{
+          background: `linear-gradient(180deg, #1e1b4b, ${ACCENT} 55%, #7c3aed)`,
+        }}
+      >
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white font-black text-base shrink-0">
+          S
         </div>
 
-        {/* INTRO */}
-        <div className="mt-6 border border-zinc-200 bg-zinc-50 p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 bg-[#570df8] text-white flex items-center justify-center shrink-0">
-              <FiTrendingUp className="text-lg" />
-            </div>
-            <div>
-              <h2 className="text-xl font-black">
-                Understanding Your Performance
-              </h2>
-              <p className="mt-2 text-xs text-zinc-600 leading-relaxed">
-                These charts visualize your reaction speed, focus consistency,
-                and cognitive stability across{" "}
-                <span className="font-bold text-zinc-800">
-                  {rawStats?.totalGames ?? 0} sessions
-                </span>
-                .
-              </p>
-            </div>
-          </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 py-5">
+          <span
+            className="text-white font-black text-sm tracking-[0.18em] whitespace-nowrap"
+            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          >
+            SCHULTETABLE
+          </span>
+          <span
+            className="text-white/60 font-semibold text-[8px] tracking-[0.3em] whitespace-nowrap"
+            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          >
+            COGNITIVE PERFORMANCE ANALYTICS
+          </span>
         </div>
 
-        {/* TOP SECTION */}
-        <div className="grid grid-cols-[1fr_220px] gap-4 mt-5">
-          {/* AREA CHART */}
-          <div className="border border-zinc-200 bg-zinc-50 p-4">
-            <div className="uppercase tracking-[0.22em] text-[9px] text-zinc-400">
-              Performance Trend
-            </div>
-            <h2 className="text-xl font-black mt-2">{trendHeadline}</h2>
-            <div className="h-[120px] mt-3">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={performanceTrend}>
-                  <defs>
-                    <linearGradient
-                      id="scoreGradient"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop offset="0%" stopColor="#570df8" stopOpacity={0.4} />
-                      <stop
-                        offset="50%"
-                        stopColor="#06b6d4"
-                        stopOpacity={0.2}
-                      />
-                      <stop offset="100%" stopColor="#570df8" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="score"
-                    stroke="#570df8"
-                    strokeWidth={2.5}
-                    fill="url(#scoreGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+        <div className="flex flex-col items-center gap-2.5 shrink-0">
+          <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white/40 shrink-0 flex items-center justify-center bg-white/10 text-white font-bold text-sm">
+            {user?.user?.image ? (
+              <img
+                src={user.user.image}
+                alt={fullName || "avatar"}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              userInitial
+            )}
           </div>
-
-          {/* PIE CHART */}
-          <div className="border border-zinc-200 bg-zinc-50 p-4">
-            <div className="uppercase tracking-[0.22em] text-[9px] text-zinc-400">
-              Focus State
-            </div>
-            <div className="h-[110px] mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={focusBreakdown}
-                    dataKey="value"
-                    innerRadius={30}
-                    outerRadius={50}
-                    paddingAngle={2}
-                  >
-                    {focusBreakdown.map((_, index) => (
-                      <Cell key={index} fill={COLORS[index]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-1.5 mt-1">
-              {focusBreakdown.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between text-[10px]"
-                >
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-sm"
-                      style={{ background: COLORS[index] }}
-                    />
-                    <span>{item.name}</span>
-                  </div>
-                  <span className="font-bold">{item.value}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* INSIGHT CARDS */}
-        <div className="grid grid-cols-4 gap-2 mt-5">
-          <InsightCard
-            icon={<FiArrowUpRight />}
-            title="Peak Day"
-            value={peakDay}
-            color="#570df8"
-          />
-          <InsightCard
-            icon={<FiArrowDownRight />}
-            title="Weak Day"
-            value={weakDay}
-            color="#f43f5e"
-          />
-          <InsightCard
-            icon={<FiTarget />}
-            title="Best Score"
-            value={highScore.toLocaleString()}
-            color="#10b981"
-          />
-          <InsightCard
-            icon={<FiAlertTriangle />}
-            title="Low Score"
-            value={lowScore.toLocaleString()}
-            color="#f59e0b"
-          />
-        </div>
-
-        {/* BAR CHART */}
-        <div className="mt-5 border border-zinc-200 bg-zinc-50 p-4">
-          <div className="uppercase tracking-[0.22em] text-[9px] text-zinc-400">
-            Community Comparison
-          </div>
-          <h2 className="text-xl font-black mt-2">{comparisonHeadline}</h2>
-          <div className="h-[140px] mt-3">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparisonData} barGap={4} barCategoryGap="30%">
-                <XAxis
-                  dataKey="name"
-                  tick={{ fontSize: 9, fill: "#a1a1aa" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    fontSize: 10,
-                    background: "#fff",
-                    border: "1px solid #e4e4e7",
-                    borderRadius: 4,
-                  }}
-                  formatter={(val, name) => [
-                    `${val}`,
-                    name === "you" ? "You" : "Avg",
-                  ]}
-                />
-                <Bar dataKey="you" radius={[3, 3, 0, 0]}>
-                  {comparisonData.map((_, i) => (
-                    <Cell
-                      key={i}
-                      fill={Object.values(BAR_COLORS)[i]?.you ?? "#570df8"}
-                    />
-                  ))}
-                </Bar>
-                <Bar dataKey="avg" fill="#e4e4e7" radius={[3, 3, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          {/* Legend */}
-          <div className="flex items-center gap-4 mt-2">
-            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
-              <div className="w-3 h-3 rounded-sm bg-[#570df8]" />
-              You
-            </div>
-            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
-              <div className="w-3 h-3 rounded-sm bg-[#e4e4e7]" />
-              Community Avg
-            </div>
-          </div>
-        </div>
-
-        {/* BOTTOM METRICS */}
-        <div className="grid grid-cols-4 gap-2 mt-5">
-          <MetricCard
-            icon={<FiZap />}
-            label="Reaction"
-            value={`${Math.round(avgReaction)}ms`}
-            color="#570df8"
-          />
-          <MetricCard
-            icon={<FiTarget />}
-            label="Stability"
-            value={`${cogStability}%`}
-            color="#06b6d4"
-          />
-          <MetricCard
-            icon={<FiTrendingUp />}
-            label="Growth"
-            value={growthLabel}
-            color="#10b981"
-          />
-          <MetricCard
-            icon={<FiClock />}
-            label="Consistency"
-            value={consistencyLabel}
-            color="#f59e0b"
-          />
+          {fullName && (
+            <span
+              className="text-white font-bold text-[11px] tracking-wide whitespace-nowrap"
+              style={{
+                writingMode: "vertical-rl",
+                transform: "rotate(180deg)",
+              }}
+            >
+              {fullName}
+            </span>
+          )}
+          <FiStar size={12} className="text-white/50 mt-1" />
         </div>
       </div>
 
-      {/* FOOTER */}
-      <div className="absolute bottom-0 left-0 w-full border-t border-zinc-200 px-10 py-3 bg-white">
-        <div className="flex items-center justify-between text-[9px] text-zinc-400">
-          <div>Performance Intelligence Analytics™</div>
-          <div>www.schultetable.com</div>
+      {/* ── MAIN COLUMN ── */}
+      <div className="flex-1 h-full flex flex-col">
+        <div className="flex-1 px-9 pt-7">
+          {/* HEADER */}
+          <div className="flex items-start justify-between">
+            <div>
+              <div
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.2em]"
+                style={{ background: `${ACCENT}1a`, color: ACCENT }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: ACCENT }}
+                />
+                Deep Analytics
+              </div>
+              <h1 className="text-[38px] leading-[0.9] font-black mt-3 tracking-[-0.03em]">
+                <span
+                  style={{
+                    background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT_CYAN})`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  Performance
+                </span>
+                <br />
+                <span className="text-zinc-900">Graphs</span>
+              </h1>
+            </div>
+
+            <div
+              className="w-12 h-12 rounded-2xl text-white flex items-center justify-center shadow-lg shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_CYAN})`,
+                boxShadow: `0 8px 20px ${ACCENT}40`,
+              }}
+            >
+              <FiBarChart2 className="text-xl" />
+            </div>
+          </div>
+
+          {/* INTRO */}
+          <div className="mt-4 border border-zinc-200 bg-zinc-50 rounded-2xl p-3.5">
+            <div className="flex items-start gap-2.5">
+              <div
+                className="w-8 h-8 rounded-xl text-white flex items-center justify-center shrink-0"
+                style={{
+                  background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_CYAN})`,
+                }}
+              >
+                <FiTrendingUp className="text-sm" />
+              </div>
+              <div>
+                <h2 className="text-base font-black">
+                  Understanding Your Performance
+                </h2>
+                <p className="mt-1 text-[11px] text-zinc-600 leading-relaxed line-clamp-2">
+                  These charts visualize your reaction speed, focus consistency,
+                  and cognitive stability across{" "}
+                  <span className="font-bold text-zinc-800">
+                    {rawStats?.totalGames ?? 0} sessions
+                  </span>
+                  .
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* TOP SECTION */}
+          <div className="grid grid-cols-[1fr_190px] gap-3.5 mt-4">
+            {/* AREA CHART */}
+            <div className="border border-zinc-200 bg-zinc-50 rounded-2xl p-3.5">
+              <div className="text-[9px] uppercase tracking-[0.22em] text-zinc-400 font-bold">
+                Performance Trend
+              </div>
+              <h2 className="text-base font-black mt-1.5 line-clamp-1">
+                {trendHeadline}
+              </h2>
+              <div className="h-[100px] mt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={performanceTrend}>
+                    <defs>
+                      <linearGradient
+                        id="scoreGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor={ACCENT}
+                          stopOpacity={0.4}
+                        />
+                        <stop
+                          offset="50%"
+                          stopColor={ACCENT_CYAN}
+                          stopOpacity={0.2}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor={ACCENT}
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <Area
+                      type="monotone"
+                      dataKey="score"
+                      stroke={ACCENT}
+                      strokeWidth={2.5}
+                      fill="url(#scoreGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* FOCUS GAUGE — replaces the fabricated 3-way pie split with
+                the one real signal we actually have: attentionDrift. */}
+            <div className="border border-zinc-200 bg-zinc-50 rounded-2xl p-3.5 flex flex-col items-center">
+              <div className="text-[9px] uppercase tracking-[0.22em] text-zinc-400 font-bold self-start">
+                Focus Consistency
+              </div>
+              <div className="relative w-[90px] h-[90px] mt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart
+                    innerRadius="72%"
+                    outerRadius="100%"
+                    data={[
+                      { value: focusScoreValue, fill: "url(#focusGaugeGrad)" },
+                    ]}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="focusGaugeGrad"
+                        x1="0"
+                        y1="0"
+                        x2="1"
+                        y2="1"
+                      >
+                        <stop offset="0%" stopColor={ACCENT} />
+                        <stop offset="100%" stopColor={ACCENT_CYAN} />
+                      </linearGradient>
+                    </defs>
+                    <RadialBar background dataKey="value" cornerRadius={16} />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-xl font-black">{focusScoreValue}%</div>
+                </div>
+              </div>
+              <p className="text-[9px] text-zinc-500 text-center mt-2 leading-snug line-clamp-2">
+                How steadily you stay locked in during a session.
+              </p>
+            </div>
+          </div>
+
+          {/* INSIGHT CARDS */}
+          <div className="grid grid-cols-4 gap-2 mt-4">
+            <InsightCard
+              icon={<FiArrowUpRight />}
+              title="Peak Day"
+              value={peakDay}
+              color={ACCENT}
+            />
+            <InsightCard
+              icon={<FiArrowDownRight />}
+              title="Weak Day"
+              value={weakDay}
+              color="#f43f5e"
+            />
+            <InsightCard
+              icon={<FiTarget />}
+              title="Best Score"
+              value={highScore.toLocaleString()}
+              color="#10b981"
+            />
+            <InsightCard
+              icon={<FiAlertTriangle />}
+              title="Low Score"
+              value={lowScore.toLocaleString()}
+              color="#f59e0b"
+            />
+          </div>
+
+          {/* METRICS SNAPSHOT — your own 4 real scores, no invented
+              "community average" bars alongside them. */}
+          <div className="mt-4 border border-zinc-200 bg-zinc-50 rounded-2xl p-3.5">
+            <div className="text-[9px] uppercase tracking-[0.22em] text-zinc-400 font-bold">
+              Your Metrics Snapshot
+            </div>
+            <h2 className="text-base font-black mt-1.5">
+              {strongestMetric.name} is your strongest metric this period.
+            </h2>
+            <div className="h-[110px] mt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={metricsSnapshot} barCategoryGap="30%">
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 9, fill: "#a1a1aa" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      fontSize: 10,
+                      background: "#fff",
+                      border: "1px solid #e4e4e7",
+                      borderRadius: 8,
+                    }}
+                    formatter={(val) => [`${val}`, "You"]}
+                  />
+                  <Bar dataKey="you" radius={[4, 4, 0, 0]}>
+                    {metricsSnapshot.map((entry, i) => (
+                      <Cell key={i} fill={METRIC_COLORS[entry.name]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[9px] text-zinc-500 mt-1.5 line-clamp-1">
+              Each metric shown on a comparable 0–100 scale, based on your own
+              real session data.
+            </p>
+          </div>
+
+          {/* BOTTOM METRICS */}
+          <div className="grid grid-cols-4 gap-2 mt-4">
+            <MetricCard
+              icon={<FiZap />}
+              label="Reaction"
+              value={`${Math.round(avgReaction)}ms`}
+              color={ACCENT}
+            />
+            <MetricCard
+              icon={<FiTarget />}
+              label="Stability"
+              value={`${cogStability}%`}
+              color={ACCENT_CYAN}
+            />
+            <MetricCard
+              icon={<FiTrendingUp />}
+              label="Growth"
+              value={growthLabel}
+              color="#10b981"
+            />
+            <MetricCard
+              icon={<FiClock />}
+              label="Consistency"
+              value={consistencyLabel}
+              color="#f59e0b"
+            />
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="shrink-0 border-t border-zinc-200 px-9 py-3 bg-white flex items-center justify-between">
+          <div className="flex items-start gap-2">
+            <FiShield size={11} className="text-zinc-400 mt-0.5" />
+            <div>
+              <div className="text-[9px] font-bold text-zinc-500">
+                Performance Intelligence Analytics™
+              </div>
+              <div className="text-[8px] text-zinc-400">
+                Your data is private and secure. We will never share your
+                information.
+              </div>
+            </div>
+          </div>
+          <span className="text-[9px] font-semibold" style={{ color: ACCENT }}>
+            www.schultetable.com
+          </span>
         </div>
       </div>
     </div>
@@ -414,38 +495,42 @@ export default function PerformanceGraph({ user, analytics }) {
 // COMPONENTS
 // ============================================
 
-function MetricCard({ icon, label, value, color = "#570df8" }) {
+function MetricCard({ icon, label, value, color = ACCENT }) {
   return (
     <div
-      className="bg-zinc-50 border border-zinc-200 p-2.5 relative overflow-hidden"
+      className="rounded-xl p-2.5 border"
       style={{
-        background: `linear-gradient(135deg, ${color}08 0%, transparent 60%)`,
+        background: `linear-gradient(135deg, ${color}0d 0%, transparent 60%)`,
         borderColor: `${color}30`,
       }}
     >
       <div className="flex items-center justify-between">
         <div style={{ color }}>{icon}</div>
-        <div className="text-[8px] uppercase text-zinc-400">{label}</div>
+        <div className="text-[7px] uppercase text-zinc-400 font-bold">
+          {label}
+        </div>
       </div>
-      <div className="text-lg font-black mt-2">{value}</div>
+      <div className="text-base font-black mt-1.5 truncate">{value}</div>
     </div>
   );
 }
 
-function InsightCard({ icon, title, value, color = "#570df8" }) {
+function InsightCard({ icon, title, value, color = ACCENT }) {
   return (
     <div
-      className="bg-zinc-50 border border-zinc-200 p-2.5 relative overflow-hidden"
+      className="rounded-xl p-2.5 border"
       style={{
-        background: `linear-gradient(135deg, ${color}08 0%, transparent 60%)`,
+        background: `linear-gradient(135deg, ${color}0d 0%, transparent 60%)`,
         borderColor: `${color}30`,
       }}
     >
       <div className="flex items-center justify-between">
         <div style={{ color }}>{icon}</div>
-        <div className="text-[8px] uppercase text-zinc-400">{title}</div>
+        <div className="text-[7px] uppercase text-zinc-400 font-bold">
+          {title}
+        </div>
       </div>
-      <div className="text-sm font-black mt-2">{value}</div>
+      <div className="text-sm font-black mt-1.5 truncate">{value}</div>
     </div>
   );
 }

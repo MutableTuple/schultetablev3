@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { HiOutlineRefresh } from "react-icons/hi";
+import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/app/_lib/supabase";
 
@@ -120,50 +121,59 @@ export default function UserImageAndUpload({ user }) {
   };
 
   if (!user) {
-    return <div>Loading user...</div>;
+    return <div className="text-muted-foreground">Loading user...</div>;
   }
 
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-medium mb-1">Profile Image</label>
-
-      <div className="relative w-20 h-20 mb-2">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+      {/* Avatar */}
+      <div className="relative">
         {isImageLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-base-100 rounded-full z-10">
-            <span className="loading loading-spinner text-warning"></span>
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-background/80 backdrop-blur">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
         )}
 
         <img
           src={image || avatarUrl}
           alt="Avatar"
-          className="w-full h-full object-cover rounded-full border shadow"
           onLoad={() => setIsImageLoading(false)}
           onError={() => setIsImageLoading(false)}
+          className="h-28 w-28 rounded-full border border-border object-cover"
         />
-
-        <button
-          onClick={handleRefreshAvatar}
-          disabled={cooldown}
-          className={`absolute top-0 right-0 rounded-full p-1 shadow z-20 transition-transform duration-200 tooltip
-          ${
-            cooldown
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-white text-gray-700 hover:rotate-6"
-          }`}
-          data-tip="generate a random avatar"
-          title="Refresh avatar"
-        >
-          <HiOutlineRefresh size={16} />
-        </button>
       </div>
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        className="file-input file-input-bordered w-fit"
-      />
+      {/* Info */}
+      <div className="flex-1">
+        <h3 className="text-2xl font-semibold text-foreground">
+          {user.name || "Unnamed User"}
+        </h3>
+
+        <p className="mt-1 text-sm text-muted-foreground">
+          Upload a custom profile picture or generate a random avatar.
+        </p>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <label className="inline-flex items-center gap-2 rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium text-foreground cursor-pointer hover:bg-muted transition-colors">
+            Upload Photo
+            <input
+              hidden
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+          </label>
+
+          <button
+            onClick={handleRefreshAvatar}
+            disabled={cooldown}
+            className="inline-flex items-center gap-2 rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <HiOutlineRefresh />
+            {cooldown ? "Please wait..." : "Random Avatar"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

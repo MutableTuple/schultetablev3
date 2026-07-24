@@ -1,8 +1,52 @@
 import { supabase } from "@/app/_lib/supabase";
+import crypto from "crypto";
+
+// Ensures this route always runs in the Node.js runtime (not Edge) — required
+// since it uses Node's crypto module (createHmac / timingSafeEqual) below.
+export const runtime = "nodejs";
 
 export async function POST(req) {
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+
+    // Verify this request actually came from Lemon Squeezy before trusting
+    // anything in it. Without this, anyone can POST a fake "order_created"
+    // event with an arbitrary user_id and grant themselves free Pro access —
+    // this check is what makes the whole route safe to trust.
+    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
+    if (!secret) {
+      console.error("LEMONSQUEEZY_WEBHOOK_SECRET is not set");
+      return new Response("Server misconfigured", { status: 500 });
+    }
+
+    const signature = req.headers.get("x-signature");
+    if (!signature) {
+      return new Response("Missing signature", { status: 401 });
+    }
+
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(rawBody)
+      .digest("hex");
+
+    const signatureBuffer = Buffer.from(signature, "utf8");
+    const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+    const isValid =
+      signatureBuffer.length === expectedBuffer.length &&
+      crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
+
+    if (!isValid) {
+      console.error("Invalid Lemon Squeezy webhook signature");
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      console.error("Webhook body is not valid JSON");
+      return new Response("Invalid payload", { status: 400 });
+    }
 
     console.log("Lemon Squeezy webhook:", body?.meta?.event_name);
 

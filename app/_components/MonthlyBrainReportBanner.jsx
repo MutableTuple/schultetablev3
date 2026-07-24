@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/app/_lib/supabase";
-import { HiDocumentReport } from "react-icons/hi";
+import { FileText, Loader2, PartyPopper, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import GetProBtn from "./GetProBtn";
 import Link from "next/link";
+import GetProBtn from "./GetProBtn";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function MonthlyBrainReportBanner({
   progressPercentage,
@@ -15,10 +17,6 @@ export default function MonthlyBrainReportBanner({
   isPro,
   user,
 }) {
-  // ========================================
-  // STATE
-  // ========================================
-
   const [gameData, setGameData] = useState([]);
   const [lastMonthGameData, setLastMonthGameData] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -26,11 +24,6 @@ export default function MonthlyBrainReportBanner({
 
   const now = new Date();
 
-  // ========================================
-  // DATE HELPERS
-  // ========================================
-
-  // IS TODAY THE LAST DAY OF THE MONTH?
   const lastDayOfCurrentMonth = new Date(
     now.getFullYear(),
     now.getMonth() + 1,
@@ -38,7 +31,6 @@ export default function MonthlyBrainReportBanner({
   );
   const isLastDayOfMonth = now.getDate() === lastDayOfCurrentMonth.getDate();
 
-  // CURRENT MONTH RANGE
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
   const monthEnd = new Date(
     now.getFullYear(),
@@ -49,7 +41,6 @@ export default function MonthlyBrainReportBanner({
     59,
   );
 
-  // LAST MONTH RANGE
   const lastMonthStart = new Date(
     now.getFullYear(),
     now.getMonth() - 1,
@@ -67,21 +58,15 @@ export default function MonthlyBrainReportBanner({
     59,
   );
 
-  // LAST MONTH NAME (e.g. "May 2025")
   const lastMonthName = lastMonthStart.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
 
-  // CURRENT MONTH NAME (e.g. "June 2025")
   const currentMonthName = monthStart.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
-
-  // ========================================
-  // FETCH ANALYTICS
-  // ========================================
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -89,7 +74,6 @@ export default function MonthlyBrainReportBanner({
         if (!user?.id) return;
         setLoadingAnalytics(true);
 
-        // FETCH CURRENT MONTH GAMES
         const { data: games, error: gamesError } = await supabase
           .from("UniversalGameStats")
           .select("*")
@@ -104,7 +88,6 @@ export default function MonthlyBrainReportBanner({
           setGameData(Array.isArray(games) ? games : []);
         }
 
-        // FETCH LAST MONTH GAMES (always fetch so we can show last month btn)
         const { data: lastGames, error: lastGamesError } = await supabase
           .from("UniversalGameStats")
           .select("*")
@@ -117,7 +100,6 @@ export default function MonthlyBrainReportBanner({
           setLastMonthGameData(Array.isArray(lastGames) ? lastGames : []);
         }
 
-        // FETCH ANALYTICS RPC
         const { data: analyticsData, error: analyticsError } =
           await supabase.rpc("get_user_analytics", {
             p_user_id: user.id,
@@ -143,32 +125,20 @@ export default function MonthlyBrainReportBanner({
     fetchAnalytics();
   }, [user]);
 
-  // ========================================
-  // COUNTS & UNLOCK LOGIC
-  // ========================================
-
   const REQUIRED_GAMES = 25;
 
   const monthlyGameCount = gameData.length;
-  // const lastMonthGameCount = lastMonthGameData.length;
   const lastMonthGameCount = lastMonthGameData.length;
 
-  // CURRENT MONTH: only unlocked if today is last day AND 25+ games AND isPro
   const currentMonthUnlocked =
     isPro && isLastDayOfMonth && monthlyGameCount >= REQUIRED_GAMES;
 
-  // LAST MONTH: always show if isPro and had 25+ games last month
   const lastMonthUnlocked = isPro && lastMonthGameCount >= REQUIRED_GAMES;
 
-  // PROGRESS BAR based on current month
   const realProgressPercentage = Math.min(
     (monthlyGameCount / REQUIRED_GAMES) * 100,
     100,
   );
-
-  // ========================================
-  // COMPARISON LOGIC
-  // ========================================
 
   const comparison = useMemo(() => {
     try {
@@ -246,135 +216,123 @@ export default function MonthlyBrainReportBanner({
     }
   }, [gameData, analytics]);
 
-  // ========================================
-  // LOADING
-  // ========================================
-
   if (loadingAnalytics) {
     return (
       <div className="relative z-10">
-        <h2 className="text-lg font-black uppercase tracking-wide flex items-center gap-1">
-          <HiDocumentReport />
+        <h2 className="text-lg font-black uppercase tracking-wide flex items-center gap-2">
+          <FileText className="h-5 w-5" />
           Monthly Brain Report
         </h2>
-        <div className="mt-4">
-          <span className="loading loading-spinner"></span>
+        <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          Loading your report status…
         </div>
       </div>
     );
   }
-
-  // ========================================
-  // NOT SIGNED IN
-  // ========================================
 
   if (!user) {
     return (
       <div className="relative z-10">
-        <h2 className="text-lg font-black uppercase tracking-wide flex items-center gap-1">
-          <HiDocumentReport />
+        <h2 className="text-lg font-black uppercase tracking-wide flex items-center gap-2">
+          <FileText className="h-5 w-5" />
           Monthly Brain Report
         </h2>
-        <p className="mt-3 text-sm text-base-content/70">
+        <p className="mt-3 text-sm text-muted-foreground">
           Sign in to track your monthly brain performance and unlock reports.
         </p>
-        <Link href="/login">
-          <button className="btn btn-primary mt-4 w-full">
-            Sign In To Get Brain Report
-          </button>
-        </Link>
+        <Button
+          render={<Link href="/login" />}
+          className="mt-4 w-full h-auto py-2.5 rounded-xl"
+        >
+          Sign In To Get Brain Report
+        </Button>
       </div>
     );
   }
 
-  // ========================================
-  // RENDER
-  // ========================================
-
   return (
     <div className="relative z-10">
-      {/* HEADER */}
-      <h2 className="text-lg font-black uppercase tracking-wide flex items-center gap-1">
-        <HiDocumentReport />
+      <h2 className="text-lg font-black uppercase tracking-wide flex items-center gap-2">
+        <FileText className="h-5 w-5" />
         Monthly Brain Report
       </h2>
 
-      <p className="mt-1 text-sm text-base-content/60">
-        Unlock your Monthly cognitive performance report.
+      <p className="mt-1 text-sm text-muted-foreground">
+        Unlock your monthly cognitive performance report.
       </p>
 
-      {/* ========================================
-          LAST MONTH REPORT SECTION
-          Always show if isPro + had 25+ games last month
-      ======================================== */}
       {lastMonthUnlocked && (
-        <div className="mt-4 border border-success/40 bg-success/10 rounded-lg p-3">
-          <p className="text-xs font-bold text-success uppercase tracking-wide">
-            {lastMonthName} Report Ready
-          </p>
-          <p className="mt-1 text-xs text-base-content/70">
+        <div className="mt-4 border border-success/40 rounded-xl p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-success uppercase tracking-wide">
+              {lastMonthName} Report
+            </p>
+            <Badge variant="outline" className="border-success text-success">
+              Ready
+            </Badge>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
             You played {lastMonthGameCount} games last month. Your report is
             available.
           </p>
-          <Link
-            href={`/monthly-brain-report?month=${lastMonthStart.getFullYear()}-${String(
-              lastMonthStart.getMonth() + 1,
-            ).padStart(2, "0")}`}
+          <Button
+            render={
+              <Link
+                href={`/monthly-brain-report?month=${lastMonthStart.getFullYear()}-${String(
+                  lastMonthStart.getMonth() + 1,
+                ).padStart(2, "0")}`}
+              />
+            }
+            variant="outline"
+            className="mt-3 w-full h-auto py-2 rounded-xl font-black border-success text-success hover:bg-success hover:text-success-foreground"
           >
-            <button className="btn btn-success btn-sm btn-block mt-3 font-black">
-              Download {lastMonthName} Report
-            </button>
-          </Link>
+            Download {lastMonthName} Report
+          </Button>
         </div>
       )}
 
-      {/* ========================================
-          CURRENT MONTH PROGRESS
-      ======================================== */}
       <div className="mt-4">
-        <div className="h-4 overflow-hidden rounded-full bg-base-300">
+        <div className="h-3 overflow-hidden rounded-full border border-border">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${realProgressPercentage}%` }}
             transition={{ duration: 0.8 }}
-            className="h-full rounded-full bg-gradient-to-r from-primary via-secondary to-accent"
+            className="h-full bg-gradient-to-r from-primary via-secondary to-accent"
           />
         </div>
 
-        <div className="mt-2 flex items-center justify-between text-xs font-semibold">
+        <div className="mt-2 flex items-center justify-between text-xs font-semibold text-foreground">
           <span>
             {monthlyGameCount}/{REQUIRED_GAMES} games this month
           </span>
           <span>{Math.floor(realProgressPercentage)}%</span>
         </div>
 
-        {/* ========================================
-            CURRENT MONTH CTA
-        ======================================== */}
-
-        {/* NOT ENOUGH GAMES YET */}
         {monthlyGameCount < REQUIRED_GAMES && (
-          <p className="mt-2 text-xs text-base-content/70">
+          <p className="mt-2 text-xs text-muted-foreground">
             Play{" "}
-            <span className="font-bold">
+            <span className="font-bold text-foreground">
               {Math.max(REQUIRED_GAMES - monthlyGameCount, 0)}
             </span>{" "}
             more games to unlock your {currentMonthName} brain report.
           </p>
         )}
 
-        {/* ENOUGH GAMES BUT NOT LAST DAY YET */}
         {monthlyGameCount >= REQUIRED_GAMES && !isLastDayOfMonth && (
-          <div className="mt-3 border border-primary/30 bg-primary/10 rounded-lg p-3">
-            <p className="text-xs font-semibold">
-              🎉 {REQUIRED_GAMES} games hit! Report unlocks on the last day of{" "}
-              {currentMonthName}.
-            </p>
-            <p className="mt-1 text-xs text-base-content/60">
+          <div className="mt-3 border border-primary/30 rounded-xl p-3">
+            <div className="flex items-center gap-2">
+              <PartyPopper className="h-4 w-4 text-primary shrink-0" />
+              <p className="text-xs font-semibold text-foreground">
+                {REQUIRED_GAMES} games hit! Report unlocks on the last day of{" "}
+                {currentMonthName}.
+              </p>
+            </div>
+            <p className="mt-1.5 text-xs text-muted-foreground">
               The more you play, the richer your report gets — reaction trends,
               accuracy spikes, your best day of the month. Don't leave data on
               the table. Report available{" "}
-              <span className="font-bold">
+              <span className="font-bold text-foreground">
                 {lastDayOfCurrentMonth.toLocaleDateString("default", {
                   month: "long",
                   day: "numeric",
@@ -385,22 +343,26 @@ export default function MonthlyBrainReportBanner({
           </div>
         )}
 
-        {/* LAST DAY + 25 GAMES + PRO → SHOW DOWNLOAD */}
         {currentMonthUnlocked && (
           <div className="mt-3">
-            <Link href="/monthly-brain-report">
-              <button className="btn btn-primary btn-block font-black">
-                Download {currentMonthName} Brain Report
-              </button>
-            </Link>
+            <Button
+              render={<Link href="/monthly-brain-report" />}
+              className="w-full h-auto py-2.5 rounded-xl font-black"
+            >
+              Download {currentMonthName} Brain Report
+            </Button>
           </div>
         )}
 
-        {/* LAST DAY + 25 GAMES + NOT PRO → UPGRADE */}
         {!isPro && monthlyGameCount >= REQUIRED_GAMES && isLastDayOfMonth && (
-          <div className="mt-3 border border-warning bg-warning/10 p-3 rounded-lg">
-            <p className="text-xs font-semibold">Brain Report unlocked 🎉</p>
-            <p className="mt-1 text-xs text-base-content/70">
+          <div className="mt-3 border border-warning rounded-xl p-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-warning shrink-0" />
+              <p className="text-xs font-semibold text-foreground">
+                Brain Report unlocked
+              </p>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
               Upgrade to Pro to download your detailed cognitive report.
             </p>
             <div className="mt-3">

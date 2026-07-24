@@ -1,4 +1,4 @@
-import { Chakra_Petch } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
@@ -7,18 +7,22 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { getCurrentUser } from "./_utils/getCurrentUser";
 import Footer from "./_components/Footer";
 import GoogleOneTap from "./_components/Auth/GoogleOneTap";
+import { ThemeProvider } from "next-themes";
+import FloatingThemeToggle from "./_components/FloatingThemeToggle";
+import FloatingDuelButton from "./_components/FloatingDuelButton";
 
-const chakraPetch = Chakra_Petch({
-  variable: "--font-chakra-petch",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
-
 export const metadata = {
-  title:
-    "Play Schulte Table Online – Free Brain Training Game for Focus & Mental Speed",
-
+  title: {
+    default:
+      "Play Schulte Table Online – Free Brain Training Game for Focus & Mental Speed",
+    template: "%s | Schulte Table",
+  },
   description:
     "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training and cognitive development with progress tracking.",
   keywords: [
@@ -116,9 +120,9 @@ export default async function RootLayout({ children }) {
   const { user, error } = await getCurrentUser();
   const isProUser = user?.[0]?.is_pro_user === true;
   return (
-    <html lang="en" data-theme="sunset">
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
-        <GoogleAnalytics gaId="G-66EJ7VMS98" />
+        {/* <GoogleAnalytics gaId="G-66EJ7VMS98" /> */}
         {/* {!isProUser && (
           <script
             async
@@ -175,11 +179,20 @@ export default async function RootLayout({ children }) {
 
         <meta name="format-detection" content="telephone=no" />
       </head>
-      <body className={`${chakraPetch.className} antialiased`}>
-        {/* <Toaster position="bottom-right" /> */}
-        {/* <GoogleOneTap /> */}
-        <div id="floating-root">{children}</div>
-        <Footer />
+      <body className={`${spaceGrotesk.className} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* <Toaster position="bottom-right" /> */}
+          {/* <GoogleOneTap /> */}
+          <div id="floating-root">{children}</div>
+          <FloatingThemeToggle />
+          <FloatingDuelButton />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

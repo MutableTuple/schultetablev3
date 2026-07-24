@@ -1,20 +1,8 @@
-'use client'
-import React from 'react'
-import { useState,useEffect } from 'react'
-import PageSkeleton from './PageSkeleton'
-
-import {
-  LuBadgeAlert,
-  LuBrain,
-  LuZap,
-  LuTarget,
-  LuTrendingUp,
-  LuActivity,
-  LuClock,
-  LuShield,
-} from "react-icons/lu";
-
-
+"use client";
+import React from "react";
+import { useState, useEffect } from "react";
+import PageSkeleton from "./PageSkeleton";
+import ReactionTimeCard from "./ReactionTimeCard";
 
 export default function AdvancedBrainReportPage({ user }) {
   const userId = user?.id;

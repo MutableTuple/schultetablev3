@@ -2,36 +2,58 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiHome, HiCog } from "react-icons/hi";
+import { HiCog, HiUser } from "react-icons/hi";
 import { IoMdColorPalette } from "react-icons/io";
 import { VscGraph } from "react-icons/vsc";
 import { MdOutlineAnalytics } from "react-icons/md";
-import { HiUser } from "react-icons/hi";
-import { LuBrain } from "react-icons/lu";
-const menuItems = [
-  { id: 1, label: "Profile", icon: HiHome, link: "/my-profile" },
-  { id: 2, label: "Analytics", icon: VscGraph, link: "/my-profile/analytics" },
+import { LuBrain, LuGamepad2 } from "react-icons/lu";
+
+const menuSections = [
   {
-    id: 9,
-    label: "Advanced Brain Report (NEW)",
-    icon: LuBrain,
-    link: "/my-profile/brain-report",
+    title: "ACCOUNT",
+    items: [
+      { label: "Profile", icon: HiUser, link: "/my-profile", mobile: true },
+      {
+        label: "Analytics",
+        icon: VscGraph,
+        link: "/my-profile/analytics",
+        mobile: true,
+      },
+      {
+        label: "Brain Report",
+        icon: LuBrain,
+        link: "/my-profile/brain-report",
+        mobile: true,
+      },
+    ],
   },
   {
-    id: 5,
-    label: "Pro Analytics",
-    icon: MdOutlineAnalytics,
-    link: "/my-profile/pro-analytics",
+    title: "PLAY",
+    items: [
+      {
+        label: "All Games",
+        icon: LuGamepad2,
+        link: "/my-profile/my-games",
+        mobile: true,
+      },
+    ],
   },
-  { id: 3, label: "All Games", icon: HiUser, link: "/my-profile/my-games" },
   {
-    id: 4,
-    label: "Personalize",
-    icon: IoMdColorPalette,
-    link: "/my-profile/personalize",
+    title: "SETTINGS",
+    items: [
+      {
+        label: "Security",
+        icon: HiCog,
+        link: "/my-profile/security",
+        mobile: true,
+      },
+    ],
   },
-  { id: 6, label: "Security", icon: HiCog, link: "/my-profile/security" },
 ];
+
+const mobileItems = menuSections
+  .flatMap((s) => s.items)
+  .filter((item) => item.mobile);
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -41,96 +63,89 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* ─────────────────────────────────────────
-          DESKTOP SIDEBAR  (hidden on mobile)
-      ───────────────────────────────────────── */}
-      <aside className="hidden lg:block sticky top-6 self-start">
-        <div className="card bg-base-100 border border-base-300  rounded-2xl overflow-hidden">
-          <div className="h-0.5 w-full bg-gradient-to-r from-indigo-500 via-rose-500 to-emerald-500 opacity-60" />
-          <nav className="p-3 space-y-1">
-            {menuItems.map((item) => {
-              const active = isActive(item.link);
-              return (
-                <Link
-                  key={item.id}
-                  href={item.link}
-                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
-                    ${
-                      active
-                        ? "bg-primary/10 text-primary"
-                        : "text-base-content/50 hover:bg-base-200 hover:text-base-content"
-                    }`}
-                >
-                  {/* Active indicator bar */}
-                  <span
-                    className={`w-0.5 h-4 rounded-full transition-all duration-150 shrink-0 ${
-                      active ? "bg-primary opacity-100" : "bg-transparent"
-                    }`}
-                  />
-                  <item.icon
-                    className={`text-lg shrink-0 transition-colors ${active ? "text-primary" : "text-base-content/40 group-hover:text-base-content"}`}
-                  />
-                  <span>{item.label}</span>
-                  {active && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+      {/* DESKTOP SIDEBAR */}
+      <aside className="hidden lg:flex fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 flex-col bg-background border-r border-border z-40">
+        <div className="px-5 py-5 border-b border-border">
+          <p className="text-[15px] font-bold text-foreground tracking-tight">
+            My Profile
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            Manage your account
+          </p>
         </div>
+
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+          {menuSections.map((section) => (
+            <div key={section.title}>
+              <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {section.title}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const active = isActive(item.link);
+                  return (
+                    <Link
+                      key={item.link}
+                      href={item.link}
+                      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                        ${
+                          active
+                            ? "bg-[var(--ink)] text-background"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                    >
+                      <item.icon
+                        className={`text-[17px] flex-shrink-0 transition-colors
+                          ${
+                            active
+                              ? "text-background"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          }`}
+                      />
+                      <span className="flex-1">{item.label}</span>
+                      {active && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-background/60" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
       </aside>
 
-      {/* ─────────────────────────────────────────
-          MOBILE BOTTOM NAV  (hidden on desktop)
-      ───────────────────────────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
-        {/* Frosted glass blur backdrop */}
-        <div className="bg-base-100/80 backdrop-blur-xl border-t border-base-300 shadow-2xl">
-          {/* Top accent line */}
-          <div className="h-px w-full bg-gradient-to-r from-indigo-500 via-rose-500 to-emerald-500 opacity-50" />
-
-          <div className="flex items-center justify-around px-2 py-2 pb-safe">
-            {menuItems.map((item) => {
-              const active = isActive(item.link);
-              return (
-                <Link
-                  key={item.id}
-                  href={item.link}
-                  className="flex flex-col items-center gap-0.5 flex-1 py-1 px-1 relative"
+      {/* MOBILE BOTTOM NAV */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border lg:hidden">
+        <div className="flex items-center justify-around px-1 py-1">
+          {mobileItems.map((item) => {
+            const active = isActive(item.link);
+            return (
+              <Link
+                key={item.link}
+                href={item.link}
+                className="flex flex-col items-center gap-1 py-1.5 px-2 flex-1 min-w-0"
+              >
+                <div
+                  className={`w-10 h-9 flex items-center justify-center rounded-xl transition-all
+                    ${active ? "bg-[var(--ink)]" : "bg-transparent"}`}
                 >
-                  {/* Active pill background */}
-                  {active && (
-                    <span className="absolute inset-x-1 inset-y-0 rounded-xl bg-primary/10" />
-                  )}
-
-                  <span
-                    className={`relative text-xl transition-all duration-150 ${
-                      active ? "text-primary scale-110" : "text-base-content/35"
-                    }`}
-                  >
-                    <item.icon />
-                    {active && (
-                      <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
-                    )}
-                  </span>
-
-                  <span
-                    className={`relative text-[10px] font-medium leading-none transition-colors truncate max-w-[52px] text-center ${
-                      active ? "text-primary" : "text-base-content/30"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+                  <item.icon
+                    className={`text-xl transition-colors
+                      ${active ? "text-background" : "text-muted-foreground"}`}
+                  />
+                </div>
+                <span
+                  className={`text-[10px] font-medium truncate max-w-full transition-colors
+                    ${active ? "text-foreground" : "text-muted-foreground"}`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
-
-      {/* Spacer so mobile content isn't hidden behind bottom nav */}
-      {/* <div className="lg:hidden h-20" /> */}
     </>
   );
 }

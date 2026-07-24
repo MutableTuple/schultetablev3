@@ -24,7 +24,7 @@ function NumberTile({ num, onClick, disabled }) {
 
     setPressed(false);
 
-    onClick?.();
+    onClick?.(num);
   };
 
   const handleCancel = () => {
@@ -44,12 +44,12 @@ function NumberTile({ num, onClick, disabled }) {
         aspect-square
         overflow-hidden
 
-        rounded-none
+        rounded-2xl
 
         border
-        border-base-300
+        border-border
 
-        bg-base-100
+        bg-card
 
         flex
         items-center
@@ -68,11 +68,11 @@ function NumberTile({ num, onClick, disabled }) {
             : `
               cursor-pointer
               hover:border-primary
-              hover:bg-base-200
+              hover:bg-muted
             `
         }
 
-        ${pressed ? "scale-[0.96] bg-base-200" : ""}
+        ${pressed ? "scale-[0.96] bg-muted" : ""}
 
         min-h-[58px]
         sm:min-h-[72px]
@@ -93,8 +93,9 @@ function NumberTile({ num, onClick, disabled }) {
           pointer-events-none
           absolute
           inset-[3px]
+          rounded-xl
           border
-          border-base-300/60
+          border-border/60
         "
       />
 
@@ -104,7 +105,7 @@ function NumberTile({ num, onClick, disabled }) {
           relative
           z-10
           font-bold
-          text-base-content
+          text-foreground
           text-center
           leading-none
 
@@ -130,10 +131,11 @@ function NumberTile({ num, onClick, disabled }) {
         className={`
           absolute
           inset-0
+          rounded-2xl
           transition-opacity
           duration-150
 
-          ${pressed ? "opacity-100 bg-primary/5" : "opacity-0"}
+          ${pressed ? "opacity-100 bg-primary/10" : "opacity-0"}
         `}
       />
     </button>

@@ -16,7 +16,7 @@ export const metadata = {
     title: "Login - Schulte Table",
     description:
       "Sign in to SchulteTable.com to access your game stats, leaderboards, and personalized brain training tools.",
-    url: "https://www.schultetable.com/auth/login",
+    url: "https://schultetable.com/auth/login",
     siteName: "Schulte Table",
     type: "website",
   },
@@ -27,7 +27,7 @@ export const metadata = {
       "Access your brain training dashboard and personalized game stats on Schulte Table.",
   },
   alternates: {
-    canonical: "https://www.schultetable.com/auth/login",
+    canonical: "https://schultetable.com/auth/login",
   },
 };
 

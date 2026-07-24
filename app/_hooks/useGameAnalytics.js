@@ -486,6 +486,60 @@ function generateInsights({
   return insights;
 }
 
+// ─── Date Range Resolution ────────────────────────────────────────────────────
+// Centralized so every consumer of this hook gets the same handful of range
+// modes for free — relative windows, calendar month/year, an absolute custom
+// range, and an arbitrary "last N days" range.
+
+const RANGE_PRESETS = new Set([
+  "28d",
+  "3m",
+  "6m",
+  "month", // calendar month-to-date (1st of this month → now)
+  "year", // calendar year-to-date (Jan 1 → now)
+  "customDays", // rolling N days, N = customDays state
+  "custom", // absolute { from, to }
+]);
+
+function resolveDateRange({ dateRange, customRange, customDays }) {
+  const now = new Date();
+  let from = null;
+  let to = null;
+
+  switch (dateRange) {
+    case "28d":
+      from = new Date();
+      from.setDate(now.getDate() - 28);
+      break;
+    case "3m":
+      from = new Date();
+      from.setMonth(now.getMonth() - 3);
+      break;
+    case "6m":
+      from = new Date();
+      from.setMonth(now.getMonth() - 6);
+      break;
+    case "month":
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    case "year":
+      from = new Date(now.getFullYear(), 0, 1);
+      break;
+    case "customDays":
+      from = new Date();
+      from.setDate(now.getDate() - Math.max(1, customDays || 30));
+      break;
+    case "custom":
+      from = customRange.from;
+      to = customRange.to;
+      break;
+    default:
+      break;
+  }
+
+  return { from, to };
+}
+
 // ─── Main Hook ───────────────────────────────────────────────────────────────
 
 export function useGameAnalytics(user) {
@@ -493,37 +547,29 @@ export function useGameAnalytics(user) {
   const [analytics, setAnalytics] = useState(null);
   const [rankData, setRankData] = useState(null); // ← dedicated rank state
   const [loading, setLoading] = useState(true);
+
+  // dateRange: "28d" | "3m" | "6m" | "month" | "year" | "customDays" | "custom"
   const [dateRange, setDateRange] = useState("28d");
   const [customRange, setCustomRange] = useState({ from: null, to: null });
+  const [customDays, setCustomDays] = useState(30); // used when dateRange === "customDays"
 
-  const getDateFilters = () => {
-    const now = new Date();
-    let from = null;
-    let to = null;
+  // Convenience setters — the "global" entry points other components should
+  // reach for instead of juggling dateRange + customRange/customDays by hand.
+  const setMonthly = useCallback(() => setDateRange("month"), []);
+  const setYearly = useCallback(() => setDateRange("year"), []);
+  const setDaysRange = useCallback((days) => {
+    setCustomDays(days);
+    setDateRange("customDays");
+  }, []);
+  const setCustomDateRange = useCallback((from, to) => {
+    setCustomRange({ from, to });
+    setDateRange("custom");
+  }, []);
 
-    switch (dateRange) {
-      case "28d":
-        from = new Date();
-        from.setDate(now.getDate() - 28);
-        break;
-      case "3m":
-        from = new Date();
-        from.setMonth(now.getMonth() - 3);
-        break;
-      case "6m":
-        from = new Date();
-        from.setMonth(now.getMonth() - 6);
-        break;
-      case "custom":
-        from = customRange.from;
-        to = customRange.to;
-        break;
-      default:
-        break;
-    }
-
-    return { from, to };
-  };
+  const getDateFilters = useCallback(
+    () => resolveDateRange({ dateRange, customRange, customDays }),
+    [dateRange, customRange, customDays],
+  );
 
   const fetchGameData = useCallback(async () => {
     if (!user?.id) {
@@ -570,7 +616,7 @@ export function useGameAnalytics(user) {
     const { data } = await query;
     setGameData(data || []);
     setLoading(false);
-  }, [user, dateRange, customRange]);
+  }, [user, getDateFilters]);
 
   useEffect(() => {
     fetchGameData();
@@ -710,11 +756,25 @@ export function useGameAnalytics(user) {
     gameData,
     analytics,
 
+    // Range state — "28d" | "3m" | "6m" | "month" | "year" | "customDays" | "custom"
     dateRange,
     setDateRange,
     customRange,
     setCustomRange,
+    customDays,
+    setCustomDays,
     refresh: fetchGameData,
+
+    // Global convenience setters — use these from any screen instead of
+    // hand-rolling the dateRange/customRange/customDays combo:
+    //   analytics.setMonthly()              → calendar month-to-date
+    //   analytics.setYearly()               → calendar year-to-date
+    //   analytics.setDaysRange(45)          → rolling last 45 days
+    //   analytics.setCustomDateRange(a, b)  → absolute { from: a, to: b }
+    setMonthly,
+    setYearly,
+    setDaysRange,
+    setCustomDateRange,
 
     // Raw aggregated stats (from RPC)
     rawStats,

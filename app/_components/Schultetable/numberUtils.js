@@ -10,15 +10,15 @@ export const GAME_MODES = {
           return shuffle(Array.from({ length: total }, (_, i) => i + 1));
         case "Hard":
           return Array.from({ length: total }, () =>
-            Math.floor(Math.random() * 999 + 1)
+            Math.floor(Math.random() * 999 + 1),
           );
         case "Extreme":
           return Array.from({ length: total }, () =>
-            Math.floor(Math.random() * 9999 + 1000)
+            Math.floor(Math.random() * 9999 + 1000),
           );
         case "Impossible":
           return Array.from({ length: total }, () =>
-            Math.random().toString(36).substring(2, 6).toUpperCase()
+            Math.random().toString(36).substring(2, 6).toUpperCase(),
           );
         default:
           return Array.from({ length: total }, (_, i) => i + 1);

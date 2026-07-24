@@ -1,95 +1,112 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import {
+  Gamepad2,
+  Flame,
+  Zap,
+  Target,
+  Skull,
+  Crown,
+  Trophy,
+  Sparkles,
+  Rocket,
+  Gem,
+  X,
+} from "lucide-react";
+
+// ─── tier styling — 3 on-brand tiers instead of DaisyUI's info/warning/
+// success/error/secondary grab-bag. Higher tiers get the ink-flip "hero"
+// treatment already used elsewhere in this app for premium moments.
+const TIER_STYLES = {
+  1: {
+    iconBg: "bg-primary/15",
+    iconText: "text-primary",
+    bar: "bg-primary",
+    button: "bg-primary text-primary-foreground hover:bg-primary/90",
+  },
+  2: {
+    iconBg: "bg-success/15",
+    iconText: "text-success",
+    bar: "bg-success",
+    button: "bg-success text-success-foreground hover:bg-success/90",
+  },
+  3: {
+    iconBg: "bg-foreground",
+    iconText: "text-background",
+    bar: "bg-foreground",
+    button: "bg-foreground text-background hover:bg-foreground/90",
+  },
+};
 
 const MILESTONES = {
   first: {
-    emoji: "🎮",
+    Icon: Gamepad2,
     title: "First game complete!",
     sub: "Your journey on the leaderboard starts now.",
-    color: "bg-info/20",
-    btnColor: "btn-info",
-    barColor: "bg-info",
+    tier: 1,
     confetti: true,
   },
   5: {
-    emoji: "🔥",
+    Icon: Flame,
     title: "5 games in. You're hooked.",
     sub: "The leaderboard is starting to notice you.",
-    color: "bg-warning/20",
-    btnColor: "btn-warning",
-    barColor: "bg-warning",
+    tier: 1,
     confetti: false,
   },
   10: {
-    emoji: "⚡",
+    Icon: Zap,
     title: "10 games played.",
     sub: "You're not here to lose. Check your rank.",
-    color: "bg-warning/20",
-    btnColor: "btn-warning",
-    barColor: "bg-warning",
+    tier: 1,
     confetti: false,
   },
   20: {
-    emoji: "🎯",
+    Icon: Target,
     title: "20 games. Deliberate practice.",
     sub: "Most players quit before this. You didn't.",
-    color: "bg-success/20",
-    btnColor: "btn-success",
-    barColor: "bg-success",
+    tier: 1,
     confetti: false,
   },
   50: {
-    emoji: "💀",
+    Icon: Skull,
     title: "50 games. Obsessed.",
     sub: "You're in the top tier of dedicated players.",
-    color: "bg-error/20",
-    btnColor: "btn-error",
-    barColor: "bg-error",
+    tier: 2,
     confetti: true,
   },
   100: {
-    emoji: "👑",
+    Icon: Crown,
     title: "100 games. Legendary.",
     sub: "Only a handful of players ever reach this.",
-    color: "bg-warning/20",
-    btnColor: "btn-warning",
-    barColor: "bg-warning",
+    tier: 2,
     confetti: true,
   },
   500: {
-    emoji: "🏆",
+    Icon: Trophy,
     title: "500 games. Unstoppable.",
     sub: "You are the leaderboard at this point.",
-    color: "bg-warning/20",
-    btnColor: "btn-warning",
-    barColor: "bg-warning",
+    tier: 3,
     confetti: true,
   },
   1000: {
-    emoji: "🌌",
+    Icon: Sparkles,
     title: "1,000 games. A different breed.",
     sub: "This isn't a game anymore. This is a lifestyle.",
-    color: "bg-purple-500/20",
-    btnColor: "btn-secondary",
-    barColor: "bg-secondary",
+    tier: 3,
     confetti: true,
   },
   5000: {
-    emoji: "🛸",
+    Icon: Rocket,
     title: "5,000 games. Are you even human?",
     sub: "Scientists want to study you. The #1 spot fears you.",
-    color: "bg-secondary/20",
-    btnColor: "btn-secondary",
-    barColor: "bg-secondary",
+    tier: 3,
     confetti: true,
   },
   10000: {
-    emoji: "💎",
+    Icon: Gem,
     title: "10,000 games. You ARE the game.",
     sub: "No words. Just respect. Infinite respect.",
-    color: "bg-info/20",
-    btnColor: "btn-info",
-    barColor: "bg-info",
+    tier: 3,
     confetti: true,
   },
 };
@@ -103,6 +120,9 @@ function getMilestone(gamesPlayed, isFirst) {
   return MILESTONES[5];
 }
 
+// ─── confetti — resolves theme colors at fire-time via getComputedStyle,
+// same trick used by QuickResultBottomSheet's ConfettiCanvas, so this stays
+// on-brand instead of a hardcoded rainbow palette.
 function Confetti({ active }) {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
@@ -116,7 +136,13 @@ function Confetti({ active }) {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const colors = ["#EF9F27", "#378ADD", "#1D9E75", "#D4537E", "#7F77DD", "#E24B4A"];
+    const styles = getComputedStyle(canvas);
+    const colors = [
+      styles.getPropertyValue("--orange").trim() || "#f97316",
+      styles.getPropertyValue("--success").trim() || "#16a34a",
+      styles.getPropertyValue("--warning").trim() || "#d97706",
+      styles.getPropertyValue("--foreground").trim() || "#0a0a0a",
+    ];
     particlesRef.current = Array.from({ length: 60 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * -canvas.height,
@@ -165,11 +191,13 @@ function Confetti({ active }) {
   );
 }
 
+const NOOP = () => {};
+
 export default function LeaderBoardPopup({
   open = true,
   duration = 6000,
-  onClose = () => {},
-  onView = () => {},
+  onClose = NOOP,
+  onView = NOOP,
   isFirstGame = false,
   gamesPlayed = 1,
 }) {
@@ -178,7 +206,19 @@ export default function LeaderBoardPopup({
   const rafRef = useRef(null);
   const startRef = useRef(null);
 
+  // Latest onClose, read inside the RAF loop below — kept out of the timer
+  // effect's dependency array on purpose. Without this, every re-render that
+  // handed this component a new `onClose` reference (any inline arrow fn, or
+  // even the default param recreating itself) would re-run the effect and
+  // reset the countdown, which is why the popup used to never actually close.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   const milestone = getMilestone(gamesPlayed, isFirstGame);
+  const tierStyle = TIER_STYLES[milestone.tier];
+  const Icon = milestone.Icon;
 
   useEffect(() => {
     if (!open) return;
@@ -195,44 +235,46 @@ export default function LeaderBoardPopup({
       if (pct > 0) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
-        onClose();
+        onCloseRef.current();
       }
     };
 
     rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [open, duration, onClose]);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [open, duration]);
 
   if (!open) return null;
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] animate-in slide-in-from-top duration-400">
-      <div className="relative w-[360px] bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-lg">
-
+      <div className="relative w-[calc(100vw-2rem)] max-w-[380px] bg-card border border-border rounded-xl overflow-hidden shadow-lg">
         <Confetti active={milestone.confetti} />
 
         {/* Top progress bar */}
-        <div className="w-full h-[3px] bg-base-200">
+        <div className="w-full h-[3px] bg-muted">
           <div
-            className={`h-full transition-none ${milestone.barColor}`}
+            className={`h-full transition-none ${tierStyle.bar}`}
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* Main content */}
         <div className="flex items-center gap-3 px-4 pt-3 pb-2 relative z-10">
-
           {/* Icon */}
-          <div className={`w-10 h-10 rounded-xl ${milestone.color} flex items-center justify-center flex-shrink-0 text-xl`}>
-            <span style={{ fontSize: 20 }}>{milestone.emoji}</span>
+          <div
+            className={`w-10 h-10 rounded-xl ${tierStyle.iconBg} flex items-center justify-center flex-shrink-0`}
+          >
+            <Icon size={18} className={tierStyle.iconText} />
           </div>
 
           {/* Text */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold leading-snug">
+            <p className="text-sm font-semibold leading-snug text-foreground">
               {milestone.title}
             </p>
-            <p className="text-xs opacity-50 leading-snug mt-0.5">
+            <p className="text-xs text-muted-foreground leading-snug mt-0.5">
               {milestone.sub}
             </p>
           </div>
@@ -240,17 +282,17 @@ export default function LeaderBoardPopup({
           {/* Close */}
           <button
             onClick={onClose}
-            className="btn btn-ghost btn-xs btn-square rounded-lg opacity-40 hover:opacity-100 flex-shrink-0"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:bg-muted hover:text-foreground transition-colors flex-shrink-0"
           >
-            ✕
+            <X size={14} />
           </button>
         </div>
 
-        {/* View ranks button — full width feel */}
+        {/* View ranks button */}
         <div className="px-4 pb-3 relative z-10">
           <button
             onClick={onView}
-            className={`btn ${milestone.btnColor} btn-sm w-full rounded-lg font-medium`}
+            className={`w-full h-9 rounded-lg text-sm font-semibold transition-colors ${tierStyle.button}`}
           >
             See your leaderboard rank →
           </button>
@@ -258,17 +300,16 @@ export default function LeaderBoardPopup({
 
         {/* Bottom timer row */}
         <div className="flex items-center gap-2 px-4 pb-3 relative z-10">
-          <span className="text-[11px] opacity-30 w-5 text-right tabular-nums">
+          <span className="text-[11px] text-muted-foreground/60 w-5 text-right tabular-nums">
             {secsLeft}s
           </span>
-          <div className="flex-1 h-[3px] bg-base-200 rounded-full overflow-hidden">
+          <div className="flex-1 h-[3px] bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-base-content/20 rounded-full transition-none"
+              className="h-full bg-foreground/20 rounded-full transition-none"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
-
       </div>
     </div>
   );

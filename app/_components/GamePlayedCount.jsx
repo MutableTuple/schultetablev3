@@ -3,6 +3,18 @@ import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/app/_lib/supabase";
 import { formatNumber } from "../_utils/formatNumber";
 
+function DashedLabel({ children }) {
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <span className="flex-1 border-t border-dashed border-border" />
+      <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+        {children}
+      </span>
+      <span className="flex-1 border-t border-dashed border-border" />
+    </div>
+  );
+}
+
 export default function GamePlayedCount({ userData, user, mode }) {
   const [compareData, setCompareData] = useState(null);
   const fillRef = useRef(null);
@@ -65,7 +77,14 @@ export default function GamePlayedCount({ userData, user, mode }) {
           sub = `That's not a gap — that's a canyon. But every top player started exactly where you are. The only question is whether you're done or just getting started.`;
         }
 
-        setCompareData({ tier, badge, headline, sub, topGap: Number(topGap), sampleSize: data.length });
+        setCompareData({
+          tier,
+          badge,
+          headline,
+          sub,
+          topGap: Number(topGap),
+          sampleSize: data.length,
+        });
       } catch (error) {
         // console.log(error);
       }
@@ -83,105 +102,79 @@ export default function GamePlayedCount({ userData, user, mode }) {
           100
         ).toFixed(1)}%`;
 
-  const tierStyles = {
-    elite: {
-      border: "",
-      badge: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
-      bar: "bg-emerald-500",
-      fill: 92,
-    },
-    good: {
-      border: "",
-      badge: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      bar: "bg-blue-500",
-      fill: 72,
-    },
-    mid: {
-      border: "",
-      badge: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
-      bar: "bg-amber-500",
-      fill: 45,
-    },
-    low: {
-      border: "",
-      badge: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-      bar: "bg-red-500",
-      fill: 18,
-    },
+  const tierBadgeStyles = {
+    elite:
+      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+    good: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    mid: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+    low: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
   };
+  const tierBarStyles = {
+    elite: "bg-emerald-500",
+    good: "bg-blue-500",
+    mid: "bg-amber-500",
+    low: "bg-red-500",
+  };
+  const tierFill = { elite: 92, good: 72, mid: 45, low: 18 };
 
-  const style = compareData ? tierStyles[compareData.tier] : null;
+  const stats = [
+    { value: `${userData.time_taken}s`, label: "Time taken" },
+    { value: `${userData.grid_size}×${userData.grid_size}`, label: "Grid" },
+    { value: accuracy, label: "Accuracy" },
+    { value: formatNumber(userData.score), label: "Score" },
+  ];
 
   return (
-    <div className="flex flex-col gap-2 w-full text-sm rounded-sm py-4">
-   {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-base-200 rounded-xl p-3 border border-base-300">
-          <div className="text-[10px] uppercase tracking-widest text-base-content/40 mb-1">Time</div>
-          <div className="text-2xl font-black text-primary leading-none">{userData.time_taken}s</div>
-          <div className="text-[10px] text-base-content/40 mt-1">to complete board</div>
-        </div>
+    <div className="w-full text-sm">
+      <DashedLabel>Past Game</DashedLabel>
 
-        <div className="bg-base-200 rounded-xl p-3 border border-base-300">
-          <div className="text-[10px] uppercase tracking-widest text-base-content/40 mb-1">Accuracy</div>
-          <div className="text-2xl font-black text-secondary leading-none">{accuracy}</div>
-          <div className="text-[10px] text-base-content/40 mt-1">click precision</div>
-        </div>
-
-        <div className="bg-base-200 rounded-xl p-3 border border-base-300">
-          <div className="text-[10px] uppercase tracking-widest text-base-content/40 mb-1">Score</div>
-          <div className="text-2xl font-black text-accent leading-none">{formatNumber(userData.score)}</div>
-          <div className="text-[10px] text-base-content/40 mt-1">this run</div>
-        </div>
-
-        <div className="bg-base-200 rounded-xl p-3 border border-base-300">
-          <div className="text-[10px] uppercase tracking-widest text-base-content/40 mb-1">Board</div>
-          <div className="text-2xl font-black text-info leading-none">
-            {userData.grid_size}×{userData.grid_size}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-2 text-center">
+        {stats.map(({ value, label }) => (
+          <div key={label}>
+            <div className="text-lg sm:text-xl font-black text-foreground leading-none">
+              {value}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-1">
+              {label}
+            </div>
           </div>
-          <div className="text-[10px] text-base-content/40 mt-1">{userData.difficulty} · {mode}</div>
-        </div>
+        ))}
       </div>
-      {/* Verdict Banner */}
+
+      {/* Verdict banner */}
       {compareData && (
-        <div
-          className={`rounded-r-xl rounded-l-none border border-base-300 bg-base-100 p-4 ${style.border}`}
-        >
+        <div className="border-t border-border mt-4 pt-4">
           <span
-            className={`inline-block text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-full mb-2 ${style.badge}`}
+            className={`inline-block text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-none mb-2 ${tierBadgeStyles[compareData.tier]}`}
           >
             {compareData.badge}
           </span>
-          <div className="text-xl font-black tracking-tight leading-tight mb-1">
+          <div className="text-lg sm:text-xl font-black tracking-tight leading-tight mb-1">
             {compareData.headline}
           </div>
-          <div className="text-xs text-base-content/60 leading-snug mb-3">
+          <div className="text-xs text-muted-foreground leading-snug mb-3">
             {compareData.sub}
           </div>
 
-          {/* Gap bar */}
-          <div className="w-full bg-base-300 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-muted h-1.5 overflow-hidden">
             <div
               ref={fillRef}
-              className={`h-full rounded-full transition-all duration-1000 ease-out ${style.bar}`}
-              style={{ width: `${style.fill}%` }}
+              className={`h-full rounded-none transition-all duration-1000 ease-out ${tierBarStyles[compareData.tier]}`}
+              style={{ width: `${tierFill[compareData.tier]}%` }}
             />
           </div>
-          <div className="flex justify-between text-[10px] text-base-content/40 mt-1">
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
             <span>You</span>
             <span>#1 player</span>
           </div>
         </div>
       )}
 
-   
-
-      {/* Loading state for verdict */}
       {!compareData && (
-        <div className="rounded-xl border border-base-300 bg-base-200 p-4 animate-pulse">
-          <div className="h-3 w-24 bg-base-300 rounded-full mb-2" />
-          <div className="h-5 w-48 bg-base-300 rounded-full mb-1" />
-          <div className="h-3 w-full bg-base-300 rounded-full" />
+        <div className="border-t border-border mt-4 pt-4 animate-pulse">
+          <div className="h-3 w-24 bg-muted mb-2" />
+          <div className="h-5 w-48 bg-muted mb-1" />
+          <div className="h-3 w-full bg-muted" />
         </div>
       )}
     </div>

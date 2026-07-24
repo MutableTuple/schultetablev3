@@ -1,21 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
 
-import {
-  FiDownload,
-  FiPrinter,
-  FiLoader,
-  FiCheck,
-  FiLock,
-  FiZap,
-  FiTrendingUp,
-  FiBarChart2,
-  FiTarget,
-  FiX,
-} from "react-icons/fi";
+import { FiDownload, FiPrinter, FiLoader, FiCheck } from "react-icons/fi";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { useGameAnalytics } from "@/app/_hooks/useGameAnalytics";
 import CoverPage from "./CoverPage";
 import FocusScore from "./FocusScore";
@@ -78,141 +68,41 @@ function ReportPage({ children }) {
 }
 
 // ============================================
-// UPGRADE MODAL
-// ============================================
-
-function Benefit({ icon, text }) {
-  return (
-    <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-100 p-3 rounded-sm">
-      <div className="text-[#570df8]">{icon}</div>
-      <span className="font-semibold text-sm text-zinc-700">{text}</span>
-    </div>
-  );
-}
-
-function UpgradeModal({ onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="
-        fixed inset-0
-        bg-black/70
-        backdrop-blur-sm
-        z-[9999]
-        flex items-center justify-center
-        p-4
-      "
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <motion.div
-        initial={{ scale: 0.93, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.93, opacity: 0, y: 20 }}
-        transition={{ type: "spring", stiffness: 300, damping: 28 }}
-        className="
-          bg-white
-          max-w-lg
-          w-full
-          p-6 sm:p-8
-          shadow-2xl
-          relative
-          rounded-sm
-          max-h-[90dvh]
-          overflow-y-auto
-        "
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-700 transition-colors p-1"
-        >
-          <FiX size={18} />
-        </button>
-
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 shrink-0 bg-[#570df8] text-white flex items-center justify-center text-xl rounded-sm shadow-lg shadow-[#570df8]/30">
-            <FiLock />
-          </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900">
-              Unlock Brain Pro
-            </h2>
-            <p className="text-zinc-500 text-sm">
-              Advanced Cognitive Analytics
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 bg-[#570df8]/5 border border-[#570df8]/20 p-4 sm:p-5 rounded-sm">
-          <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-snug">
-            Your Brain Is Performing Better Than{" "}
-            <span className="text-[#570df8]">89%</span> Of Players
-          </h3>
-          <p className="mt-2 text-zinc-500 text-sm leading-relaxed">
-            Unlock the complete report and discover your strengths, weaknesses,
-            trends and AI insights.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mt-5">
-          <Benefit icon={<FiZap />} text="AI Insights" />
-          <Benefit icon={<FiTrendingUp />} text="Performance Trends" />
-          <Benefit icon={<FiBarChart2 />} text="Heatmaps" />
-          <Benefit icon={<FiTarget />} text="Global Rankings" />
-        </div>
-
-        <div className="text-center mt-6 sm:mt-8">
-          <div className="text-4xl sm:text-5xl font-black text-zinc-900">
-            ₹399
-          </div>
-          <div className="text-zinc-400 text-sm mt-1">
-            per month · cancel anytime
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mt-6 sm:mt-7">
-          <button
-            onClick={onClose}
-            className="h-12 border border-zinc-200 text-zinc-600 font-semibold text-sm hover:bg-zinc-50 transition-colors rounded-sm"
-          >
-            Maybe Later
-          </button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            className="h-12 bg-[#570df8] hover:bg-[#4b0de0] text-white font-bold text-sm shadow-lg shadow-[#570df8]/25 transition-colors rounded-sm"
-          >
-            Unlock Brain Pro
-          </motion.button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ============================================
 // MAIN REPORT
 // ============================================
 
 export default function Report({ user }) {
   const [downloadState, setDownloadState] = useState("idle");
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const analytics = useGameAnalytics(user.user);
+  const searchParams = useSearchParams();
 
   const isPro = user.user?.is_pro_user;
 
+  // ── URL-driven date range ───────────────────────────────────────────────
+  // ?days=90        → last 90 days (rolling)
+  // ?monthly        → calendar month-to-date
+  // ?yearly         → calendar year-to-date
+  // `days` wins if present; otherwise monthly; otherwise yearly.
+  // Falls back to the hook's default ("28d") if none are set.
   useEffect(() => {
-    if (analytics.loading) return;
-  }, [analytics.loading]);
+    const daysParam = searchParams.get("days");
+    const days = daysParam ? Number(daysParam) : null;
 
-  const downloadPDF = async () => {
-    if (!isPro) {
-      setShowUpgradeModal(true);
-      return;
+    if (days && !Number.isNaN(days) && days > 0) {
+      analytics.setDaysRange(days);
+    } else if (searchParams.has("monthly")) {
+      analytics.setMonthly();
+    } else if (searchParams.has("yearly")) {
+      analytics.setYearly();
     }
+    // analytics.setDaysRange/setMonthly/setYearly are stable (useCallback),
+    // safe to key this effect off searchParams alone.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Reachable only for Pro users — the component returns <MonthlyReportCTA />
+  // for everyone else before this ever renders (see below).
+  const downloadPDF = async () => {
     try {
       setDownloadState("generating");
       const response = await fetch("/api/generate-report");
@@ -229,9 +119,9 @@ export default function Report({ user }) {
       setDownloadState("success");
       setTimeout(() => setDownloadState("idle"), 2500);
     } catch (error) {
-      // console.error(error);
+      console.error("PDF download failed:", error);
       setDownloadState("idle");
-      alert("Failed to download PDF");
+      toast.error("Failed to download PDF. Please try again.");
     }
   };
 
@@ -272,6 +162,27 @@ export default function Report({ user }) {
               <FiPrinter size={13} />
               <span>Print</span>
             </button>
+
+            <button
+              onClick={downloadPDF}
+              disabled={downloadState === "generating"}
+              className="h-9 sm:h-11 px-3 sm:px-5 bg-[#570df8] hover:bg-[#4b0de0] text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-colors rounded-sm disabled:opacity-70"
+            >
+              {downloadState === "generating" ? (
+                <FiLoader size={13} className="animate-spin" />
+              ) : downloadState === "success" ? (
+                <FiCheck size={13} />
+              ) : (
+                <FiDownload size={13} />
+              )}
+              <span>
+                {downloadState === "generating"
+                  ? "Preparing…"
+                  : downloadState === "success"
+                    ? "Downloaded"
+                    : "Download"}
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -284,13 +195,6 @@ export default function Report({ user }) {
           ))}
         </div>
       </div>
-
-      {/* UPGRADE MODAL */}
-      <AnimatePresence>
-        {showUpgradeModal && (
-          <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

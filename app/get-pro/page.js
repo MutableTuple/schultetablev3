@@ -1,5 +1,4 @@
 import React from "react";
-import { redirect } from "next/navigation"; // ← Import this
 import Navbar from "../_components/Navbar";
 import Pro from "../_components/Pro";
 import { getCurrentUser } from "../_utils/getCurrentUser";
@@ -16,11 +15,15 @@ export const metadata = {
     "premium brain training",
     "focus game upgrade",
   ],
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: "Schulte Table Pro – Unlock Advanced Features",
     description:
       "Access advanced tools, analytics, and distraction-free gameplay by upgrading to Schulte Table Pro. Take your focus training to the next level.",
-    url: "https://schultetable.com/pro",
+    url: "https://schultetable.com/get-pro",
     siteName: "Schulte Table",
     type: "website",
   },
@@ -31,17 +34,12 @@ export const metadata = {
       "Level up your cognitive training with exclusive Schulte Table Pro features. Smarter tools, deeper insights.",
   },
   alternates: {
-    canonical: "https://www.schultetable.com/get-pro",
+    canonical: "https://schultetable.com/get-pro",
   },
 };
 
 export default async function page() {
-  const { user, error } = await getCurrentUser();
-
-  // 🔁 Check and redirect if no user
-  if (!user || !user?.id) {
-    redirect("/auth/login");
-  }
+  const { user } = await getCurrentUser();
 
   return (
     <>

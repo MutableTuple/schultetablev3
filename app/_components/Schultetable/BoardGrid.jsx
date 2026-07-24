@@ -3,6 +3,7 @@
 import React, { useMemo, useCallback } from "react";
 
 import NumberTile from "../NumberTile";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BoardGrid({
   numbers,
@@ -50,17 +51,9 @@ export default function BoardGrid({
   const skeletonTiles = useMemo(
     () =>
       Array.from({ length: totalTiles }).map((_, i) => (
-        <div
+        <Skeleton
           key={i}
-          className="
-            skeleton
-            aspect-square
-            rounded-none
-            border
-            border-base-300
-            bg-base-300
-            box-border
-          "
+          className="aspect-square rounded-xl border border-border box-border"
         />
       )),
     [totalTiles],
@@ -80,7 +73,7 @@ export default function BoardGrid({
           <NumberTile
             key={index}
             num={num}
-            onClick={() => handleTileClick(num)}
+            onClick={handleTileClick}
             disabled={disabled}
             gridSize={gridSize}
           />
@@ -109,8 +102,9 @@ export default function BoardGrid({
           w-full
           max-w-full
           border
-          border-base-300
-          bg-base-200
+          border-border
+          bg-card
+          rounded-3xl
           p-2
           sm:p-3
           box-border

@@ -1,6 +1,36 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+function Section({ title, valueLabel, isOpen, onToggle, children }) {
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between py-3"
+      >
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {title}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold capitalize">{valueLabel}</span>
+          <ChevronDown
+            size={14}
+            className={cn(
+              "text-muted-foreground transition-transform duration-200",
+              isOpen && "rotate-180",
+            )}
+          />
+        </span>
+      </button>
+      {isOpen && <div className="pb-3">{children}</div>}
+    </div>
+  );
+}
 
 export default function GridAndDifficultySelector({
   gridSize,
@@ -12,79 +42,49 @@ export default function GridAndDifficultySelector({
   setMode,
 }) {
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [openMode, setOpenMode] = useState(false);
+  const [openGrid, setOpenGrid] = useState(false);
+  const [openDifficulty, setOpenDifficulty] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 768px)");
-
     const onChange = (e) => setIsLargeScreen(e.matches);
-
     setIsLargeScreen(media.matches);
-
     media.addEventListener("change", onChange);
-
     return () => media.removeEventListener("change", onChange);
   }, []);
 
   const trackGA = useCallback((name, value) => {
-    if (window?.gtag) {
-      window.gtag("event", name, {
-        value,
-        ts: Date.now(),
-      });
-    }
+    if (window?.gtag) window.gtag("event", name, { value, ts: Date.now() });
   }, []);
 
   const gridOptions = useMemo(() => {
     const base = isLargeScreen ? [3, 4, 5, 6, 7, 8] : [3, 4, 5];
-
     if (mode === "alphabet") return [3, 4, 5];
-
-    if (mode === "maths") {
-      return base.filter((g) => g <= 7);
-    }
-
+    if (mode === "maths") return base.filter((g) => g <= 7);
     return base;
   }, [isLargeScreen, mode]);
 
   const handleSelect = (setter, gaName, value) => {
     setter(value);
-
     trackGA(gaName, value);
-
     document.activeElement?.blur();
   };
 
-  const getButtonClass = (active, variant = "primary") =>
-    `
-      btn
-      h-auto
-      min-h-[56px]
-      text-sm
-      font-semibold
-      capitalize
-      transition-all
-      duration-300
-      hover:scale-[1.03]
-      active:scale-95
-      border
-
-      ${
-        active
-          ? `btn-${variant} rounded-none`
-          : "btn-ghost border-base-300 hover:border-primary rounded-none"
-      }
-    `;
+  const btnClass =
+    "min-h-[48px] px-2 py-2 text-sm font-semibold capitalize rounded-none border-border transition-transform duration-200 hover:scale-[1.03] active:scale-95";
 
   if (gameStarted) return null;
 
   return (
-    <div className="w-full ">
+    <div className="w-full">
       {/* GAME MODE */}
-      <div className="mb-5">
-        <h2 className="mb-3 text-xs uppercase tracking-widest text-base-content/50">
-          Game Mode
-        </h2>
-
+      <Section
+        title="Game Mode"
+        valueLabel={mode}
+        isOpen={openMode}
+        onToggle={() => setOpenMode((o) => !o)}
+      >
         <div className="grid grid-cols-3 gap-2">
           {[
             "number",
@@ -93,56 +93,64 @@ export default function GridAndDifficultySelector({
             "emoji",
             "maths",
           ].map((m) => (
-            <button
+            <Button
               key={m}
+              type="button"
+              variant={mode === m ? "default" : "outline"}
               onClick={() => handleSelect(setMode, "mode_change", m)}
-              className={getButtonClass(mode === m, "primary")}
+              className={btnClass}
             >
               {m}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Section>
 
       {/* GRID SIZE */}
-      <div className="mb-5">
-        <h2 className="mb-3 text-xs uppercase tracking-widest text-base-content/50">
-          Grid Size
-        </h2>
-
+      <Section
+        title="Grid Size"
+        valueLabel={`${gridSize}×${gridSize}`}
+        isOpen={openGrid}
+        onToggle={() => setOpenGrid((o) => !o)}
+      >
         <div className="grid grid-cols-3 gap-2">
           {gridOptions.map((size) => (
-            <button
+            <Button
               key={size}
+              type="button"
+              variant={gridSize === size ? "default" : "outline"}
               onClick={() => handleSelect(setGridSize, "grid_change", size)}
-              className={getButtonClass(gridSize === size, "accent")}
+              className={btnClass}
             >
               {size}×{size}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Section>
 
       {/* DIFFICULTY */}
-      <div>
-        <h2 className="mb-3 text-xs uppercase tracking-widest text-base-content/50">
-          Difficulty
-        </h2>
-
+      <Section
+        title="Difficulty"
+        valueLabel={difficulty}
+        isOpen={openDifficulty}
+        onToggle={() => setOpenDifficulty((o) => !o)}
+      >
         <div className="grid grid-cols-2 gap-2">
           {["Easy", "Medium", "Hard", "Extreme", "Impossible"].map((diff) => (
-            <button
+            <Button
               key={diff}
+              type="button"
+              variant={difficulty === diff ? "default" : "outline"}
               onClick={() =>
                 handleSelect(setDifficulty, "difficulty_change", diff)
               }
-              className={getButtonClass(difficulty === diff, "secondary")}
+              className={btnClass}
             >
               {diff}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Section>
     </div>
   );
 }

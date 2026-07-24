@@ -8,11 +8,12 @@ import toast from "react-hot-toast";
 import { calculateScore } from "./scoreUtils";
 import BoardGrid from "./BoardGrid";
 import { GAME_MODES } from "./numberUtils";
-import { checkAndUpdateUserMissions } from "@/app/_lib/data-service";
-import QuickResultBottomSheet from "../BottomModal/QuickResultBottomSheet";
 import dynamic from "next/dynamic";
-import LeaderBoardPopup from "../Notifications/LeaderBoardPopup";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import InstantFeedback from "../InstantFeedback";
+
 const GameDataSummaryModalAdvanced = dynamic(
   () => import("../GameDataSummaryModalAdvanced"),
   {
@@ -21,7 +22,36 @@ const GameDataSummaryModalAdvanced = dynamic(
   },
 );
 
+// Only needed after a game finishes — code-split so they don't bloat the
+// initial bundle every visitor downloads on page load.
+const QuickResultBottomSheet = dynamic(
+  () => import("../BottomModal/QuickResultBottomSheet"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
+const LeaderBoardPopup = dynamic(
+  () => import("../Notifications/LeaderBoardPopup"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
 const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
+
+const GRID_SIZES = [3, 4, 5, 6];
+const DIFFICULTIES = ["Easy", "Medium", "Hard", "Extreme", "Impossible"];
+const MODES = ["number", "word", "alphabet", "emoji", "maths"];
+const MODE_LABELS = {
+  number: "Number",
+  word: "Word",
+  alphabet: "Alphabet",
+  emoji: "Emoji",
+  maths: "Maths",
+};
 
 /* ===========================================
    COMPONENT
@@ -47,35 +77,53 @@ export default function SchulteTable({
   const [clickedNumbers, setClickedNumbers] = useState([]);
   const [clickData, setClickData] = useState([]);
   const [mistakes, setMistakes] = useState(0);
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [summaryVisible, setSummaryVisible] = useState(true);
   const [gameSummaryData, setGameSummaryData] = useState(null);
-  const [fastestTimeInSec, setFastestTimeInSec] = useState(null);
   const [confettiConfig, setConfettiConfig] = useState({});
   const [confettiActive, setConfettiActive] = useState(false);
   const [showLargeScreenSummaryModal, setShowLargeScreenSummaryModal] =
     useState(false);
   const [pendingStart, setPendingStart] = useState(null);
-  // const [gameLocked, setGameLocked] = useState(false);
   const [showQuickSheet, setShowQuickSheet] = useState(false);
   const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
-  const [leaderboardGamesPlayed, setLeaderboardGamesPlayed] = useState(1);
+  const [instantFeedback, setInstantFeedback] = useState(null);
   const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
     if (typeof window === "undefined") return 0;
     const saved = localStorage.getItem("games_since_last_report");
     return saved ? Number(saved) : 0;
   });
+
+  // Separate from the report-unlock counter above — this one just controls
+  // how often the post-game results sheet pops up (every 5 games), so
+  // players aren't interrupted after every single round.
+  const [gamesSincePopup, setGamesSincePopup] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const saved = localStorage.getItem("games_since_popup");
+    return saved ? Number(saved) : 0;
+  });
+  const POPUP_INTERVAL = 5;
+
   const [country, setCountry] = useState("US");
-  const [isMobile, setIsMobile] = useState(false);
 
   const [reportUnlocked, setReportUnlocked] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("report_unlocked") === "true";
   });
 
+  const previousScoreRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem("games_since_last_report", gamesSinceLastReport);
   }, [gamesSinceLastReport]);
+  useEffect(() => {
+    localStorage.setItem("games_since_popup", gamesSincePopup);
+  }, [gamesSincePopup]);
   useEffect(() => {
     localStorage.setItem("report_unlocked", reportUnlocked);
   }, [reportUnlocked]);
@@ -88,15 +136,15 @@ export default function SchulteTable({
         setCountry(data.country);
       });
   }, []);
-  // ============================================
-  // check mobile
 
+  // Alphabet mode can't fill a 6×6 board (only 26 letters) — clamp down to
+  // a supported size if someone quick-switches into it from a larger grid.
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
+    if (mode === "alphabet" && gridSize > 5) {
+      setGridSize(5);
+    }
+  }, [mode, gridSize, setGridSize]);
+
   useEffect(() => {
     if (!pendingStart) return;
 
@@ -141,6 +189,37 @@ export default function SchulteTable({
           ),
         )[0];
   }, [numbers, clickedNumbers]);
+
+  const baseGridOptions = mode === "alphabet" ? [3, 4, 5] : GRID_SIZES;
+  const gridOptions = isMobile
+    ? baseGridOptions.filter((g) => g <= 4)
+    : baseGridOptions;
+  useEffect(() => {
+    if (mode === "alphabet" && gridSize > 5) {
+      setGridSize(5);
+    }
+  }, [mode, gridSize, setGridSize]);
+
+  // New — same idea as the alphabet clamp above: a 5×5/6×6 board picked on
+  // desktop would overflow a phone screen, so drop it to 4×4 the moment the
+  // viewport crosses into mobile width (e.g. resizing, or rotating a tablet).
+  useEffect(() => {
+    if (isMobile && gridSize > 4) {
+      setGridSize(4);
+    }
+  }, [isMobile, gridSize, setGridSize]);
+  const pickRandom = (arr, exclude) => {
+    const options = arr.filter((v) => v !== exclude);
+    return options[Math.floor(Math.random() * options.length)] ?? arr[0];
+  };
+
+  const randomizeGrid = () => setGridSize(pickRandom(gridOptions, gridSize));
+  const randomizeDifficulty = () =>
+    setDifficulty(pickRandom(DIFFICULTIES, difficulty));
+  const randomizeMode = () => setMode(pickRandom(MODES, mode));
+
+  const randomPillClass =
+    "px-3 py-1 text-[11px] font-bold rounded-full border bg-muted text-foreground border-border hover:border-primary hover:text-primary transition-colors";
 
   /* ===========================================
      GENERATE NEW GRID WHEN SETTINGS CHANGE
@@ -190,7 +269,8 @@ export default function SchulteTable({
   =========================================== */
   const saveGameToLocalHistory = (summary) => {
     try {
-      // OLD key (keep for backward compatibility)
+      // OLD key (kept — QuickResultBottomSheet's loadHistory() still falls
+      // back to this if the newer keys are empty)
       const oldKey = "schulte_last_10_games";
 
       const oldHistory = JSON.parse(localStorage.getItem(oldKey) || "[]");
@@ -199,7 +279,6 @@ export default function SchulteTable({
 
       localStorage.setItem(oldKey, JSON.stringify(updatedOld));
 
-      // NEW unified key (THIS FIXES YOUR PROBLEM)
       const newKey = user?.id
         ? `schulte_history_user_${user.id}`
         : "schulte_history_guest";
@@ -277,9 +356,6 @@ export default function SchulteTable({
 
     /* GAME COMPLETED */
     setGameStarted(false);
-    // if (!isMobile && gamesSinceLastReport + 1 >= 10) {
-    //   setGameLocked(true);
-    // }
     const endTime = Date.now();
     const elapsed = endTime - gameStartTime.current;
     const allCorrect = [
@@ -316,6 +392,17 @@ export default function SchulteTable({
       ((totalTiles / (totalTiles + mistakes)) * 100).toFixed(1),
     );
 
+    // Instant, non-blocking feedback for EVERY game — computed and shown
+    // immediately, before any network calls, so it's actually "instant"
+    // and doesn't briefly show stale data from the previous round while
+    // the save/rank-check requests are in flight.
+    const prevScore = previousScoreRef.current;
+    const scoreDelta = prevScore
+      ? Math.round(((score - prevScore) / prevScore) * 100)
+      : null;
+    previousScoreRef.current = score;
+    setInstantFeedback({ score, accuracy, scoreDelta, timeMs: elapsed });
+
     const gameSummary = {
       completedAt: new Date().toISOString(),
       durationMs: elapsed,
@@ -332,7 +419,10 @@ export default function SchulteTable({
       clicks: allCorrect,
     };
 
-    /* SAVE RESULTS */
+    /* SAVE RESULTS — position/percentile now come from a single server call,
+       no separate client-side rank check (that used to fire a second,
+       redundant Supabase query and a duplicate toast). */
+    let position = null;
     try {
       const res = await fetch("/api/games/complete", {
         method: "POST",
@@ -354,43 +444,14 @@ export default function SchulteTable({
           slowestMs: max,
         }),
       });
-
       const result = await res.json();
-
-      if (result.position) {
-        toast.success(
-          result.position === 1
-            ? "🔥 You're #1 globally!"
-            : `You're #${result.position} globally!`,
-        );
-      }
+      position = result.position ?? null;
+      gameSummary.fasterThanPct = result.fasterThanPct ?? null;
     } catch (err) {
       console.error("Game save failed", err);
     }
 
-    /* GLOBAL TIME RANK CHECK */
     const timeTaken = elapsed / 1000;
-    const { data: timeData } = await supabase
-      .from("UniversalGameStats")
-      .select("time_taken")
-      .eq("grid_size", gridSize)
-      .eq("difficulty", difficulty)
-      .eq("game_mode", mode)
-      .order("time_taken", { ascending: true })
-      .limit(3);
-
-    const top = timeData?.map((d) => d.time_taken) || [];
-    const position =
-      top.length === 0
-        ? 1
-        : timeTaken < top[0]
-          ? 1
-          : top[1] && timeTaken < top[1]
-            ? 2
-            : top[2] && timeTaken < top[2]
-              ? 3
-              : null;
-    ``;
 
     if (position) {
       const colorSets = {
@@ -423,47 +484,33 @@ export default function SchulteTable({
     // THEN update state
     setGameSummaryData(gameSummary);
 
+    // Report-unlock tracking — still counts every game toward 10, unrelated
+    // to how often the results sheet itself pops up.
     setGamesSinceLastReport((prev) => {
       const newCount = prev + 1;
       const isMilestone = newCount >= 10;
 
       if (isMilestone) {
         setReportUnlocked(true); // unlock permanently
-
         toast.success("🔓 Advanced Performance Report Unlocked!");
-
-        setShowQuickSheet(true); // 👈 show bottom sheet instead
-        return 10;
       }
 
-      setShowQuickSheet(true);
+      return isMilestone ? 10 : newCount;
+    });
+
+    // Results sheet — only show it every 5 games, not after every round.
+    setGamesSincePopup((prev) => {
+      const newCount = prev + 1;
+      if (newCount >= POPUP_INTERVAL) {
+        setShowQuickSheet(true);
+        return 0;
+      }
       return newCount;
     });
 
     maybeShowLeaderboardPopup();
     window.dispatchEvent(new Event("game-finished"));
   };
-
-  /* ===========================================
-     FETCH FASTEST USER TIME
-  =========================================== */
-  useEffect(() => {
-    if (!user?.id) return;
-    supabase
-      .from("UniversalGameStats")
-      .select("time_taken")
-      .eq("user_id", user.id)
-      .eq("grid_size", gridSize)
-      .eq("difficulty", difficulty)
-      .eq("game_mode", mode)
-      .order("time_taken", { ascending: true })
-      .limit(1)
-      .then(({ data }) => {
-        if (data?.length) setFastestTimeInSec(data[0].time_taken);
-      });
-  }, [user, gridSize, difficulty, mode]);
-
-  // 🔥 ADD THIS RIGHT BELOW IT
 
   useEffect(() => {
     if (!user) return;
@@ -510,6 +557,14 @@ export default function SchulteTable({
 
     return Number(localStorage.getItem("lb_guest_total_games") || 1);
   };
+
+  const pillClass = (active) =>
+    `px-3 py-1 text-[11px] font-bold rounded-full border transition-colors ${
+      active
+        ? "bg-primary text-primary-foreground border-primary"
+        : "bg-muted text-muted-foreground border-border hover:text-foreground"
+    }`;
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-2">
       <LeaderBoardPopup
@@ -521,9 +576,30 @@ export default function SchulteTable({
           window.location.href = "/leaderboard";
         }}
       />
+
+      {/* FEEDBACK — above the Start button */}
+      {!gameStarted && instantFeedback && (
+        <InstantFeedback feedback={instantFeedback} />
+      )}
+
       {!gameStarted && !showLargeScreenSummaryModal && (
         <div onClick={handleStartGame}>
           <StartBtn />
+        </div>
+      )}
+
+      {/* QUICK PILLS — grid / difficulty / mode, no dropdown needed */}
+      {!gameStarted && !showLargeScreenSummaryModal && (
+        <div className="flex items-center justify-center gap-1.5">
+          <button onClick={randomizeGrid} className={randomPillClass}>
+            {gridSize}×{gridSize}
+          </button>
+          <button onClick={randomizeDifficulty} className={randomPillClass}>
+            {difficulty}
+          </button>
+          <button onClick={randomizeMode} className={randomPillClass}>
+            {MODE_LABELS[mode]}
+          </button>
         </div>
       )}
 
@@ -537,39 +613,38 @@ export default function SchulteTable({
         <Confetti active={confettiActive} config={confettiConfig} />
       </div>
 
-      {/* NEXT TARGET */}
+      {/* NEXT TARGET — fixed inline colors so it's always legible in dark mode,
+          regardless of how bg-accent/text-accent-foreground resolve elsewhere */}
       {gameStarted && nextTarget && (
-        <div className="text-xl font-bold text-primary">
+        <Badge
+          className="rounded-full px-4 py-1.5 text-base font-bold shadow-sm"
+          style={{ background: "#F3A83C", color: "#1a1206" }}
+        >
           Next:{" "}
           {mode === "maths"
             ? getComparableValue(nextTarget)
             : (nextTarget.expr ?? nextTarget)}
-        </div>
+        </Badge>
       )}
 
-      {/* MOBILE UI */}
-      <div className="block lg:hidden">
-        {/* <ShineButton
-          text="Get pro access"
-          icon={<MdVerified />}
-          variant="gold"
-          href="/get-pro"
-        /> */}
-      </div>
-      <div className="block lg:hidden">
+      {/* FASTEST USER — between the start controls and the board, shown on
+          every screen size now (used to be mobile-only). */}
+      {!gameStarted && (
         <UserIcon
           mode={mode}
           gridSize={gridSize}
           difficulty={difficulty}
           user={user}
         />
-      </div>
+      )}
 
       {/* BOARD */}
       {loadingBoard ? (
-        <div className="flex flex-col items-center justify-center h-[300px]">
-          <span className="loading loading-infinity loading-xl text-primary" />
-          <p className="mt-4 text-sm text-gray-500">Setting up your board...</p>
+        <div className="flex flex-col items-center justify-center h-[300px] w-full max-w-sm rounded-3xl border border-border bg-card">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="mt-4 text-sm text-muted-foreground">
+            Setting up your board...
+          </p>
         </div>
       ) : (
         <div
@@ -606,7 +681,6 @@ export default function SchulteTable({
         }
         user={user || null}
         isProUser={user?.is_pro_user || false}
-        dailyUsers={1242 + Math.floor(Math.random() * 80)}
         onLogin={() => router.push("/login")}
         onUpgrade={() => router.push("/get-pro")}
         onClose={() => setShowQuickSheet(false)}

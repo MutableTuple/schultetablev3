@@ -6,6 +6,16 @@ module.exports = {
   priority: 0.7,
   sitemapSize: 5000,
 
+  robotsTxtOptions: {
+    policies: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/my-profile", "/api"],
+      },
+    ],
+  },
+
   additionalPaths: async () => {
     const staticPages = [
       { loc: "/", priority: 1.0 },
@@ -18,16 +28,45 @@ module.exports = {
       { loc: "/benefits-of-schulte-table", priority: 0.6 },
       { loc: "/get-pro", priority: 0.6 },
       { loc: "/missions", priority: 0.6 },
+      { loc: "/duels", priority: 0.6 },
       { loc: "/faq", priority: 0.6 },
+      { loc: "/features", priority: 0.7 },
+      { loc: "/official-brain-test", priority: 0.7 },
+      { loc: "/support", priority: 0.5 },
+      { loc: "/cookies", priority: 0.3 },
+      { loc: "/privacy", priority: 0.3 },
+      { loc: "/what-is-schulte-table", priority: 0.7 },
+      { loc: "/schulte-table-faq", priority: 0.6 },
+      { loc: "/schulte-table-history", priority: 0.5 },
+      { loc: "/schulte-table-research", priority: 0.5 },
+      { loc: "/schulte-table-science", priority: 0.5 },
+      { loc: "/schulte-table-world-record", priority: 0.6 },
+      { loc: "/schulte-table-vs-elevate", priority: 0.6 },
+      { loc: "/schulte-table-vs-lumosity", priority: 0.6 },
     ];
 
-    // my-profile section
-    const profilePages = [
-      "/my-profile",
-      "/my-profile/my-games",
-      "/my-profile/personalize",
-      "/my-profile/security",
-    ].map((path) => ({ loc: path, priority: 0.6 }));
+    // Audience-targeted landing pages
+    const audiences = [
+      "adults",
+      "athletes",
+      "chess-players",
+      "designers",
+      "entrepreneurs",
+      "gamers",
+      "kids",
+      "pilots",
+      "programmers",
+      "readers",
+      "remote-workers",
+      "seniors",
+      "students",
+      "teachers",
+      "teens",
+    ];
+    const audiencePages = audiences.map((a) => ({
+      loc: `/schulte-table-for-${a}`,
+      priority: 0.6,
+    }));
 
     // Game routes
     const difficulties = ["extreme", "hard", "impossible", "medium"];
@@ -43,7 +82,11 @@ module.exports = {
       priority: path.includes("/mode") ? 0.6 : 0.7,
     }));
 
-    return [...staticPages, ...profilePages, ...gameUrls].map((p) => ({
+    // NOTE: /my-profile/* deliberately removed — private, per-user content,
+    // has no business being in a public sitemap. Disallowed via
+    // robotsTxtOptions above instead.
+
+    return [...staticPages, ...audiencePages, ...gameUrls].map((p) => ({
       ...p,
       changefreq: "weekly",
     }));

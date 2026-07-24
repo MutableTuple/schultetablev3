@@ -1,10 +1,18 @@
 // app/faq/page.jsx (Next.js 13+ App Router)
-// If using Pages Router, adjust import paths accordingly
 
 import React from "react";
 import Navbar from "../_components/Navbar";
-import Head from "next/head";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
+
+export const metadata = {
+  title: "Frequently Asked Questions | Schulte Table Game",
+  description:
+    "Get answers to common questions about the Schulte Table, how to play, benefits, and tips for improving focus and speed.",
+  alternates: {
+    canonical: "https://schultetable.com/faq",
+  },
+};
 
 export default function FAQPage() {
   const faqList = [
@@ -50,7 +58,6 @@ export default function FAQPage() {
     },
   ];
 
-  // JSON-LD: FAQ Schema
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -64,12 +71,11 @@ export default function FAQPage() {
     })),
   };
 
-  // JSON-LD: App Schema
   const appSchema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Schulte Table — Focus Trainer",
-    url: "https://www.schultetable.com/faq",
+    url: "https://schultetable.com/faq",
     description:
       "A fast, free Schulte Table game for improving attention, peripheral awareness, and reading speed. Play in-browser on desktop or mobile; includes timer and scoring.",
     applicationCategory: "Game",
@@ -83,65 +89,60 @@ export default function FAQPage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Frequently Asked Questions | Schulte Table Game</title>
-        <meta
-          name="description"
-          content="Get answers to common questions about the Schulte Table, how to play, benefits, and tips for improving focus and speed."
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }}
-        />
-      </Head>
+    <main className="min-h-screen bg-background text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }}
+      />
 
-      <main className="min-h-screen bg-base-200 text-base-content">
-        <Navbar />
+      <Navbar />
 
-        <section id="faq" className="container mx-auto max-w-6xl p-4 sm:p-6">
-          <h2 className="text-2xl sm:text-3xl font-bold">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-sm sm:text-base opacity-70 mt-2">
-            Common questions about the Schulte Table, practice tips, and game
-            usage.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/"
-              className="btn rounded-full btn-sm flex items-center gap-2 bg-black text-white"
+      <section id="faq" className="container mx-auto max-w-6xl p-4 sm:p-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-sm sm:text-base text-muted-foreground mt-2">
+          Common questions about the Schulte Table, practice tips, and game
+          usage.
+        </p>
+
+        <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <Link
+            href="/"
+            className="rounded-full px-4 py-2 text-sm font-semibold bg-foreground text-background hover:bg-foreground/85 transition-colors"
+          >
+            Play a 4x4 medium (most played)
+          </Link>
+          <Link
+            href="/blogs"
+            className="rounded-full px-4 py-2 text-sm font-semibold border border-border text-foreground hover:bg-muted transition-colors"
+          >
+            Read Related Articles
+          </Link>
+        </div>
+
+        <div className="mt-6 grid gap-4">
+          {faqList.map((f) => (
+            <details
+              key={f.question}
+              name="faq"
+              className="group rounded-xl border border-border bg-card px-5 py-4"
             >
-              Play a 4x4 medium (most played)
-            </Link>
-            <Link
-              href="/blogs"
-              className="btn rounded-full btn-sm flex items-center gap-2"
-            >
-              Read Related Articles
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-4">
-            {faqList.map((f, i) => (
-              <details
-                key={i}
-                className="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box"
-              >
-                <summary className="collapse-title text-base sm:text-lg font-medium">
-                  {f.question}
-                </summary>
-                <div className="collapse-content">
-                  <p className="text-sm sm:text-base opacity-90">{f.answer}</p>
-                </div>
-              </details>
-            ))}
-          </div>
-        </section>
-      </main>
-    </>
+              <summary className="flex items-center justify-between cursor-pointer list-none text-base sm:text-lg font-medium text-foreground">
+                {f.question}
+                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-open:rotate-180 shrink-0 ml-4" />
+              </summary>
+              <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+                {f.answer}
+              </p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
