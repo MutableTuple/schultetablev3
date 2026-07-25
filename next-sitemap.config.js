@@ -43,7 +43,41 @@ module.exports = {
       { loc: "/schulte-table-world-record", priority: 0.6 },
       { loc: "/schulte-table-vs-elevate", priority: 0.6 },
       { loc: "/schulte-table-vs-lumosity", priority: 0.6 },
+      { loc: "/schulte-table-alternatives", priority: 0.7 },
     ];
+
+    // "Schulte Table vs [competitor]" comparison pages
+    const competitorSlugs = [
+      "sudoku",
+      "wordle",
+      "chess",
+      "crossword",
+      "tetris",
+      "2048",
+      "candy-crush",
+      "rubiks-cube",
+      "jigsaw-puzzles",
+      "solitaire",
+      "sporcle",
+      "word-search",
+      "trivia-crack",
+      "memory-match",
+      "peak",
+      "cognifit",
+      "brainhq",
+      "happify",
+      "duolingo",
+      "headspace",
+      "calm",
+      "forest-app",
+      "cambridge-brain-sciences",
+      "iq-test",
+      "human-benchmark",
+    ];
+    const competitorPages = competitorSlugs.map((slug) => ({
+      loc: `/schulte-table-vs-${slug}`,
+      priority: 0.6,
+    }));
 
     // Audience-targeted landing pages
     const audiences = [
@@ -86,7 +120,12 @@ module.exports = {
     // has no business being in a public sitemap. Disallowed via
     // robotsTxtOptions above instead.
 
-    return [...staticPages, ...audiencePages, ...gameUrls].map((p) => ({
+    return [
+      ...staticPages,
+      ...competitorPages,
+      ...audiencePages,
+      ...gameUrls,
+    ].map((p) => ({
       ...p,
       changefreq: "weekly",
     }));

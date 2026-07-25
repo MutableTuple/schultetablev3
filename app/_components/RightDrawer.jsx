@@ -245,55 +245,86 @@ export default function RightDrawer({
           </div>
 
           <div className="px-4 pb-4">
-            <div className="relative overflow-hidden bg-[var(--ink)] text-background rounded-none border border-primary/25 p-4">
-              {/* shine sweep — reuses your existing .shine / @keyframes shineMove */}
-              <div className="shine pointer-events-none" />
+            {userId &&
+              (isPro ? (
+                <div className="relative overflow-hidden bg-[var(--ink)] text-background rounded-none border border-primary/25 p-4">
+                  {/* shine sweep — reuses your existing .shine / @keyframes shineMove */}
+                  <div className="shine pointer-events-none" />
 
-              <div className="relative flex gap-3 mb-3">
-                <div className="w-10 h-10 rounded-none bg-primary/15 flex items-center justify-center shrink-0">
-                  <FileBarChart size={18} className="text-primary" />
-                </div>
-                <div>
-                  <div className="flex flex-col gap-2 mb-1">
-                    <p className="text-sm font-bold leading-snug">
-                      Your Full Brain Report Is Waiting, Stay Among the Top 1%
-                    </p>
-                    <span className="bg-primary w-fit flex items-center gap-1 text-primary-foreground text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-none shrink-0">
-                      <BadgeCheck size={11} className="shrink-0" />
-                      Pro
-                    </span>
+                  <div className="relative flex gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-none bg-primary/15 flex items-center justify-center shrink-0">
+                      <FileBarChart size={18} className="text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold leading-snug mb-1">
+                        See My Monthly Brain Report
+                      </p>
+                      <p className="text-[11px] text-background/60">
+                        See if your mind is getting sharper — or getting lost in
+                        the scroll.
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[11px] text-background/60">
-                    See if your mind is getting sharper — or getting lost in the
-                    scroll.
-                  </p>
-                </div>
-              </div>
 
-              {/* feature ticks */}
-              <ul className="relative space-y-1.5 mb-4">
-                {[
-                  "Full month performance breakdown",
-                  "Personalized AI insights on your progress",
-                  "Proof you're training, not scrolling",
-                ].map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-center gap-2 text-[11px] text-background/75"
+                  <Button
+                    render={<Link href="/monthly-brain-report" />}
+                    className="relative w-full py-2 text-xs font-bold rounded-none bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    <Check size={12} className="text-primary shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
+                    View My Report
+                  </Button>
+                </div>
+              ) : (
+                <div className="relative overflow-hidden bg-[var(--ink)] text-background rounded-none border border-primary/25 p-4">
+                  {/* shine sweep — reuses your existing .shine / @keyframes shineMove */}
+                  <div className="shine pointer-events-none" />
 
-              <Button
-                render={<Link href="/monthly-brain-report" />}
-                className="relative w-full py-2 text-xs font-bold rounded-none bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Unlock with Pro
-              </Button>
-            </div>
+                  <div className="relative flex gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-none bg-primary/15 flex items-center justify-center shrink-0">
+                      <FileBarChart size={18} className="text-primary" />
+                    </div>
+                    <div>
+                      <div className="flex flex-col gap-2 mb-1">
+                        <p className="text-sm font-bold leading-snug">
+                          Your Full Brain Report Is Waiting, Stay Among the Top
+                          1%
+                        </p>
+                        <span className="bg-primary w-fit flex items-center gap-1 text-primary-foreground text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-none shrink-0">
+                          <BadgeCheck size={11} className="shrink-0" />
+                          Pro
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-background/60">
+                        See if your mind is getting sharper — or getting lost in
+                        the scroll.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* feature ticks */}
+                  <ul className="relative space-y-1.5 mb-4">
+                    {[
+                      "Full month performance breakdown",
+                      "Personalized AI insights on your progress",
+                      "Proof you're training, not scrolling",
+                    ].map((f) => (
+                      <li
+                        key={f}
+                        className="flex items-center gap-2 text-[11px] text-background/75"
+                      >
+                        <Check size={12} className="text-primary shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    render={<Link href="/monthly-brain-report" />}
+                    className="relative w-full py-2 text-xs font-bold rounded-none bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    Unlock with Pro
+                  </Button>
+                </div>
+              ))}
           </div>
           {!userId && (
             <div className="px-4 pb-4">

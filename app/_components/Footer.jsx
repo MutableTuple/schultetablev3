@@ -19,6 +19,7 @@ const learnLinks = [
   { href: "/schulte-table-research", label: "Research" },
   { href: "/schulte-table-history", label: "History" },
   { href: "/schulte-table-world-record", label: "World Records" },
+  { href: "/schulte-table-alternatives", label: "Alternatives Compared" },
 ];
 
 const badges = [
