@@ -13,7 +13,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import GoogleButton from "../Button/GoogleButton";
-import { supabase } from "@/app/_lib/supabase";
+import { supabase } from "@/app/_lib/supbaseClient";
 
 export default function LoginForm() {
   const [error, setError] = useState("");
