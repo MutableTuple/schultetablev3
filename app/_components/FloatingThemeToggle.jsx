@@ -15,11 +15,9 @@ export default function FloatingThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button
-        variant="outline"
-        size="icon"
+      <div
         aria-hidden
-        className="fixed bottom-5 left-4 z-50 h-11 w-11 rounded-full border-border bg-background shadow-lg"
+        className="fixed bottom-5 left-4 z-50 h-11 w-11 rounded-full border border-border bg-background shadow-lg animate-pulse"
       />
     );
   }
@@ -32,13 +30,25 @@ export default function FloatingThemeToggle() {
       variant="outline"
       size="icon"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="fixed bottom-5 left-4 z-50 h-11 w-11 rounded-full border-border bg-background shadow-lg active:scale-95 transition-transform"
+      className="fixed bottom-5 left-4 z-50 h-11 w-11 rounded-full border-border bg-background shadow-lg overflow-hidden
+        hover:border-primary/50 hover:shadow-primary/20 active:scale-90 transition-all"
     >
-      {isDark ? (
-        <Sun className="h-5 w-5 text-accent" />
-      ) : (
-        <Moon className="h-5 w-5 text-secondary" />
-      )}
+      <span className="relative flex items-center justify-center w-full h-full">
+        <Sun
+          className={`absolute h-5 w-5 text-amber-500 transition-all duration-300 ${
+            isDark
+              ? "opacity-100 rotate-0 scale-100"
+              : "opacity-0 rotate-90 scale-50"
+          }`}
+        />
+        <Moon
+          className={`absolute h-5 w-5 text-indigo-400 transition-all duration-300 ${
+            isDark
+              ? "opacity-0 -rotate-90 scale-50"
+              : "opacity-100 rotate-0 scale-100"
+          }`}
+        />
+      </span>
     </Button>
   );
 }

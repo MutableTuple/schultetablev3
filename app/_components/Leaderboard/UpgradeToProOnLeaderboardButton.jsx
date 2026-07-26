@@ -1,56 +1,94 @@
+"use client";
 import Link from "next/link";
 import React from "react";
-import { RiVerifiedBadgeFill } from "react-icons/ri";
+import {
+  Zap,
+  Ban,
+  BarChart3,
+  Calendar,
+  BadgeCheck,
+  Trophy,
+  Infinity as InfinityIcon,
+  Lock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const FEATURES = [
+  {
+    icon: Ban,
+    title: "No ads, ever",
+    desc: "A completely distraction-free experience.",
+  },
+  {
+    icon: BarChart3,
+    title: "Advanced Brain Report",
+    desc: "Deep analysis of speed, consistency, focus, and fatigue.",
+  },
+  {
+    icon: Calendar,
+    title: "Monthly Brain Report",
+    desc: "Fresh insights on your progress, delivered every month.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Pro checkmark",
+    desc: "Stand out as a Pro player on the leaderboard and profile.",
+  },
+  {
+    icon: Trophy,
+    title: "Global percentile rank",
+    desc: "See exactly how you compare against players worldwide.",
+  },
+  {
+    icon: InfinityIcon,
+    title: "Lifetime access",
+    desc: "Pay once, use forever — no subscriptions, ever.",
+  },
+];
 
 export default function UpgradeToProOnLeaderboardButton() {
   return (
-    <div className="rounded-2xl border border-yellow-400/40 bg-gradient-to-br from-yellow-400/10 via-base-100 to-base-100 p-5 space-y-4">
+    <div className="relative overflow-hidden rounded-2xl bg-[var(--ink)] text-background border border-primary/25 p-5 space-y-4">
+      {/* shine sweep — reuses your existing .shine / @keyframes shineMove */}
+      <div className="shine pointer-events-none" />
 
-      {/* Top row: badge + headline */}
-      <div className="flex items-start gap-3">
-        <div className="shrink-0 w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center text-xl">
-          ⚡
-        </div>
-        <div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-bold text-base text-base-content">Upgrade to Pro</span>
-            <RiVerifiedBadgeFill className="text-yellow-400 text-base" />
-            <span className="badge badge-sm bg-yellow-400/20 text-yellow-600 border-none font-semibold">
-              75% off
-            </span>
-          </div>
-          <p className="text-sm text-base-content/50 mt-0.5 leading-snug">
-            One-time payment. Lifetime access. No subscriptions.
-          </p>
+      <div className="relative flex items-center justify-between gap-3">
+        <p className="text-xl font-black leading-tight">
+          Upgrade to{" "}
+          <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent">
+            Pro
+          </span>
+        </p>
+        <div className="inline-flex items-center gap-1 bg-primary/15 text-primary text-[10px] font-bold px-2 py-1 rounded-full shrink-0">
+          <Zap size={10} /> 75% OFF
         </div>
       </div>
 
-      {/* Benefits */}
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { icon: "🚫", label: "No ads, ever" },
-          { icon: "📊", label: "Detailed stats" },
-          { icon: "✅", label: "Pro checkmark" },
-          { icon: "♾️", label: "Lifetime access" },
-        ].map(({ icon, label }) => (
-          <div
-            key={label}
-            className="flex items-center gap-2 bg-base-200 rounded-xl px-3 py-2 text-sm font-medium text-base-content/70"
-          >
-            <span className="text-base leading-none">{icon}</span>
-            {label}
+      <div className="relative space-y-2.5">
+        {FEATURES.map(({ icon: Icon, title, desc }) => (
+          <div key={title} className="flex items-start gap-3">
+            <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+              <Icon size={15} className="text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-tight">{title}</p>
+              <p className="text-xs text-background/50 leading-snug">{desc}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* CTA */}
-      <Link href="/get-pro" className="block">
-        <button className="btn btn-warning w-full rounded-xl font-bold text-warning-content gap-2">
-          Get Pro — only $4.99
-          <span className="line-through text-warning-content/50 font-normal text-xs">$19.99</span>
-        </button>
-      </Link>
-
+      <Button
+        render={<Link href="/get-pro" />}
+        nativeButton={false}
+        className="relative w-full py-2.5 text-sm font-bold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+      >
+        <Lock size={13} />
+        Get Pro Now
+      </Button>
+      <p className="relative flex items-center justify-center gap-1 text-[10px] text-background/40">
+        <Lock size={9} /> Secure one-time payment
+      </p>
     </div>
   );
 }

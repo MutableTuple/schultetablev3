@@ -602,7 +602,25 @@ export default function SchulteTable({
           </button>
         </div>
       )}
-
+      {!gameStarted && !showLargeScreenSummaryModal && (
+        <div className="w-full max-w-[240px] flex flex-col items-center gap-1.5 mt-1">
+          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-300"
+              style={{
+                width: `${Math.min((gamesSincePopup / POPUP_INTERVAL) * 100, 100)}%`,
+              }}
+            />
+          </div>
+          <p className="text-[11px] text-muted-foreground text-center">
+            {gamesSincePopup >= POPUP_INTERVAL
+              ? "Average results ready — check your last summary"
+              : `Play ${POPUP_INTERVAL - gamesSincePopup} more game${
+                  POPUP_INTERVAL - gamesSincePopup === 1 ? "" : "s"
+                } to see your stats`}
+          </p>
+        </div>
+      )}
       {gameStarted && <GameTimer />}
 
       {/* CONFETTI */}

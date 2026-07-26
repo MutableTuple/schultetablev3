@@ -6,6 +6,8 @@ import BackButton from "../BackButton";
 import Link from "next/link";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { AlertCircle, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import UpgradeToProOnLeaderboardButton from "./UpgradeToProOnLeaderboardButton";
 import LastGameChallenge from "../LastGameChallenge/LastGameChallenge";
 
@@ -23,9 +25,24 @@ const GAME_MODE_EMOJI = {
 const LIMIT = 10;
 
 const rankMeta = {
-  1: { emoji: "🥇", border: "border-yellow-400/50", bg: "bg-yellow-400/5", glow: "shadow-yellow-400/10 shadow-lg" },
-  2: { emoji: "🥈", border: "border-slate-400/50", bg: "bg-slate-400/5", glow: "shadow-slate-400/10 shadow-md" },
-  3: { emoji: "🥉", border: "border-orange-400/50", bg: "bg-orange-400/5", glow: "shadow-orange-400/10 shadow-md" },
+  1: {
+    emoji: "🥇",
+    border: "border-yellow-400/50",
+    bg: "bg-yellow-400/5",
+    glow: "shadow-yellow-400/10 shadow-lg",
+  },
+  2: {
+    emoji: "🥈",
+    border: "border-slate-400/50",
+    bg: "bg-slate-400/5",
+    glow: "shadow-slate-400/10 shadow-md",
+  },
+  3: {
+    emoji: "🥉",
+    border: "border-orange-400/50",
+    bg: "bg-orange-400/5",
+    glow: "shadow-orange-400/10 shadow-md",
+  },
 };
 
 export default function GlobalLeaderboard({ user }) {
@@ -58,7 +75,7 @@ export default function GlobalLeaderboard({ user }) {
           p_limit: LIMIT + 1,
           p_offset: (page - 1) * LIMIT,
         },
-        { signal: controller.signal }
+        { signal: controller.signal },
       );
 
       if (controller.signal.aborted) return;
@@ -76,7 +93,9 @@ export default function GlobalLeaderboard({ user }) {
     }
   }, [gridSize, difficulty, gameMode, page]);
 
-  useEffect(() => { setPage(1); }, [gridSize, difficulty, gameMode]);
+  useEffect(() => {
+    setPage(1);
+  }, [gridSize, difficulty, gameMode]);
   useEffect(() => {
     fetchLeaderboard();
     return () => abortRef.current?.abort();
@@ -86,40 +105,13 @@ export default function GlobalLeaderboard({ user }) {
   const hasFilters = gridSize || difficulty || gameMode;
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
-
         <BackButton />
 
-        {/* Header */}
-<div className="card relative overflow-hidden border border-warning/30 bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 shadow-2xl">
-  {/* glow */}
-  <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-black/10 pointer-events-none" />
-
-  {/* decorative blur */}
-  <div className="absolute -top-10 -right-10 w-32 h-32 bg-yellow-200/30 rounded-full blur-3xl" />
-  <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-orange-300/20 rounded-full blur-3xl" />
-
-  <div className="card-body relative z-10 items-center text-center py-7 gap-2">
-    <div className="text-5xl drop-shadow-lg animate-pulse">🏆</div>
-
-    <h1 className="card-title text-2xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">
-      Global Leaderboard
-    </h1>
-
-    <p className="text-sm sm:text-base text-white/85 font-medium">
-      Top players across all game modes
-    </p>
-
-    <div className="mt-2 badge badge-lg border-0 bg-white/20 text-white backdrop-blur-md px-4 py-3 font-semibold">
-      Elite Rankings
-    </div>
-  </div>
-</div>
-
         {/* Filters */}
-        {/* <div className="card bg-base-100 border border-base-300">
-          <div className="card-body py-4 px-4 gap-3">
+        {/* <div className="rounded-2xl bg-card border border-border">
+          <div className="py-4 px-4 flex flex-col gap-3">
             <div className="flex flex-wrap gap-2 justify-center">
               <FilterDropdown
                 label="Grid Size"
@@ -145,58 +137,61 @@ export default function GlobalLeaderboard({ user }) {
                 }
               />
               {hasFilters && (
-                <button
-                  className="btn btn-sm btn-ghost text-error gap-1"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive gap-1"
                   onClick={() => { setGridSize(""); setDifficulty(""); setGameMode(""); }}
                 >
                   ✕ Clear
-                </button>
+                </Button>
               )}
             </div>
 
             {/* Active filter pills */}
-            {/* {hasFilters && (
+        {/* {hasFilters && (
               <div className="flex flex-wrap gap-1.5 justify-center">
                 {gridSize && (
-                  <div className="badge badge-outline badge-sm gap-1">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-foreground">
                     {gridSize}×{gridSize} Grid
-                    <button onClick={() => setGridSize("")} className="opacity-60 hover:opacity-100">✕</button>
+                    <button onClick={() => setGridSize("")} className="text-muted-foreground hover:text-foreground">✕</button>
                   </div>
                 )}
                 {difficulty && (
-                  <div className="badge badge-outline badge-sm gap-1">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-foreground">
                     {difficulty}
-                    <button onClick={() => setDifficulty("")} className="opacity-60 hover:opacity-100">✕</button>
+                    <button onClick={() => setDifficulty("")} className="text-muted-foreground hover:text-foreground">✕</button>
                   </div>
                 )}
                 {gameMode && (
-                  <div className="badge badge-outline badge-sm gap-1">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-foreground">
                     {GAME_MODE_EMOJI[gameMode]} {gameMode}
-                    <button onClick={() => setGameMode("")} className="opacity-60 hover:opacity-100">✕</button>
+                    <button onClick={() => setGameMode("")} className="text-muted-foreground hover:text-foreground">✕</button>
                   </div>
                 )}
               </div>
             )} */}
-          {/* </div> */}
+        {/* </div> */}
         {/* </div>  */}
-{/* <LastGameChallenge/> */}
-        {/* Pro upsell */}
-        {!isPro && (
-          <div className="card bg-primary/5 border border-primary/20">
-            <div className="card-body py-4 px-4">
-              <UpgradeToProOnLeaderboardButton />
+        {/* <LastGameChallenge/> */}
+
+        {/* Pro upsell — only for logged-in, non-Pro users */}
+        {user && !isPro && (
+          <div className="rounded-2xl bg-primary/5 border border-primary/20">
+            <div className="py-4 px-4">
+              <UpgradeToProOnLeaderboardButton user={user} />
             </div>
           </div>
         )}
 
         {/* Error */}
         {error && !loading && (
-          <div className="alert alert-error rounded-2xl">
-            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0z" />
-            </svg>
-            <span className="text-sm">{error}</span>
-            <button className="btn btn-sm btn-ghost" onClick={fetchLeaderboard}>Retry</button>
+          <div className="flex items-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span className="text-sm flex-1">{error}</span>
+            <Button variant="ghost" size="sm" onClick={fetchLeaderboard}>
+              Retry
+            </Button>
           </div>
         )}
 
@@ -204,15 +199,22 @@ export default function GlobalLeaderboard({ user }) {
         {loading ? (
           <div className="space-y-2.5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="skeleton h-[72px] rounded-2xl w-full" />
+              <div
+                key={i}
+                className="animate-pulse bg-muted h-[72px] rounded-2xl w-full"
+              />
             ))}
           </div>
         ) : !error && players.length === 0 ? (
-          <div className="card bg-base-100 border border-base-300">
-            <div className="card-body items-center text-center py-14 gap-2">
+          <div className="rounded-2xl bg-card border border-border">
+            <div className="flex flex-col items-center text-center py-14 gap-2">
               <div className="text-4xl">🤷</div>
-              <p className="font-semibold text-base-content/70">No players found</p>
-              <p className="text-sm text-base-content/40">Try adjusting your filters</p>
+              <p className="font-semibold text-muted-foreground">
+                No players found
+              </p>
+              <p className="text-sm text-muted-foreground/60">
+                Try adjusting your filters
+              </p>
             </div>
           </div>
         ) : (
@@ -225,9 +227,9 @@ export default function GlobalLeaderboard({ user }) {
               return (
                 <li
                   key={player.user_id || index}
-                  className={`rounded-2xl border px-4 py-3.5 flex items-center gap-3 transition-all duration-200 hover:scale-[1.01] bg-base-100
-                    ${meta ? `${meta.border} ${meta.bg} ${meta.glow}` : "border-base-300"}
-                    ${isCurrentUser ? "ring-2 ring-primary ring-offset-base-100 ring-offset-1" : ""}
+                  className={`rounded-2xl border px-4 py-3.5 flex items-center gap-3 transition-all duration-200 hover:scale-[1.01] bg-card
+                    ${meta ? `${meta.border} ${meta.bg} ${meta.glow}` : "border-border"}
+                    ${isCurrentUser ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
                   `}
                 >
                   {/* Rank */}
@@ -235,21 +237,23 @@ export default function GlobalLeaderboard({ user }) {
                     {meta ? (
                       <span className="text-xl leading-none">{meta.emoji}</span>
                     ) : (
-                      <span className="badge badge-ghost badge-sm font-mono font-bold text-base-content/50">
+                      <span className="inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs font-mono font-bold text-muted-foreground">
                         #{rank}
                       </span>
                     )}
                   </div>
 
                   {/* Avatar */}
-                  <div className="avatar shrink-0">
-                    <div className="w-11 rounded-full ring-2 ring-base-300">
+                  <div className="shrink-0">
+                    <div className="w-11 h-11 rounded-full ring-2 ring-border overflow-hidden">
                       {player.image ? (
                         <img
                           src={player.image}
                           alt={player.name ?? "Player"}
-                          className="object-cover"
-                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       ) : (
                         <div className="bg-gradient-to-br from-primary/30 to-secondary/30 w-full h-full flex items-center justify-center text-base font-bold text-primary">
@@ -264,7 +268,7 @@ export default function GlobalLeaderboard({ user }) {
                     <div className="flex items-center gap-1.5 min-w-0">
                       <Link
                         href={`/user/${player.username}`}
-                        className="font-semibold text-sm sm:text-base hover:text-primary transition-colors truncate"
+                        className="font-semibold text-sm sm:text-base text-foreground hover:text-primary transition-colors truncate"
                       >
                         {player.name || "Anonymous"}
                       </Link>
@@ -272,18 +276,24 @@ export default function GlobalLeaderboard({ user }) {
                         <RiVerifiedBadgeFill className="text-yellow-400 shrink-0 text-sm" />
                       )}
                       {player.social_link && (
-                        <FaSquareXTwitter className="shrink-0 text-base-content/30 hover:text-[#1DA1F2] transition-colors text-sm" />
+                        <FaSquareXTwitter className="shrink-0 text-muted-foreground/40 hover:text-[#1DA1F2] transition-colors text-sm" />
                       )}
                       {isCurrentUser && (
-                        <span className="badge badge-primary badge-xs shrink-0">You</span>
+                        <span className="inline-flex items-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 shrink-0">
+                          You
+                        </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-xs text-base-content/40">{player.total_games} games</span>
+                      <span className="text-xs text-muted-foreground">
+                        {player.total_games} games
+                      </span>
                       {player.avg_accuracy > 0 && (
                         <>
-                          <span className="text-base-content/20 text-xs">·</span>
-                          <span className="text-xs text-base-content/40">
+                          <span className="text-muted-foreground/30 text-xs">
+                            ·
+                          </span>
+                          <span className="text-xs text-muted-foreground">
                             {player.avg_accuracy.toFixed(1)}% acc
                           </span>
                         </>
@@ -293,15 +303,22 @@ export default function GlobalLeaderboard({ user }) {
 
                   {/* Score */}
                   <div className="text-right shrink-0">
-                    <div className={`font-extrabold tabular-nums text-base sm:text-lg ${
-                      rank === 1 ? "text-yellow-500" :
-                      rank === 2 ? "text-slate-400" :
-                      rank === 3 ? "text-orange-400" :
-                      "text-primary"
-                    }`}>
+                    <div
+                      className={`font-extrabold tabular-nums text-base sm:text-lg ${
+                        rank === 1
+                          ? "text-yellow-500"
+                          : rank === 2
+                            ? "text-slate-400"
+                            : rank === 3
+                              ? "text-orange-400"
+                              : "text-primary"
+                      }`}
+                    >
                       {formatNumber(player.total_score)}
                     </div>
-                    <div className="text-[10px] text-base-content/30 uppercase tracking-widest">pts</div>
+                    <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">
+                      pts
+                    </div>
                   </div>
                 </li>
               );
@@ -311,27 +328,28 @@ export default function GlobalLeaderboard({ user }) {
 
         {/* Pagination */}
         {!loading && !error && (page > 1 || hasMore) && (
-          <div className="join flex justify-center pt-1">
-            <button
-              className="join-item btn btn-sm btn-outline"
+          <div className="flex items-center justify-center gap-2 pt-1">
+            <Button
+              variant="outline"
+              size="sm"
               disabled={page === 1}
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
             >
               «
-            </button>
-            <button className="join-item btn btn-sm btn-outline btn-active pointer-events-none">
+            </Button>
+            <span className="flex items-center justify-center rounded-xl border border-border bg-muted px-3 h-9 text-sm font-medium text-foreground">
               Page {page}
-            </button>
-            <button
-              className="join-item btn btn-sm btn-outline"
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
               disabled={!hasMore}
               onClick={() => setPage((p) => p + 1)}
             >
               »
-            </button>
+            </Button>
           </div>
         )}
-
       </div>
     </div>
   );
@@ -339,34 +357,43 @@ export default function GlobalLeaderboard({ user }) {
 
 function FilterDropdown({ label, value, options, onChange, renderOption }) {
   return (
-    <div className="dropdown dropdown-bottom">
-      <label
+    <div className="group relative inline-block">
+      <button
         tabIndex={0}
-        className={`btn btn-sm gap-1 font-medium ${value ? "btn-primary" : "btn-outline"}`}
+        type="button"
+        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-sm font-medium transition-colors ${
+          value
+            ? "bg-primary text-primary-foreground border-primary"
+            : "bg-card text-foreground border-border hover:bg-muted"
+        }`}
       >
         {value ? renderOption(value) : label}
-        <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </label>
+        <ChevronDown className="w-3 h-3 opacity-60" />
+      </button>
       <ul
-        tabIndex={0}
-        className="dropdown-content z-50 menu p-1.5 shadow-xl bg-base-100 border border-base-300 rounded-xl w-44 mt-1"
+        className="invisible opacity-0 group-focus-within:visible group-focus-within:opacity-100 transition-opacity
+          absolute z-50 mt-1 w-44 rounded-xl border border-border bg-card shadow-xl p-1.5"
       >
         <li>
           <button
-            className={`text-sm ${!value ? "font-semibold text-primary" : ""}`}
+            type="button"
+            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-sm hover:bg-muted transition-colors ${
+              !value ? "font-semibold text-primary" : "text-foreground"
+            }`}
             onClick={() => onChange("")}
           >
             All {label}s
           </button>
         </li>
-        <div className="divider my-0.5 h-px" />
+        <div className="my-1 h-px bg-border" />
         {options.map((opt) => (
           <li key={opt}>
             <button
-              className={`text-sm ${
-                value === String(opt) ? "font-semibold text-primary bg-primary/10" : ""
+              type="button"
+              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-sm hover:bg-muted transition-colors ${
+                value === String(opt)
+                  ? "font-semibold text-primary bg-primary/10"
+                  : "text-foreground"
               }`}
               onClick={() => onChange(String(opt))}
             >
