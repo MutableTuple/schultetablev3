@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "solitaire");
 
 export const metadata = {
-  title: "Schulte Table vs Solitaire: Relaxing Card Game or Focus Trainer?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Solitaire: Relax or Train Focus?" },
   description: "Schulte Table vs Solitaire compared for relaxation, strategy, and attention training. See which brain exercise fits your daily habit.",
   keywords: [
     "schulte table vs solitaire",
@@ -14,12 +16,12 @@ export const metadata = {
     "card game vs attention exercise"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-solitaire",
+    canonical: "https://www.schultetable.com/schulte-table-vs-solitaire",
   },
   openGraph: {
-    title: "Schulte Table vs Solitaire: Relaxing Card Game or Focus Trainer?",
+    title: "Schulte Table vs Solitaire: Relax or Train Focus?",
     description: "Schulte Table vs Solitaire compared for relaxation, strategy, and attention training. See which brain exercise fits your daily habit.",
-    url: "https://schultetable.com/schulte-table-vs-solitaire",
+    url: "https://www.schultetable.com/schulte-table-vs-solitaire",
     type: "article",
   },
 };

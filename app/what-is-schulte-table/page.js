@@ -21,13 +21,13 @@ export const metadata = {
     "visual attention exercise",
   ],
   alternates: {
-    canonical: "https://schultetable.com/what-is-schulte-table",
+    canonical: "https://www.schultetable.com/what-is-schulte-table",
   },
   openGraph: {
     title: "What Is a Schulte Table? Benefits, Brain Training & Speed Reading",
     description:
       "Discover how Schulte Tables improve focus, attention, visual perception and reading speed.",
-    url: "https://schultetable.com/what-is-schulte-table",
+    url: "https://www.schultetable.com/what-is-schulte-table",
     type: "article",
   },
 };
@@ -79,11 +79,11 @@ export default function Page() {
       "What Is a Schulte Table? Benefits, Brain Training, Speed Reading & Focus",
     description:
       "Learn what a Schulte Table is, how it works, its benefits for focus, concentration, peripheral vision and speed reading.",
-    url: "https://schultetable.com/what-is-schulte-table",
+    url: "https://www.schultetable.com/what-is-schulte-table",
     publisher: {
       "@type": "Organization",
       name: "SchulteTable.com",
-      url: "https://schultetable.com",
+      url: "https://www.schultetable.com",
     },
   };
 

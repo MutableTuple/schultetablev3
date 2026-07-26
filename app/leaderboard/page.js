@@ -15,7 +15,7 @@ export const metadata = {
   openGraph: {
     title: "Global Leaderboard - Schulte Table",
     description: "Top Schulte Table players ranked by speed and accuracy.",
-    url: "https://schultetable.com/leaderboard",
+    url: "https://www.schultetable.com/leaderboard",
     siteName: "Schulte Table",
     type: "website",
   },

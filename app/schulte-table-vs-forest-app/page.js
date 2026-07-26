@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "forest-app");
 
 export const metadata = {
-  title: "Schulte Table vs Forest App: Blocking Distractions or Training Focus?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Forest App: Focus Tool Compared" },
   description: "Compare Schulte Table and the Forest app for staying focused. See the difference between blocking distractions and actively training attention.",
   keywords: [
     "schulte table vs forest app",
@@ -14,12 +16,12 @@ export const metadata = {
     "phone distraction app vs brain training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-forest-app",
+    canonical: "https://www.schultetable.com/schulte-table-vs-forest-app",
   },
   openGraph: {
-    title: "Schulte Table vs Forest App: Blocking Distractions or Training Focus?",
+    title: "Schulte Table vs Forest App: Focus Tool Compared",
     description: "Compare Schulte Table and the Forest app for staying focused. See the difference between blocking distractions and actively training attention.",
-    url: "https://schultetable.com/schulte-table-vs-forest-app",
+    url: "https://www.schultetable.com/schulte-table-vs-forest-app",
     type: "article",
   },
 };

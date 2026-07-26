@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "trivia-crack");
 
 export const metadata = {
-  title: "Schulte Table vs Trivia Crack: Social Trivia or Solo Focus Drill?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Trivia Crack: Trivia or Focus Drill?" },
   description: "Compare Schulte Table and Trivia Crack for knowledge, social competition, and attention training. See which fits your brain-training goals.",
   keywords: [
     "schulte table vs trivia crack",
@@ -14,12 +16,12 @@ export const metadata = {
     "solo attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-trivia-crack",
+    canonical: "https://www.schultetable.com/schulte-table-vs-trivia-crack",
   },
   openGraph: {
-    title: "Schulte Table vs Trivia Crack: Social Trivia or Solo Focus Drill?",
+    title: "Schulte Table vs Trivia Crack: Trivia or Focus Drill?",
     description: "Compare Schulte Table and Trivia Crack for knowledge, social competition, and attention training. See which fits your brain-training goals.",
-    url: "https://schultetable.com/schulte-table-vs-trivia-crack",
+    url: "https://www.schultetable.com/schulte-table-vs-trivia-crack",
     type: "article",
   },
 };

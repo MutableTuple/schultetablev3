@@ -19,7 +19,7 @@ export const metadata = {
     title: "Official Schulte Table Brain Test",
     description:
       "Measure your reaction speed and focus with the official Schulte Table brain test.",
-    url: "https://schultetable.com/official-brain-test",
+    url: "https://www.schultetable.com/official-brain-test",
     siteName: "Schulte Table",
     type: "website",
   },
@@ -30,7 +30,7 @@ export const metadata = {
       "Measure your reaction speed and focus with the official Schulte Table brain test.",
   },
   alternates: {
-    canonical: "https://schultetable.com/official-brain-test",
+    canonical: "https://www.schultetable.com/official-brain-test",
   },
 };
 

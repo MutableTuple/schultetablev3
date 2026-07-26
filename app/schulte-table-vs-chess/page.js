@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "chess");
 
 export const metadata = {
-  title: "Schulte Table vs Chess: Strategy Training or Focus Training?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Chess: Strategy Training or Focus Training?" },
   description: "Schulte Table vs Chess.com compared for focus, strategic thinking, and mental training. See which is right for your cognitive goals.",
   keywords: [
     "schulte table vs chess",
@@ -14,12 +16,12 @@ export const metadata = {
     "strategy game vs attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-chess",
+    canonical: "https://www.schultetable.com/schulte-table-vs-chess",
   },
   openGraph: {
     title: "Schulte Table vs Chess: Strategy Training or Focus Training?",
     description: "Schulte Table vs Chess.com compared for focus, strategic thinking, and mental training. See which is right for your cognitive goals.",
-    url: "https://schultetable.com/schulte-table-vs-chess",
+    url: "https://www.schultetable.com/schulte-table-vs-chess",
     type: "article",
   },
 };

@@ -36,14 +36,14 @@ export const metadata = {
   ],
 
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-for-entrepreneurs",
+    canonical: "https://www.schultetable.com/schulte-table-for-entrepreneurs",
   },
 
   openGraph: {
     title: "Schulte Table for Entrepreneurs",
     description:
       "Improve focus, productivity, concentration, and mental performance with Schulte Table training.",
-    url: "https://schultetable.com/schulte-table-for-entrepreneurs",
+    url: "https://www.schultetable.com/schulte-table-for-entrepreneurs",
     siteName: "Schulte Table",
     type: "website",
   },

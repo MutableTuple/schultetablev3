@@ -36,7 +36,7 @@ export const metadata = {
   ],
 
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-for-remote-workers",
+    canonical: "https://www.schultetable.com/schulte-table-for-remote-workers",
   },
 };
 

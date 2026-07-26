@@ -18,7 +18,7 @@ export const metadata = {
     title: "Cookies Policy - Schulte Table",
     description:
       "Understand how cookies are used on SchulteTable.com to deliver a smooth and personalized user experience.",
-    url: "https://schultetable.com/cookies",
+    url: "https://www.schultetable.com/cookies",
     siteName: "Schulte Table",
     type: "website",
   },

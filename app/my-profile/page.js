@@ -11,7 +11,7 @@ export const metadata = {
   description: "See your Schulte Table game stats and progress.",
   keywords: ["schulte table", "brain exercise", "profile"],
   alternates: {
-    canonical: "https://schultetable.com/my-profile",
+    canonical: "https://www.schultetable.com/my-profile",
   },
 };
 

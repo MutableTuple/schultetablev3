@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "candy-crush");
 
 export const metadata = {
-  title: "Schulte Table vs Candy Crush: Casual Fun or Real Brain Training?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Candy Crush: Fun or Real Training?" },
   description: "Compare Schulte Table and Candy Crush Saga for focus, entertainment, and cognitive value. See which one actually trains your brain.",
   keywords: [
     "schulte table vs candy crush",
@@ -14,12 +16,12 @@ export const metadata = {
     "candy crush focus"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-candy-crush",
+    canonical: "https://www.schultetable.com/schulte-table-vs-candy-crush",
   },
   openGraph: {
-    title: "Schulte Table vs Candy Crush: Casual Fun or Real Brain Training?",
+    title: "Schulte Table vs Candy Crush: Fun or Real Training?",
     description: "Compare Schulte Table and Candy Crush Saga for focus, entertainment, and cognitive value. See which one actually trains your brain.",
-    url: "https://schultetable.com/schulte-table-vs-candy-crush",
+    url: "https://www.schultetable.com/schulte-table-vs-candy-crush",
     type: "article",
   },
 };

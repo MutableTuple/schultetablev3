@@ -23,7 +23,7 @@ export const metadata = {
     title: "Schulte Table Pro – Unlock Advanced Features",
     description:
       "Access advanced tools, analytics, and distraction-free gameplay by upgrading to Schulte Table Pro. Take your focus training to the next level.",
-    url: "https://schultetable.com/get-pro",
+    url: "https://www.schultetable.com/get-pro",
     siteName: "Schulte Table",
     type: "website",
   },
@@ -34,7 +34,7 @@ export const metadata = {
       "Level up your cognitive training with exclusive Schulte Table Pro features. Smarter tools, deeper insights.",
   },
   alternates: {
-    canonical: "https://schultetable.com/get-pro",
+    canonical: "https://www.schultetable.com/get-pro",
   },
 };
 

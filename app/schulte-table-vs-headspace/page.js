@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "headspace");
 
 export const metadata = {
-  title: "Schulte Table vs Headspace: Meditation or Active Focus Training?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Headspace: Meditate or Train Focus?" },
   description: "Schulte Table vs Headspace compared for calm, mindfulness, and active attention training. See which approach fits your focus goals.",
   keywords: [
     "schulte table vs headspace",
@@ -14,12 +16,12 @@ export const metadata = {
     "mindfulness vs attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-headspace",
+    canonical: "https://www.schultetable.com/schulte-table-vs-headspace",
   },
   openGraph: {
-    title: "Schulte Table vs Headspace: Meditation or Active Focus Training?",
+    title: "Schulte Table vs Headspace: Meditate or Train Focus?",
     description: "Schulte Table vs Headspace compared for calm, mindfulness, and active attention training. See which approach fits your focus goals.",
-    url: "https://schultetable.com/schulte-table-vs-headspace",
+    url: "https://www.schultetable.com/schulte-table-vs-headspace",
     type: "article",
   },
 };

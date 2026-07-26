@@ -10,7 +10,7 @@ export const metadata = {
   description:
     "Get answers to common questions about the Schulte Table, how to play, benefits, and tips for improving focus and speed.",
   alternates: {
-    canonical: "https://schultetable.com/faq",
+    canonical: "https://www.schultetable.com/faq",
   },
 };
 
@@ -75,7 +75,7 @@ export default function FAQPage() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Schulte Table — Focus Trainer",
-    url: "https://schultetable.com/faq",
+    url: "https://www.schultetable.com/faq",
     description:
       "A fast, free Schulte Table game for improving attention, peripheral awareness, and reading speed. Play in-browser on desktop or mobile; includes timer and scoring.",
     applicationCategory: "Game",

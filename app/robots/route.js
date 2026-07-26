@@ -5,7 +5,7 @@ Disallow: /account
 
 Allow: /
 
-Sitemap: https://schultetable.com/sitemap.xml`;
+Sitemap: https://www.schultetable.com/sitemap.xml`;
 
   return new Response(content.trim(), {
     headers: {

@@ -32,7 +32,7 @@ export const metadata = {
     "mental focus improvement",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/4x4/hard",
+    canonical: "https://www.schultetable.com/schulte-table/4x4/hard",
   },
 };
 

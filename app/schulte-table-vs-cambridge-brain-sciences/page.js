@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "cambridge-brain-sciences");
 
 export const metadata = {
-  title: "Schulte Table vs Cambridge Brain Sciences: Testing or Everyday Training?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Cambridge Brain Sciences: Compared" },
   description: "Compare Schulte Table and Cambridge Brain Sciences for cognitive testing versus everyday attention training. See which fits your needs.",
   keywords: [
     "schulte table vs cambridge brain sciences",
@@ -14,12 +16,12 @@ export const metadata = {
     "scientific cognitive assessment"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-cambridge-brain-sciences",
+    canonical: "https://www.schultetable.com/schulte-table-vs-cambridge-brain-sciences",
   },
   openGraph: {
-    title: "Schulte Table vs Cambridge Brain Sciences: Testing or Everyday Training?",
+    title: "Schulte Table vs Cambridge Brain Sciences: Compared",
     description: "Compare Schulte Table and Cambridge Brain Sciences for cognitive testing versus everyday attention training. See which fits your needs.",
-    url: "https://schultetable.com/schulte-table-vs-cambridge-brain-sciences",
+    url: "https://www.schultetable.com/schulte-table-vs-cambridge-brain-sciences",
     type: "article",
   },
 };

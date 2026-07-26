@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "brainhq");
 
 export const metadata = {
-  title: "Schulte Table vs BrainHQ: Paid Research-Based Training or Free Focus Drill?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs BrainHQ: Which Focus Trainer Wins?" },
   description: "Schulte Table vs BrainHQ compared for scientific backing, cost, and focus training. Find out which brain exercise is right for you.",
   keywords: [
     "schulte table vs brainhq",
@@ -14,12 +16,12 @@ export const metadata = {
     "free brain training vs brainhq"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-brainhq",
+    canonical: "https://www.schultetable.com/schulte-table-vs-brainhq",
   },
   openGraph: {
-    title: "Schulte Table vs BrainHQ: Paid Research-Based Training or Free Focus Drill?",
+    title: "Schulte Table vs BrainHQ: Which Focus Trainer Wins?",
     description: "Schulte Table vs BrainHQ compared for scientific backing, cost, and focus training. Find out which brain exercise is right for you.",
-    url: "https://schultetable.com/schulte-table-vs-brainhq",
+    url: "https://www.schultetable.com/schulte-table-vs-brainhq",
     type: "article",
   },
 };

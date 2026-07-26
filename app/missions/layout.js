@@ -38,7 +38,7 @@ export const metadata = {
     title: "Missions | Schulte Table",
     description:
       "Track your daily brain training missions on SchulteTable.com.",
-    images: ["https://schultetable.com/og-image.jpg"], // Same image as OG
+    images: ["https://www.schultetable.com/og-image.jpg"], // Same image as OG
   },
 };
 

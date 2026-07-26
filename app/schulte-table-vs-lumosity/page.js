@@ -5,7 +5,7 @@ export const metadata = {
   description:
     "Compare Schulte Table and Lumosity for focus, attention, concentration, speed reading, cognitive training and brain exercises.",
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-lumosity",
+    canonical: "https://www.schultetable.com/schulte-table-vs-lumosity",
   },
 };
 

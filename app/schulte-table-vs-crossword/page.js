@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "crossword");
 
 export const metadata = {
-  title: "Schulte Table vs Crossword Puzzles: Which Trains Your Brain Better?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Crossword: Which Trains Focus Better?" },
   description: "Compare Schulte Table and crossword puzzles for memory, vocabulary, focus, and speed. See which brain exercise matches your goals.",
   keywords: [
     "schulte table vs crossword",
@@ -14,12 +16,12 @@ export const metadata = {
     "word recall vs attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-crossword",
+    canonical: "https://www.schultetable.com/schulte-table-vs-crossword",
   },
   openGraph: {
-    title: "Schulte Table vs Crossword Puzzles: Which Trains Your Brain Better?",
+    title: "Schulte Table vs Crossword: Which Trains Focus Better?",
     description: "Compare Schulte Table and crossword puzzles for memory, vocabulary, focus, and speed. See which brain exercise matches your goals.",
-    url: "https://schultetable.com/schulte-table-vs-crossword",
+    url: "https://www.schultetable.com/schulte-table-vs-crossword",
     type: "article",
   },
 };

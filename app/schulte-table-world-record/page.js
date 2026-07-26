@@ -18,13 +18,13 @@ export const metadata = {
     "schulte table training",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-world-record",
+    canonical: "https://www.schultetable.com/schulte-table-world-record",
   },
   openGraph: {
     title: "Schulte Table World Record & Fastest Times",
     description:
       "See how your Schulte Table time compares against beginner, advanced and elite benchmarks.",
-    url: "https://schultetable.com/schulte-table-world-record",
+    url: "https://www.schultetable.com/schulte-table-world-record",
     type: "article",
   },
 };

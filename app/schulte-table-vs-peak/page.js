@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "peak");
 
 export const metadata = {
-  title: "Schulte Table vs Peak: Which Brain Training App Wins?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Peak: Which Brain Training App Wins?" },
   description: "Compare Schulte Table and Peak brain training app for focus, memory, and cognitive skills. See which fits your training goals and budget.",
   keywords: [
     "schulte table vs peak",
@@ -14,12 +16,12 @@ export const metadata = {
     "free brain training vs peak"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-peak",
+    canonical: "https://www.schultetable.com/schulte-table-vs-peak",
   },
   openGraph: {
     title: "Schulte Table vs Peak: Which Brain Training App Wins?",
     description: "Compare Schulte Table and Peak brain training app for focus, memory, and cognitive skills. See which fits your training goals and budget.",
-    url: "https://schultetable.com/schulte-table-vs-peak",
+    url: "https://www.schultetable.com/schulte-table-vs-peak",
     type: "article",
   },
 };

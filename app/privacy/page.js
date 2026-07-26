@@ -17,7 +17,7 @@ export const metadata = {
     title: "Privacy Policy - Schulte Table",
     description:
       "Learn how SchulteTable.com collects and protects your data. Read our full privacy policy including cookies and tracking details.",
-    url: "https://schultetable.com/privacy-policy",
+    url: "https://www.schultetable.com/privacy-policy",
     siteName: "Schulte Table",
     type: "website",
   },

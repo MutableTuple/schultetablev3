@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ALTERNATIVES } from "@/app/_data/alternatives";
 
 export const metadata = {
-  title: "Schulte Table Alternatives: 27 Brain Games & Apps Compared",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push this title past ~60 chars.
+  title: { absolute: "Schulte Table Alternatives: 27 Brain Games & Apps Compared" },
   description:
     "Comparing Schulte Table against Sudoku, Wordle, Chess, Lumosity, Elevate, and 22 more brain games and focus apps. Find the right one for your goals.",
   keywords: [
@@ -15,13 +17,13 @@ export const metadata = {
     "schulte table vs",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-alternatives",
+    canonical: "https://www.schultetable.com/schulte-table-alternatives",
   },
   openGraph: {
     title: "Schulte Table Alternatives: 27 Brain Games & Apps Compared",
     description:
       "Comparing Schulte Table against Sudoku, Wordle, Chess, Lumosity, Elevate, and more brain games and focus apps.",
-    url: "https://schultetable.com/schulte-table-alternatives",
+    url: "https://www.schultetable.com/schulte-table-alternatives",
     type: "article",
   },
 };

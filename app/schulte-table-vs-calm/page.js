@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "calm");
 
 export const metadata = {
-  title: "Schulte Table vs Calm: Relaxation App or Active Focus Trainer?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Calm: Relax App or Focus Trainer?" },
   description: "Compare Schulte Table and the Calm app for relaxation, sleep, and active focus training. See which fits your goals right now.",
   keywords: [
     "schulte table vs calm app",
@@ -14,12 +16,12 @@ export const metadata = {
     "sleep app vs attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-calm",
+    canonical: "https://www.schultetable.com/schulte-table-vs-calm",
   },
   openGraph: {
-    title: "Schulte Table vs Calm: Relaxation App or Active Focus Trainer?",
+    title: "Schulte Table vs Calm: Relax App or Focus Trainer?",
     description: "Compare Schulte Table and the Calm app for relaxation, sleep, and active focus training. See which fits your goals right now.",
-    url: "https://schultetable.com/schulte-table-vs-calm",
+    url: "https://www.schultetable.com/schulte-table-vs-calm",
     type: "article",
   },
 };

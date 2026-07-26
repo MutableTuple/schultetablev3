@@ -53,7 +53,7 @@
 //     () => (durationMs / 1000).toFixed(2),
 //     [durationMs]
 //   );
-//   const shareUrl = "https://schultetable.com";
+//   const shareUrl = "https://www.schultetable.com";
 //   const shareText = useMemo(
 //     () =>
 //       `I just played a game and scored ${score} points with ${accuracy}% accuracy! Can you beat me?`,

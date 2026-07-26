@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "memory-match");
 
 export const metadata = {
-  title: "Schulte Table vs Memory Match: Memory or Attention Training?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Memory Match: Memory or Attention Training?" },
   description: "Schulte Table vs Memory Match (Concentration) compared for short-term memory and visual attention. Find out which trains your brain better.",
   keywords: [
     "schulte table vs memory match",
@@ -14,12 +16,12 @@ export const metadata = {
     "short-term memory vs attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-memory-match",
+    canonical: "https://www.schultetable.com/schulte-table-vs-memory-match",
   },
   openGraph: {
     title: "Schulte Table vs Memory Match: Memory or Attention Training?",
     description: "Schulte Table vs Memory Match (Concentration) compared for short-term memory and visual attention. Find out which trains your brain better.",
-    url: "https://schultetable.com/schulte-table-vs-memory-match",
+    url: "https://www.schultetable.com/schulte-table-vs-memory-match",
     type: "article",
   },
 };

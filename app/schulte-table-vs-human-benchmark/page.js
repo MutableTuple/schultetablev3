@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "human-benchmark");
 
 export const metadata = {
-  title: "Schulte Table vs Human Benchmark: Reflex Testing or Focus Training?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Human Benchmark: Reflex or Focus?" },
   description: "Compare Schulte Table and Human Benchmark for reaction time testing versus visual attention training. See which fits your goals.",
   keywords: [
     "schulte table vs human benchmark",
@@ -14,12 +16,12 @@ export const metadata = {
     "reflex test brain game"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-human-benchmark",
+    canonical: "https://www.schultetable.com/schulte-table-vs-human-benchmark",
   },
   openGraph: {
-    title: "Schulte Table vs Human Benchmark: Reflex Testing or Focus Training?",
+    title: "Schulte Table vs Human Benchmark: Reflex or Focus?",
     description: "Compare Schulte Table and Human Benchmark for reaction time testing versus visual attention training. See which fits your goals.",
-    url: "https://schultetable.com/schulte-table-vs-human-benchmark",
+    url: "https://www.schultetable.com/schulte-table-vs-human-benchmark",
     type: "article",
   },
 };

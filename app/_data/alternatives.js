@@ -186,7 +186,7 @@ export const ALTERNATIVES = [
     category: "Word & Trivia Puzzle",
     emoji: "📰",
     heroSubtitle: "Recall-based wordplay vs. pure visual search speed.",
-    metaTitle: "Schulte Table vs Crossword Puzzles: Which Trains Your Brain Better?",
+    metaTitle: "Schulte Table vs Crossword: Which Trains Focus Better?",
     metaDescription:
       "Compare Schulte Table and crossword puzzles for memory, vocabulary, focus, and speed. See which brain exercise matches your goals.",
     keywords: [
@@ -243,7 +243,7 @@ export const ALTERNATIVES = [
     category: "Arcade Puzzle Game",
     emoji: "🧱",
     heroSubtitle: "Fast-reflex block-stacking vs. structured attention training.",
-    metaTitle: "Schulte Table vs Tetris: Reflexes or Focused Attention Training?",
+    metaTitle: "Schulte Table vs Tetris: Reflexes or Focus Training?",
     metaDescription:
       "Schulte Table vs Tetris compared for reaction speed, spatial reasoning, and focus. Find out which brain exercise suits your goals.",
     keywords: [
@@ -357,7 +357,7 @@ export const ALTERNATIVES = [
     category: "Match-3 Mobile Game",
     emoji: "🍬",
     heroSubtitle: "A mobile time-killer vs. a science-rooted attention exercise.",
-    metaTitle: "Schulte Table vs Candy Crush: Casual Fun or Real Brain Training?",
+    metaTitle: "Schulte Table vs Candy Crush: Fun or Real Training?",
     metaDescription:
       "Compare Schulte Table and Candy Crush Saga for focus, entertainment, and cognitive value. See which one actually trains your brain.",
     keywords: [
@@ -414,7 +414,7 @@ export const ALTERNATIVES = [
     category: "3D Mechanical Puzzle",
     emoji: "🎲",
     heroSubtitle: "Spatial reasoning and muscle memory vs. rapid visual scanning.",
-    metaTitle: "Schulte Table vs Rubik's Cube: Spatial Skill or Visual Attention?",
+    metaTitle: "Schulte Table vs Rubik's Cube: Which Trains Focus?",
     metaDescription:
       "Schulte Table vs Rubik's Cube compared for spatial reasoning, muscle memory, and focus training. See which suits your goals.",
     keywords: [
@@ -471,7 +471,7 @@ export const ALTERNATIVES = [
     category: "Pattern-Matching Puzzle",
     emoji: "🧩",
     heroSubtitle: "Slow, relaxing pattern matching vs. fast, focused visual search.",
-    metaTitle: "Schulte Table vs Jigsaw Puzzles: Relaxation or Focus Training?",
+    metaTitle: "Schulte Table vs Jigsaw Puzzles: Relax or Train?",
     metaDescription:
       "Compare Schulte Table and jigsaw puzzles for relaxation, pattern recognition, and focus training. See which fits your goals.",
     keywords: [
@@ -528,7 +528,7 @@ export const ALTERNATIVES = [
     category: "Card Game",
     emoji: "🃏",
     heroSubtitle: "A relaxing card game vs. an active concentration workout.",
-    metaTitle: "Schulte Table vs Solitaire: Relaxing Card Game or Focus Trainer?",
+    metaTitle: "Schulte Table vs Solitaire: Relax or Train Focus?",
     metaDescription:
       "Schulte Table vs Solitaire compared for relaxation, strategy, and attention training. See which brain exercise fits your daily habit.",
     keywords: [
@@ -699,7 +699,7 @@ export const ALTERNATIVES = [
     category: "Trivia Game",
     emoji: "❓",
     heroSubtitle: "Multiplayer trivia knowledge vs. solo focus training.",
-    metaTitle: "Schulte Table vs Trivia Crack: Social Trivia or Solo Focus Drill?",
+    metaTitle: "Schulte Table vs Trivia Crack: Trivia or Focus Drill?",
     metaDescription:
       "Compare Schulte Table and Trivia Crack for knowledge, social competition, and attention training. See which fits your brain-training goals.",
     keywords: [
@@ -870,7 +870,7 @@ export const ALTERNATIVES = [
     category: "Cognitive Assessment Platform",
     emoji: "🧪",
     heroSubtitle: "Clinical-style cognitive assessments vs. a simple daily focus drill.",
-    metaTitle: "Schulte Table vs CogniFit: Assessment Platform or Simple Focus Drill?",
+    metaTitle: "Schulte Table vs CogniFit: Test or Train Your Brain?",
     metaDescription:
       "Compare Schulte Table and CogniFit for cognitive assessment, training, and everyday focus. See which fits your goals and budget.",
     keywords: [
@@ -927,7 +927,7 @@ export const ALTERNATIVES = [
     category: "Science-Based Brain Training",
     emoji: "🎓",
     heroSubtitle: "Research-backed but paid brain exercises vs. a free, single-purpose one.",
-    metaTitle: "Schulte Table vs BrainHQ: Paid Research-Based Training or Free Focus Drill?",
+    metaTitle: "Schulte Table vs BrainHQ: Which Focus Trainer Wins?",
     metaDescription:
       "Schulte Table vs BrainHQ compared for scientific backing, cost, and focus training. Find out which brain exercise is right for you.",
     keywords: [
@@ -1041,7 +1041,7 @@ export const ALTERNATIVES = [
     category: "Language Learning App",
     emoji: "🦉",
     heroSubtitle: "Daily habit-building for languages vs. daily habit-building for focus.",
-    metaTitle: "Schulte Table vs Duolingo: Which Daily Habit Is Right for You?",
+    metaTitle: "Schulte Table vs Duolingo: Which Daily Habit Wins?",
     metaDescription:
       "Compare Schulte Table and Duolingo for daily habit-building, focus, and language learning. See which fits your goals — or use both.",
     keywords: [
@@ -1098,7 +1098,7 @@ export const ALTERNATIVES = [
     category: "Meditation App",
     emoji: "🧘",
     heroSubtitle: "Passive calm through meditation vs. active focus through drilling.",
-    metaTitle: "Schulte Table vs Headspace: Meditation or Active Focus Training?",
+    metaTitle: "Schulte Table vs Headspace: Meditate or Train Focus?",
     metaDescription:
       "Schulte Table vs Headspace compared for calm, mindfulness, and active attention training. See which approach fits your focus goals.",
     keywords: [
@@ -1155,7 +1155,7 @@ export const ALTERNATIVES = [
     category: "Meditation & Sleep App",
     emoji: "😌",
     heroSubtitle: "Relaxation and sleep vs. alertness and concentration.",
-    metaTitle: "Schulte Table vs Calm: Relaxation App or Active Focus Trainer?",
+    metaTitle: "Schulte Table vs Calm: Relax App or Focus Trainer?",
     metaDescription:
       "Compare Schulte Table and the Calm app for relaxation, sleep, and active focus training. See which fits your goals right now.",
     keywords: [
@@ -1212,7 +1212,7 @@ export const ALTERNATIVES = [
     category: "Focus & Productivity App",
     emoji: "🌳",
     heroSubtitle: "Blocks distraction passively vs. builds attention actively.",
-    metaTitle: "Schulte Table vs Forest App: Blocking Distractions or Training Focus?",
+    metaTitle: "Schulte Table vs Forest App: Focus Tool Compared",
     metaDescription:
       "Compare Schulte Table and the Forest app for staying focused. See the difference between blocking distractions and actively training attention.",
     keywords: [
@@ -1269,7 +1269,7 @@ export const ALTERNATIVES = [
     category: "Cognitive Testing Platform",
     emoji: "🔬",
     heroSubtitle: "Scientific cognitive measurement vs. everyday training you can do for free.",
-    metaTitle: "Schulte Table vs Cambridge Brain Sciences: Testing or Everyday Training?",
+    metaTitle: "Schulte Table vs Cambridge Brain Sciences: Compared",
     metaDescription:
       "Compare Schulte Table and Cambridge Brain Sciences for cognitive testing versus everyday attention training. See which fits your needs.",
     keywords: [
@@ -1326,7 +1326,7 @@ export const ALTERNATIVES = [
     category: "IQ Testing Sites",
     emoji: "📊",
     heroSubtitle: "One-time score vs. a repeatable training exercise.",
-    metaTitle: "Schulte Table vs Online IQ Tests: Score Yourself or Train Daily?",
+    metaTitle: "Schulte Table vs Online IQ Tests: Score or Train?",
     metaDescription:
       "Compare Schulte Table and online IQ tests for measuring versus training cognitive ability. See which fits what you're actually trying to do.",
     keywords: [
@@ -1383,7 +1383,7 @@ export const ALTERNATIVES = [
     category: "Reaction Time Testing Site",
     emoji: "⚡",
     heroSubtitle: "Tests your reflexes vs. trains your visual attention.",
-    metaTitle: "Schulte Table vs Human Benchmark: Reflex Testing or Focus Training?",
+    metaTitle: "Schulte Table vs Human Benchmark: Reflex or Focus?",
     metaDescription:
       "Compare Schulte Table and Human Benchmark for reaction time testing versus visual attention training. See which fits your goals.",
     keywords: [

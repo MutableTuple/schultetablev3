@@ -17,20 +17,20 @@ export const metadata = {
     title: "Contact Us | Schulte Table",
     description:
       "Reach out to the Schulte Table team for support, feedback, or inquiries.",
-    url: "https://schultetable.com/support",
+    url: "https://www.schultetable.com/support",
     siteName: "Schulte Table",
     type: "website",
-    images: [{ url: "https://schultetable.com/og-image.jpg" }],
+    images: [{ url: "https://www.schultetable.com/og-image.jpg" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Contact Us | Schulte Table",
     description:
       "Have questions or feedback about Schulte Table? Contact us today!",
-    images: ["https://schultetable.com/og-image.jpg"],
+    images: ["https://www.schultetable.com/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://schultetable.com/support",
+    canonical: "https://www.schultetable.com/support",
   },
 };
 
@@ -40,11 +40,11 @@ const jsonLd = {
   name: "Contact Us - Schulte Table",
   description:
     "Contact Schulte Table team for support, questions, or business inquiries.",
-  url: "https://schultetable.com/support",
+  url: "https://www.schultetable.com/support",
   mainEntity: {
     "@type": "Organization",
     name: "Schulte Table",
-    url: "https://schultetable.com",
+    url: "https://www.schultetable.com",
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",

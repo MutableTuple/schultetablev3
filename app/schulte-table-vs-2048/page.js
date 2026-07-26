@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "2048");
 
 export const metadata = {
-  title: "Schulte Table vs 2048: Which Number Game Trains Your Brain?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs 2048: Which Number Game Trains Your Brain?" },
   description: "Schulte Table vs 2048 compared — casual number-merging strategy vs. structured attention training. See which fits your goals.",
   keywords: [
     "schulte table vs 2048",
@@ -14,12 +16,12 @@ export const metadata = {
     "2048 focus training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-2048",
+    canonical: "https://www.schultetable.com/schulte-table-vs-2048",
   },
   openGraph: {
     title: "Schulte Table vs 2048: Which Number Game Trains Your Brain?",
     description: "Schulte Table vs 2048 compared — casual number-merging strategy vs. structured attention training. See which fits your goals.",
-    url: "https://schultetable.com/schulte-table-vs-2048",
+    url: "https://www.schultetable.com/schulte-table-vs-2048",
     type: "article",
   },
 };

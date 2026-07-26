@@ -9,7 +9,7 @@ function generate6DigitToken() {
 
 async function sendTokenToEmail(email, token) {
   try {
-    const res = await fetch(`https://schultetable.com/api/send-verification`, {
+    const res = await fetch(`https://www.schultetable.com/api/send-verification`, {
       method: "POST",
       body: JSON.stringify({ email, token }),
       headers: {

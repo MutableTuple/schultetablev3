@@ -74,7 +74,7 @@ export const metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://schultetable.com"),
+  metadataBase: new URL("https://www.schultetable.com"),
   alternates: {
     canonical: "/",
   },
@@ -82,7 +82,7 @@ export const metadata = {
     title: "Schulte Table - Improve Reading Speed & Focus Training",
     description:
       "Train your brain with Schulte Tables - a scientifically proven method to enhance peripheral vision, reading speed, and concentration. Free online tool for visual perception training.",
-    url: "https://schultetable.com",
+    url: "https://www.schultetable.com",
     siteName: "Play Schulte Table Online",
     locale: "en_US",
     type: "website",

@@ -31,7 +31,7 @@ export const metadata = {
     "mental agility for beginners",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/4x4/easy",
+    canonical: "https://www.schultetable.com/schulte-table/4x4/easy",
   },
 };
 

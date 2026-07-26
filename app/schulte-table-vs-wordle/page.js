@@ -4,7 +4,9 @@ import { ALTERNATIVES } from "@/app/_data/alternatives";
 const data = ALTERNATIVES.find((a) => a.slug === "wordle");
 
 export const metadata = {
-  title: "Schulte Table vs Wordle: Daily Word Game or Focus Trainer?",
+  // absolute — bypasses the root layout's "%s | Schulte Table" template,
+  // which would otherwise push these titles past ~60 chars.
+  title: { absolute: "Schulte Table vs Wordle: Daily Word Game or Focus Trainer?" },
   description: "Schulte Table vs Wordle compared — vocabulary and guessing vs visual attention and speed. Find out which fits your daily brain-training goals.",
   keywords: [
     "schulte table vs wordle",
@@ -14,12 +16,12 @@ export const metadata = {
     "vocabulary game vs attention training"
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-wordle",
+    canonical: "https://www.schultetable.com/schulte-table-vs-wordle",
   },
   openGraph: {
     title: "Schulte Table vs Wordle: Daily Word Game or Focus Trainer?",
     description: "Schulte Table vs Wordle compared — vocabulary and guessing vs visual attention and speed. Find out which fits your daily brain-training goals.",
-    url: "https://schultetable.com/schulte-table-vs-wordle",
+    url: "https://www.schultetable.com/schulte-table-vs-wordle",
     type: "article",
   },
 };

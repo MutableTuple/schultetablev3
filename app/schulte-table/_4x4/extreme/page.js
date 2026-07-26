@@ -33,7 +33,7 @@ export const metadata = {
     "focus challenge 4x4 grid",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table/4x4/extreme",
+    canonical: "https://www.schultetable.com/schulte-table/4x4/extreme",
   },
 };
 

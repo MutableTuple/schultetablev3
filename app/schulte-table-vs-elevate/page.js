@@ -17,13 +17,13 @@ export const metadata = {
     "speed reading training",
   ],
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-vs-elevate",
+    canonical: "https://www.schultetable.com/schulte-table-vs-elevate",
   },
   openGraph: {
     title: "Schulte Table vs Elevate: Which Brain Training App Is Better?",
     description:
       "Compare Schulte Table and Elevate for focus, concentration, reading, attention and cognitive training.",
-    url: "https://schultetable.com/schulte-table-vs-elevate",
+    url: "https://www.schultetable.com/schulte-table-vs-elevate",
     type: "article",
   },
 };

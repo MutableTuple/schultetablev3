@@ -16,7 +16,7 @@ export const metadata = {
     title: "Create an Account - Schulte Table",
     description:
       "Join Schulte Table to sharpen your mind, track your progress, and access premium brain training tools.",
-    url: "https://schultetable.com/auth/register",
+    url: "https://www.schultetable.com/auth/register",
     siteName: "Schulte Table",
     type: "website",
   },

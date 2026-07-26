@@ -12,13 +12,13 @@ export const metadata = {
   description:
     "Free online Schulte Table trainer — no app to download. Choose your grid size (3×3 to 9×9), play instantly, and track your speed as you improve.",
   alternates: {
-    canonical: "https://schultetable.com/",
+    canonical: "https://www.schultetable.com/",
   },
   openGraph: {
     title: "Play Schulte Table Online Free",
     description:
       "Train your brain with the classic Schulte Table exercise. Improve attention span and reading speed while having fun.",
-    url: "https://schultetable.com/",
+    url: "https://www.schultetable.com/",
     siteName: "Play Schulte Table Online",
     images: [
       {
@@ -54,7 +54,7 @@ export default async function Home() {
     "@context": "https://schema.org",
     "@type": "Game",
     name: "Schulte Table Online",
-    url: "https://schultetable.com/",
+    url: "https://www.schultetable.com/",
     description:
       "Train your brain with Schulte Table. Improve focus, speed reading, and peripheral vision. Free online brain game.",
     image:
@@ -71,7 +71,7 @@ export default async function Home() {
     publisher: {
       "@type": "Organization",
       name: "Schulte Table",
-      url: "https://schultetable.com/",
+      url: "https://www.schultetable.com/",
     },
   };
 

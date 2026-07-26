@@ -36,14 +36,14 @@ export const metadata = {
   ],
 
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-for-teachers",
+    canonical: "https://www.schultetable.com/schulte-table-for-teachers",
   },
 
   openGraph: {
     title: "Schulte Table for Teachers",
     description:
       "Improve concentration, focus, attention control, and cognitive performance with Schulte Table training.",
-    url: "https://schultetable.com/schulte-table-for-teachers",
+    url: "https://www.schultetable.com/schulte-table-for-teachers",
     siteName: "Schulte Table",
     type: "website",
   },

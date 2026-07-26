@@ -34,14 +34,14 @@ export const metadata = {
   ],
 
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-for-pilots",
+    canonical: "https://www.schultetable.com/schulte-table-for-pilots",
   },
 
   openGraph: {
     title: "Schulte Table for Pilots",
     description:
       "Improve visual scanning, concentration, situational awareness, and cognitive performance with Schulte Table exercises designed for pilots.",
-    url: "https://schultetable.com/schulte-table-for-pilots",
+    url: "https://www.schultetable.com/schulte-table-for-pilots",
     siteName: "Schulte Table",
     type: "website",
   },

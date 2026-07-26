@@ -36,14 +36,14 @@ export const metadata = {
   ],
 
   alternates: {
-    canonical: "https://schultetable.com/schulte-table-for-readers",
+    canonical: "https://www.schultetable.com/schulte-table-for-readers",
   },
 
   openGraph: {
     title: "Schulte Table for Readers",
     description:
       "Improve reading speed, concentration, visual attention, and focus with Schulte Table exercises designed for readers.",
-    url: "https://schultetable.com/schulte-table-for-readers",
+    url: "https://www.schultetable.com/schulte-table-for-readers",
     siteName: "Schulte Table",
     type: "website",
   },

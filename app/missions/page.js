@@ -24,7 +24,7 @@ export const metadata = {
     title: "Schulte Table Missions",
     description:
       "Take part in our interactive Missions to enhance focus and memory. Compete with others and track your achievements.",
-    url: "https://schultetable.com/missions", // update if route is different
+    url: "https://www.schultetable.com/missions", // update if route is different
     siteName: "Schulte Table",
     type: "website",
   },
