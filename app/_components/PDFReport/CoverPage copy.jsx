@@ -220,7 +220,7 @@ function CoverPage() {
       <div className="flex flex-col md:flex-row gap-10 md:items-end justify-between">
         <div>
           <div className="text-yellow-400 uppercase text-xs tracking-[0.4em] font-bold mb-4">
-            Monthly Report · May 2026
+            Monthly Report · June 2026
           </div>
           <h1 className="text-5xl md:text-7xl font-black leading-[0.9] tracking-tight">
             Cognitive
@@ -299,7 +299,7 @@ function CoverPage() {
           performance.
         </p>
         <div className="text-zinc-600 text-sm mt-6 uppercase tracking-widest">
-          — AI Cognitive Coach · May 2026
+          — AI Cognitive Coach · June 2026
         </div>
       </div>
     </div>
@@ -681,7 +681,7 @@ export default function Report() {
                 Report Preview
               </div>
               <h3 className="text-white text-3xl md:text-4xl font-black">
-                Monthly Brain Report — May 2026
+                Monthly Brain Report — June 2026
               </h3>
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-600">
@@ -705,7 +705,7 @@ export default function Report() {
                   <div className="w-3 h-3 rounded-full bg-green-500/70" />
                 </div>
                 <div className="flex-1 bg-white/[0.04] rounded-lg px-4 py-1.5 text-zinc-600 text-xs text-center font-mono">
-                  schultetable.app/report/may-2026
+                  schultetable.app/report/June-2026
                 </div>
               </div>
               <CoverPage />

@@ -53,6 +53,37 @@ const MODE_LABELS = {
   maths: "Maths",
 };
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Adaptive next-board helpers — pure functions, no component state needed.
+───────────────────────────────────────────────────────────────────────────── */
+function clampDifficulty(index) {
+  return DIFFICULTIES[Math.min(DIFFICULTIES.length - 1, Math.max(0, index))];
+}
+
+function clampGrid(size, mode, isMobile) {
+  const cap = mode === "alphabet" ? 5 : isMobile ? 4 : 6;
+  return Math.min(cap, Math.max(3, size));
+}
+
+// Was the player struggling, cruising, or somewhere in between? Drives the
+// next board's size/difficulty so a rough game is followed by something
+// easier, not a bigger, harder one.
+function assessPerformance({
+  accuracy,
+  avgReactionTimeMs,
+  mistakes,
+  totalTiles,
+}) {
+  const mistakeRatio = totalTiles > 0 ? mistakes / totalTiles : 0;
+  if (accuracy < 75 || avgReactionTimeMs > 1500 || mistakeRatio > 0.25) {
+    return "struggled";
+  }
+  if (accuracy >= 92 && avgReactionTimeMs < 900 && mistakes === 0) {
+    return "excelled";
+  }
+  return "steady";
+}
+
 /* ===========================================
    COMPONENT
 =========================================== */
@@ -110,6 +141,11 @@ export default function SchulteTable({
   });
 
   const previousScoreRef = useRef(null);
+  // Guards against stale async writes when gridSize/difficulty/mode change
+  // faster than the 40ms generation delay can resolve (e.g. adaptive
+  // board-change immediately followed by a rapid Play Again tap).
+  const generationTokenRef = useRef(0);
+
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
@@ -194,20 +230,16 @@ export default function SchulteTable({
   const gridOptions = isMobile
     ? baseGridOptions.filter((g) => g <= 4)
     : baseGridOptions;
-  useEffect(() => {
-    if (mode === "alphabet" && gridSize > 5) {
-      setGridSize(5);
-    }
-  }, [mode, gridSize, setGridSize]);
 
-  // New — same idea as the alphabet clamp above: a 5×5/6×6 board picked on
-  // desktop would overflow a phone screen, so drop it to 4×4 the moment the
-  // viewport crosses into mobile width (e.g. resizing, or rotating a tablet).
+  // A 5×5/6×6 board picked on desktop would overflow a phone screen, so
+  // drop it to 4×4 the moment the viewport crosses into mobile width (e.g.
+  // resizing, or rotating a tablet).
   useEffect(() => {
     if (isMobile && gridSize > 4) {
       setGridSize(4);
     }
   }, [isMobile, gridSize, setGridSize]);
+
   const pickRandom = (arr, exclude) => {
     const options = arr.filter((v) => v !== exclude);
     return options[Math.floor(Math.random() * options.length)] ?? arr[0];
@@ -225,6 +257,7 @@ export default function SchulteTable({
      GENERATE NEW GRID WHEN SETTINGS CHANGE
   =========================================== */
   useEffect(() => {
+    const token = ++generationTokenRef.current;
     const generate = async () => {
       setLoadingBoard(true);
       setNumbers([]);
@@ -236,11 +269,14 @@ export default function SchulteTable({
         const generator =
           GAME_MODES[mode]?.generate || GAME_MODES.number.generate;
         await new Promise((r) => setTimeout(r, 40));
+        // A newer generation superseded this one (e.g. adaptive board
+        // change immediately followed by another change) — drop it.
+        if (token !== generationTokenRef.current) return;
         setNumbers(generator(totalTiles, difficulty));
       } catch (err) {
         console.error("Grid generation error:", err);
       } finally {
-        setLoadingBoard(false);
+        if (token === generationTokenRef.current) setLoadingBoard(false);
       }
     };
     generate();
@@ -250,6 +286,11 @@ export default function SchulteTable({
      START GAME
   =========================================== */
   const handleStartGame = () => {
+    // Board isn't ready yet — ignore rapid double-taps so a game can't
+    // start against a half-generated grid.
+    if (loadingBoard) return;
+    generationTokenRef.current += 1;
+
     setConfettiActive(false);
     setClickedNumbers([]);
     setClickData([]);
@@ -510,6 +551,42 @@ export default function SchulteTable({
 
     maybeShowLeaderboardPopup();
     window.dispatchEvent(new Event("game-finished"));
+
+    // Adapt the NEXT board to how this one went. A rough game (low
+    // accuracy, slow reactions, lots of mistakes) steps difficulty/size
+    // DOWN instead of handing back something bigger and harder — that's
+    // how you overwhelm someone who's already struggling. A clean game
+    // steps up. This only updates state for the next round; it does NOT
+    // start a new game — the player still has to hit Play Again/Start.
+    const difficultyIndex = DIFFICULTIES.indexOf(difficulty);
+    const performance = assessPerformance({
+      accuracy,
+      avgReactionTimeMs: avg,
+      mistakes,
+      totalTiles,
+    });
+
+    let nextMode = mode;
+    let nextDifficulty = difficulty;
+    let nextGrid = gridSize;
+
+    if (performance === "struggled") {
+      nextDifficulty = clampDifficulty(difficultyIndex - 1);
+      nextGrid = clampGrid(gridSize - 1, mode, isMobile);
+    } else if (performance === "excelled") {
+      nextDifficulty = clampDifficulty(difficultyIndex + 1);
+      // Only introduce a new symbol set on a clean win — someone already
+      // struggling shouldn't also have to relearn a mode.
+      nextMode = Math.random() < 0.3 ? pickRandom(MODES, mode) : mode;
+      nextGrid = clampGrid(gridSize + 1, nextMode, isMobile);
+    } else {
+      nextMode = Math.random() < 0.35 ? pickRandom(MODES, mode) : mode;
+      nextGrid = clampGrid(gridSize, nextMode, isMobile);
+    }
+
+    setMode(nextMode);
+    setDifficulty(nextDifficulty);
+    setGridSize(nextGrid);
   };
 
   useEffect(() => {
@@ -583,21 +660,43 @@ export default function SchulteTable({
       )}
 
       {!gameStarted && !showLargeScreenSummaryModal && (
-        <div onClick={handleStartGame}>
-          <StartBtn />
+        <div
+          onClick={loadingBoard ? undefined : handleStartGame}
+          aria-disabled={loadingBoard}
+        >
+          {loadingBoard ? (
+            <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-muted-foreground text-sm font-bold">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Preparing board...
+            </div>
+          ) : (
+            <StartBtn />
+          )}
         </div>
       )}
 
       {/* QUICK PILLS — grid / difficulty / mode, no dropdown needed */}
       {!gameStarted && !showLargeScreenSummaryModal && (
         <div className="flex items-center justify-center gap-1.5">
-          <button onClick={randomizeGrid} className={randomPillClass}>
+          <button
+            onClick={randomizeGrid}
+            disabled={loadingBoard}
+            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""}`}
+          >
             {gridSize}×{gridSize}
           </button>
-          <button onClick={randomizeDifficulty} className={randomPillClass}>
+          <button
+            onClick={randomizeDifficulty}
+            disabled={loadingBoard}
+            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""}`}
+          >
             {difficulty}
           </button>
-          <button onClick={randomizeMode} className={randomPillClass}>
+          <button
+            onClick={randomizeMode}
+            disabled={loadingBoard}
+            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""}`}
+          >
             {MODE_LABELS[mode]}
           </button>
         </div>
@@ -703,10 +802,12 @@ export default function SchulteTable({
         onUpgrade={() => router.push("/get-pro")}
         onClose={() => setShowQuickSheet(false)}
         onPlayAgain={() => {
+          if (loadingBoard) return;
           setShowQuickSheet(false);
           handleStartGame();
         }}
         onTryRecommendation={({ grid, mode }) => {
+          if (loadingBoard) return;
           setShowQuickSheet(false);
           setPendingStart({ grid, mode });
         }}

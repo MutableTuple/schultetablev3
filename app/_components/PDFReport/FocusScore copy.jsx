@@ -607,7 +607,7 @@ export default function FocusScore({ data = {} }) {
             fontWeight: 600,
           }}
         >
-          Focus Score · May 2026
+          Focus Score · June 2026
         </span>
         <div
           style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.05)" }}
@@ -748,7 +748,7 @@ export default function FocusScore({ data = {} }) {
             <StatPill
               label="Best Score"
               value={bestScore}
-              sub="Day 26, May"
+              sub="Day 26, June"
               accent="#FDE68A"
               delay={0.2}
             />
@@ -1058,7 +1058,7 @@ export default function FocusScore({ data = {} }) {
               marginBottom: 10,
             }}
           >
-            AI Insight · May 2026
+            AI Insight · June 2026
           </div>
           <p
             style={{

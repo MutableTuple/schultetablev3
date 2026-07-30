@@ -20,6 +20,7 @@ import { trackEvent } from "@/app/_lib/ga";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import Link from "next/link";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Constants
@@ -91,7 +92,7 @@ function buildInsight(gameSummaryData, history, isPersonalBest) {
   if (diff < -16) return "Blazing fast. You're in a flow state — ride it.";
   if (diff < -8) return "Clearly sharper than usual. Something clicked today.";
   if (diff < -3) return "Incrementally faster. The compound effect is real.";
-  if (diff > 16) return "Your brain's running on empty. Give it another try.";
+  if (diff > 16) return "Your brain's running on empty — here's why.";
   if (diff > 8)
     return "Slower today. Hydration, sleep, or stress? Worth checking.";
   return "Dialled in. Consistent performance is underrated.";
@@ -109,6 +110,24 @@ function getInsightType(gameSummaryData, history, isPersonalBest) {
   const diff = ((gameSummaryData.avgReactionTimeMs - avgPrev) / avgPrev) * 100;
   if (diff < -16) return "massive_positive";
   return "neutral";
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Report CTA copy — tied to the actual number the user just saw instead of a
+   generic "ready" label, so the click is driven by curiosity about *their*
+   result, not a static notice.
+───────────────────────────────────────────────────────────────────────────── */
+function buildReportCta(scoreDelta, accuracy) {
+  if (scoreDelta != null && scoreDelta <= -8) {
+    return `See why your score dropped ${Math.abs(scoreDelta)}%`;
+  }
+  if (scoreDelta != null && scoreDelta >= 8) {
+    return `Your score jumped ${scoreDelta}% — see the full picture`;
+  }
+  if (accuracy < 70) {
+    return `Your accuracy dipped to ${Math.round(accuracy)}% — see why`;
+  }
+  return "Your free Brain Report is ready";
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -400,13 +419,6 @@ function UpgradeCard({ copy, onOpen }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   FullUpgradeModal — Sheet on mobile / Dialog on desktop (matching the split
-   the main result body already uses), both height-capped with internal
-   scroll so nothing renders off-screen. Only closes via the X — outside
-   clicks, Escape, and swipe-to-dismiss are suppressed (Base UI prop names
-   assumed, verify against components/ui/dialog.jsx and sheet.jsx).
-───────────────────────────────────────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────────────────────────────
    FullUpgradeModal — Sheet on mobile / Dialog on desktop, both height-capped
    with internal scroll so nothing renders off-screen. Only closes via the X:
    `open` is hardcoded true and `onOpenChange` is a no-op, so Base UI's
@@ -457,7 +469,10 @@ function FullUpgradeModal({ onUpgrade, onClose, copy, history, isDesktop }) {
   const content = (
     <>
       <button
-        onClick={onClose}
+        onClick={() => {
+          trackEvent("upgrade_modal_closed", { source: "close_button" });
+          onClose?.();
+        }}
         className="absolute top-4 right-4 z-20 w-7 h-7 rounded-full flex items-center justify-center text-foreground/50 hover:bg-foreground/10 hover:text-foreground transition-colors"
       >
         <FaTimes size={13} />
@@ -678,9 +693,26 @@ export default function QuickResultBottomSheet({
 
     const dailyGamesToday = incrementDailyGames();
 
-    setScoreDelta(computeScoreDelta(gameSummaryData, history));
+    const delta = computeScoreDelta(gameSummaryData, history);
+    setScoreDelta(delta);
     setInsightText(buildInsight(gameSummaryData, history, pb));
     const insightType = getInsightType(gameSummaryData, history, pb);
+
+    trackEvent("result_sheet_viewed", {
+      score,
+      accuracy: gameSummaryData.accuracy,
+      score_delta: delta,
+      is_personal_best: pb,
+      games_remaining: gamesRemaining,
+      is_pro_user: !!isProUser,
+    });
+
+    if (gamesRemaining === 0) {
+      trackEvent("free_report_cta_viewed", {
+        score,
+        score_delta: delta,
+      });
+    }
 
     if (!isProUser) {
       const mode = getUpgradeMode({
@@ -755,6 +787,7 @@ export default function QuickResultBottomSheet({
       : scoreDelta != null && scoreDelta < -1
         ? "text-warning"
         : "text-muted-foreground";
+  const reportCtaText = buildReportCta(scoreDelta, accuracy);
 
   const bodyContent = (
     <>
@@ -821,18 +854,33 @@ export default function QuickResultBottomSheet({
       <Last5Insights history={historyRef.current} isProUser={isProUser} />
 
       {gamesRemaining === 0 && (
-        <button
-          onClick={() => {
-            trackEvent("view_free_report_clicked", {});
-            onViewReport?.();
-          }}
-          className="w-full mb-3 flex items-center justify-between rounded-none border border-success/30 bg-success/10 px-4 py-3"
-        >
-          <span className="flex items-center gap-2 text-sm font-bold text-success">
-            <FaBrain size={14} /> Your free Brain Report is ready
+        <Link href="/monthly-brain-report">
+          <button
+            onClick={() => {
+              trackEvent("view_free_report_clicked", {
+                score_delta: scoreDelta,
+                accuracy,
+              });
+              onViewReport?.();
+            }}
+            className="w-full mb-3 flex items-center justify-between gap-2 rounded-none bg-success px-4 py-3.5"
+          >
+            <span className="flex items-center gap-2 text-sm font-black text-white">
+              <FaBrain size={15} /> {reportCtaText}
+            </span>
+            <IoIosArrowRoundForward size={20} className="text-white shrink-0" />
+          </button>
+        </Link>
+      )}
+
+      {gamesRemaining > 0 && (
+        <div className="w-full mb-3 flex items-center gap-2 rounded-none border border-border bg-card px-4 py-3">
+          <FaLock size={11} className="text-muted-foreground shrink-0" />
+          <span className="text-xs font-semibold text-muted-foreground">
+            {gamesRemaining} more game{gamesRemaining === 1 ? "" : "s"} to
+            unlock your free Brain Report
           </span>
-          <IoIosArrowRoundForward size={18} className="text-success" />
-        </button>
+        </div>
       )}
 
       {!isProUser && upgradeCopy && (
@@ -850,6 +898,7 @@ export default function QuickResultBottomSheet({
           trackEvent("play_again_clicked", { source: "quick_result_sheet" });
           onPlayAgain();
         }}
+        variant="outline"
         className="w-full h-auto py-3 rounded-none font-bold text-sm"
       >
         Play Again
@@ -876,9 +925,21 @@ export default function QuickResultBottomSheet({
   return (
     <>
       {isDesktop ? (
-        <Dialog open onOpenChange={(open) => !open && onClose?.()}>
-          <DialogContent className="max-w-xs p-5 overflow-hidden rounded-none bg-background border-border">
+        <Dialog open onOpenChange={() => {}}>
+          <DialogContent
+            showCloseButton={false}
+            className="max-w-xs p-5 overflow-hidden rounded-none bg-background border-border "
+          >
             <DialogTitle className="sr-only">Game Results</DialogTitle>
+            <button
+              onClick={() => {
+                trackEvent("result_sheet_closed", { source: "close_button" });
+                onClose?.();
+              }}
+              className="absolute top-3 right-3 z-30 w-7 h-7 rounded-full flex items-center justify-center text-foreground/50 hover:bg-foreground/10 hover:text-foreground transition-colors"
+            >
+              <FaTimes size={13} />
+            </button>
             {confettiMode !== "none" && (
               <ConfettiCanvas intensity={confettiMode} />
             )}
@@ -886,12 +947,22 @@ export default function QuickResultBottomSheet({
           </DialogContent>
         </Dialog>
       ) : (
-        <Sheet open onOpenChange={(open) => !open && onClose?.()}>
+        <Sheet open onOpenChange={() => {}}>
           <SheetContent
+            showCloseButton={false}
             side="bottom"
-            className="max-h-[70dvh] p-0 gap-0 overflow-hidden rounded-none bg-background border-border"
+            className="max-h-[70dvh] p-0 gap-0 overflow-hidden rounded-none bg-background border-border relative"
           >
             <SheetTitle className="sr-only">Game Results</SheetTitle>
+            <button
+              onClick={() => {
+                trackEvent("result_sheet_closed", { source: "close_button" });
+                onClose?.();
+              }}
+              className="absolute top-3 right-3 z-30 w-7 h-7 rounded-full flex items-center justify-center text-foreground/50 hover:bg-foreground/10 hover:text-foreground transition-colors"
+            >
+              <FaTimes size={13} />
+            </button>
             {confettiMode !== "none" && (
               <ConfettiCanvas intensity={confettiMode} />
             )}

@@ -96,15 +96,15 @@ const breakdownRings = [
 ];
 
 const trendData = [
-  { day: "May 1", v: 58 },
-  { day: "May 5", v: 52 },
-  { day: "May 8", v: 61 },
-  { day: "May 12", v: 55 },
-  { day: "May 15", v: 68 },
-  { day: "May 18", v: 63 },
-  { day: "May 22", v: 74 },
-  { day: "May 26", v: 87 },
-  { day: "May 29", v: 82 },
+  { day: "June 1", v: 58 },
+  { day: "June 5", v: 52 },
+  { day: "June 8", v: 61 },
+  { day: "June 12", v: 55 },
+  { day: "June 15", v: 68 },
+  { day: "June 18", v: 63 },
+  { day: "June 22", v: 74 },
+  { day: "June 26", v: 87 },
+  { day: "June 29", v: 82 },
 ];
 
 // ─── Ring gauge — reusable circular progress ───────────────────────────────
@@ -155,7 +155,7 @@ function RingGauge({ value, size = 64, stroke = 6, color, children }) {
 // ─── Focus trend chart (Recharts) ──────────────────────────────────────────
 
 function TrendDot({ cx, cy, payload }) {
-  const isHighlight = payload.day === "May 26";
+  const isHighlight = payload.day === "June 26";
   if (!isHighlight) {
     return (
       <circle
@@ -448,7 +448,7 @@ export default function MonthlyReportCTA({ user }) {
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
                   Monthly Report
                 </p>
-                <p className="text-sm font-bold text-foreground">May 2026</p>
+                <p className="text-sm font-bold text-foreground">June 2026</p>
               </div>
             </div>
 
