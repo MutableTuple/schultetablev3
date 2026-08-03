@@ -188,7 +188,7 @@ function EmptyState() {
         Play your first game to see history here.
       </p>
       <a
-        href="/play"
+        href="/"
         className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-semibold hover:bg-foreground/85 transition-colors"
       >
         <Gamepad2 className="w-3.5 h-3.5" /> Play Now

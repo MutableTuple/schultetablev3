@@ -10,30 +10,39 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 export const metadata = {
-  title: "Schulte Table for Chess Players | Improve Board Vision & Focus",
+  title: {
+    absolute: "Schulte Table for Chess Players | Board Vision & Focus",
+  },
   description:
-    "Discover how Schulte Table training can help chess players improve board vision, concentration, calculation speed, pattern recognition, and mental endurance..",
+    "See how Schulte Table training helps chess players improve board vision, concentration, calculation speed, and pattern recognition.",
   keywords: [
-    "schulte table vs elevate",
-    "elevate vs schulte table",
-    "brain training comparison",
-    "best brain training app",
-    "schulte table focus",
-    "elevate review",
-    "schulte table review",
+    "schulte table for chess",
+    "chess board vision training",
+    "chess focus training",
+    "chess pattern recognition",
+    "schulte table chess players",
     "attention training",
     "focus training",
     "speed reading training",
   ],
   alternates: {
-    canonical: "https://www.schultetable.com/schulte-table-vs-elevate",
+    canonical: "https://www.schultetable.com/schulte-table-for-chess-players",
   },
   openGraph: {
-    title: "Schulte Table vs Elevate: Which Brain Training App Is Better?",
+    title: "Schulte Table for Chess Players | Board Vision & Focus",
     description:
-      "Compare Schulte Table and Elevate for focus, concentration, reading, attention and cognitive training.",
-    url: "https://www.schultetable.com/schulte-table-vs-elevate",
+      "See how Schulte Table training helps chess players improve board vision, concentration, and calculation speed.",
+    url: "https://www.schultetable.com/schulte-table-for-chess-players",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

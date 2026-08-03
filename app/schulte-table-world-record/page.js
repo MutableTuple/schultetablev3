@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "Schulte Table World Record: Fastest Times, Benchmarks & Elite Performance",
+  title: { absolute: "Schulte Table World Record & Fastest Times" },
   description:
     "Discover Schulte Table world record discussions, fastest completion times, elite benchmarks, average scores, and how to improve your Schulte Table performance.",
   keywords: [
@@ -25,7 +24,16 @@ export const metadata = {
     description:
       "See how your Schulte Table time compares against beginner, advanced and elite benchmarks.",
     url: "https://www.schultetable.com/schulte-table-world-record",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

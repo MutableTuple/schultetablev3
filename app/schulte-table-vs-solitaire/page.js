@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Solitaire: Relax or Train Focus?",
     description: "Schulte Table vs Solitaire compared for relaxation, strategy, and attention training. See which brain exercise fits your daily habit.",
     url: "https://www.schultetable.com/schulte-table-vs-solitaire",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

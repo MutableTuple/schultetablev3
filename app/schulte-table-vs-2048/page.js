@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs 2048: Which Number Game Trains Your Brain?",
     description: "Schulte Table vs 2048 compared — casual number-merging strategy vs. structured attention training. See which fits your goals.",
     url: "https://www.schultetable.com/schulte-table-vs-2048",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

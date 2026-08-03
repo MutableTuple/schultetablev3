@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Candy Crush: Fun or Real Training?",
     description: "Compare Schulte Table and Candy Crush Saga for focus, entertainment, and cognitive value. See which one actually trains your brain.",
     url: "https://www.schultetable.com/schulte-table-vs-candy-crush",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

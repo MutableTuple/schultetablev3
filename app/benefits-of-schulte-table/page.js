@@ -3,9 +3,9 @@ import React from "react";
 import Benefits from "../_components/Benefits";
 
 export const metadata = {
-  title: "Schulte Table Benefits - Proven Brain Training Results",
+  title: { absolute: "Schulte Table Benefits - Proven Brain Training Results" },
   description:
-    "Discover the scientifically-proven benefits of Schulte Table training. Improve focus, reading speed, peripheral vision, and cognitive performance with daily practice.",
+    "Discover the scientifically-proven benefits of Schulte Table training: improved focus, reading speed, peripheral vision, and cognitive performance.",
   keywords: [
     "schulte table benefits",
     "brain training benefits",
@@ -25,6 +25,14 @@ export const metadata = {
     url: "https://www.schultetable.com/benefits-of-schulte-table",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

@@ -1,10 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "Schulte Table for Programmers | Improve Focus, Attention & Coding Productivity",
+  title: { absolute: "Schulte Table for Programmers: Focus & Productivity" },
   description:
     "Discover how Schulte Tables can help programmers practice concentration, attention, visual scanning, and focus before coding, debugging, and deep work sessions.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-programmers",
+  },
+  openGraph: {
+    title: "Schulte Table for Programmers: Focus & Productivity",
+    description:
+      "Discover how Schulte Tables can help programmers practice concentration, attention, visual scanning, and focus before coding, debugging, and deep work sessions.",
+    url: "https://www.schultetable.com/schulte-table-for-programmers",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForProgrammersPage() {
@@ -373,28 +391,28 @@ export default function SchulteTableForProgrammersPage() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <Link
-              href="/schulte-table-for-focus"
+              href="/schulte-table-science"
               className="btn btn-outline justify-start"
             >
-              Schulte Table for Focus
+              The Science of Focus
             </Link>
 
             <Link
-              href="/schulte-table-for-productivity"
+              href="/schulte-table-for-remote-workers"
               className="btn btn-outline justify-start"
             >
-              Schulte Table for Productivity
+              Schulte Table for Remote Workers
             </Link>
 
             <Link
-              href="/schulte-table-for-brain-training"
+              href="/what-is-schulte-table"
               className="btn btn-outline justify-start"
             >
-              Schulte Table for Brain Training
+              What Is a Schulte Table?
             </Link>
 
             <Link
-              href="/schulte-table-benefits"
+              href="/benefits-of-schulte-table"
               className="btn btn-outline justify-start"
             >
               Schulte Table Benefits

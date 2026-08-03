@@ -11,11 +11,10 @@ import {
 } from "react-icons/fa";
 
 export const metadata = {
-  title:
-    "Schulte Table for Entrepreneurs | Improve Focus, Productivity & Mental Clarity",
+  title: { absolute: "Schulte Table for Entrepreneurs: Focus & Clarity" },
 
   description:
-    "Train concentration, attention control, productivity, and mental clarity with Schulte Table exercises for entrepreneurs. Improve focus, decision-making, deep work, and cognitive performance.",
+    "Train concentration, attention control, and mental clarity with Schulte Table exercises built for entrepreneurs and deep focus work.",
 
   keywords: [
     "schulte table for entrepreneurs",
@@ -46,6 +45,14 @@ export const metadata = {
     url: "https://www.schultetable.com/schulte-table-for-entrepreneurs",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 
   twitter: {
@@ -414,10 +421,6 @@ export default function SchulteTableForEntrepreneursPage() {
               className="btn btn-outline"
             >
               Chess Players
-            </Link>
-
-            <Link href="/schulte-table-for-writers" className="btn btn-outline">
-              Writers
             </Link>
 
             <Link href="/schulte-table-for-adults" className="btn btn-outline">

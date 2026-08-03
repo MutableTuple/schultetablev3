@@ -1,11 +1,27 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Schulte Table vs Lumosity: Which Brain Training Tool Is Better?",
+  title: { absolute: "Schulte Table vs Lumosity: Which Is Better?" },
   description:
     "Compare Schulte Table and Lumosity for focus, attention, concentration, speed reading, cognitive training and brain exercises.",
   alternates: {
     canonical: "https://www.schultetable.com/schulte-table-vs-lumosity",
+  },
+  openGraph: {
+    title: "Schulte Table vs Lumosity: Which Is Better?",
+    description:
+      "Compare Schulte Table and Lumosity for focus, attention, concentration, speed reading, and cognitive training.",
+    url: "https://www.schultetable.com/schulte-table-vs-lumosity",
+    siteName: "Schulte Table",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

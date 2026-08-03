@@ -2,7 +2,7 @@ import React from "react";
 import GlobalLeaderboard from "../_components/Leaderboard/GlobalLeaderboard";
 import { getCurrentUser } from "../_utils/getCurrentUser";
 export const metadata = {
-  title: "Global Leaderboard - Schulte Table",
+  title: { absolute: "Global Leaderboard - Schulte Table" },
   description:
     "Check out the top players on the global Schulte Table leaderboard. See who’s got the fastest times and best accuracy.",
   keywords: [
@@ -18,6 +18,14 @@ export const metadata = {
     url: "https://www.schultetable.com/leaderboard",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -34,6 +42,7 @@ export default async function page() {
 
   return (
     <div>
+      <h1 className="sr-only">Global Schulte Table Leaderboard</h1>
       <GlobalLeaderboard user={user} />
     </div>
   );

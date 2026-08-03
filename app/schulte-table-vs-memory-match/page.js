@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Memory Match: Memory or Attention Training?",
     description: "Schulte Table vs Memory Match (Concentration) compared for short-term memory and visual attention. Find out which trains your brain better.",
     url: "https://www.schultetable.com/schulte-table-vs-memory-match",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

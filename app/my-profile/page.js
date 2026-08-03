@@ -13,6 +13,10 @@ export const metadata = {
   alternates: {
     canonical: "https://www.schultetable.com/my-profile",
   },
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function Page() {

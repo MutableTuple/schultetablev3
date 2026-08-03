@@ -24,7 +24,16 @@ export const metadata = {
     description:
       "Comparing Schulte Table against Sudoku, Wordle, Chess, Lumosity, Elevate, and more brain games and focus apps.",
     url: "https://www.schultetable.com/schulte-table-alternatives",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

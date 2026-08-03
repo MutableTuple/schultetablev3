@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs CogniFit: Test or Train Your Brain?",
     description: "Compare Schulte Table and CogniFit for cognitive assessment, training, and everyday focus. See which fits your goals and budget.",
     url: "https://www.schultetable.com/schulte-table-vs-cognifit",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

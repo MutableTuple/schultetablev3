@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "What Is a Schulte Table? Benefits, Brain Training, Speed Reading & Focus",
+  title: { absolute: "What Is a Schulte Table? Benefits & Speed Reading" },
   description:
     "Learn what a Schulte Table is, how it works, its proven benefits for focus, concentration, peripheral vision and speed reading. Play Schulte Table online free.",
   keywords: [
@@ -24,11 +23,20 @@ export const metadata = {
     canonical: "https://www.schultetable.com/what-is-schulte-table",
   },
   openGraph: {
-    title: "What Is a Schulte Table? Benefits, Brain Training & Speed Reading",
+    title: "What Is a Schulte Table? Benefits & Speed Reading",
     description:
       "Discover how Schulte Tables improve focus, attention, visual perception and reading speed.",
     url: "https://www.schultetable.com/what-is-schulte-table",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 
@@ -634,6 +642,17 @@ export default function Page() {
                 </details>
               ))}
             </div>
+
+            <p className="text-center text-sm opacity-60 mt-8">
+              Also searched as "shulky table" or "shalty table"? See our{" "}
+              <Link
+                href="/shulky-table"
+                className="link link-primary font-semibold"
+              >
+                spelling guide
+              </Link>
+              .
+            </p>
           </section>
 
           {/* ── CTA ── */}

@@ -3,7 +3,7 @@ import WhatsNewFeatures from "../_components/WhatsNewFeatures";
 
 // ✅ SEO Metadata for Next.js App Router
 export const metadata = {
-  title: "What's New | Schulte Table App Updates",
+  title: { absolute: "What's New | Schulte Table App Updates" },
   description:
     "Check out the latest features and improvements in the Schulte Table game, including global rankings, confetti effects, and mobile optimizations.",
   keywords: [
@@ -16,11 +16,14 @@ export const metadata = {
     "confetti animation",
     "game enhancements",
   ],
+  alternates: {
+    canonical: "https://www.schultetable.com/features",
+  },
   openGraph: {
     title: "🚀 What's New in Schulte Table",
     description:
       "Explore new features like global confetti rankings, performance tracking, and mobile-friendly animations.",
-    url: "https://www.schultetable.com/whats-new",
+    url: "https://www.schultetable.com/features",
     siteName: "Schulte Table",
     images: [
       {

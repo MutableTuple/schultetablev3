@@ -29,7 +29,7 @@ export default function PageHeader({ isPro, user, userId }) {
         </div>
       </div>
       <Link
-        href="/play"
+        href="/"
         className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-semibold hover:bg-foreground/85 transition-all shrink-0 whitespace-nowrap"
       >
         Play More Games

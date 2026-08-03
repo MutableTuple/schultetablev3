@@ -6,11 +6,27 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
 export const metadata = {
-  title: "Frequently Asked Questions | Schulte Table Game",
+  title: { absolute: "Frequently Asked Questions | Schulte Table Game" },
   description:
     "Get answers to common questions about the Schulte Table, how to play, benefits, and tips for improving focus and speed.",
   alternates: {
     canonical: "https://www.schultetable.com/faq",
+  },
+  openGraph: {
+    title: "Frequently Asked Questions | Schulte Table Game",
+    description:
+      "Get answers to common questions about the Schulte Table, how to play, benefits, and tips for improving focus and speed.",
+    url: "https://www.schultetable.com/faq",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 
@@ -102,9 +118,9 @@ export default function FAQPage() {
       <Navbar />
 
       <section id="faq" className="container mx-auto max-w-6xl p-4 sm:p-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
           Frequently Asked Questions
-        </h2>
+        </h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-2">
           Common questions about the Schulte Table, practice tips, and game
           usage.

@@ -11,11 +11,10 @@ import {
 } from "react-icons/fa";
 
 export const metadata = {
-  title:
-    "Schulte Table for Readers | Improve Reading Speed, Focus & Concentration",
+  title: { absolute: "Schulte Table for Readers: Speed & Focus" },
 
   description:
-    "Train your eyes and brain with Schulte Table exercises for readers. Improve reading speed, concentration, visual attention, peripheral vision, and information processing while reading books, articles, and study materials.",
+    "Train your eyes and brain with Schulte Table exercises for readers. Improve reading speed, concentration, visual attention, and peripheral vision.",
 
   keywords: [
     "schulte table for readers",
@@ -46,6 +45,14 @@ export const metadata = {
     url: "https://www.schultetable.com/schulte-table-for-readers",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 
   twitter: {
@@ -442,9 +449,6 @@ export default function SchulteTableForReadersPage() {
               Seniors
             </Link>
 
-            <Link href="/schulte-table-for-writers" className="btn btn-outline">
-              Writers
-            </Link>
           </div>
         </section>
       </div>

@@ -83,13 +83,13 @@ const UserProfile = ({ user }) => {
           )}
 
           {/* Name */}
-          <h2
+          <h1
             className={`card-title text-xl tracking-tight ${
               isPro ? "text-yellow-400" : ""
             }`}
           >
             {user.name}
-          </h2>
+          </h1>
 
           {/* Username */}
           <p

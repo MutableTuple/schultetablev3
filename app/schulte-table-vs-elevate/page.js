@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Schulte Table vs Elevate: Which Brain Training App Is Better?",
+  title: { absolute: "Schulte Table vs Elevate: Which Is Better?" },
   description:
     "Compare Schulte Table and Elevate for focus, concentration, attention, speed reading, communication skills, math training and cognitive development.",
   keywords: [
@@ -20,11 +20,20 @@ export const metadata = {
     canonical: "https://www.schultetable.com/schulte-table-vs-elevate",
   },
   openGraph: {
-    title: "Schulte Table vs Elevate: Which Brain Training App Is Better?",
+    title: "Schulte Table vs Elevate: Which Is Better?",
     description:
       "Compare Schulte Table and Elevate for focus, concentration, reading, attention and cognitive training.",
     url: "https://www.schultetable.com/schulte-table-vs-elevate",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

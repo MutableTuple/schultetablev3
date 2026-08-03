@@ -3,7 +3,7 @@ import React from "react";
 import HowToPlay from "../_components/HowToPlay";
 
 export const metadata = {
-  title: "How to Play Schulte Table - Boost Focus Fast",
+  title: { absolute: "How to Play Schulte Table - Boost Focus Fast" },
   description:
     "Learn how to play the Schulte Table game to improve your concentration, visual perception, and mental speed. Step-by-step guide for all levels.",
   keywords: [
@@ -25,6 +25,14 @@ export const metadata = {
     url: "https://www.schultetable.com/how-to-play-schulte-table",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

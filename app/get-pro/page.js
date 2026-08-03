@@ -4,9 +4,9 @@ import Pro from "../_components/Pro";
 import { getCurrentUser } from "../_utils/getCurrentUser";
 
 export const metadata = {
-  title: "Schulte Table Pro",
+  title: { absolute: "Schulte Table Pro" },
   description:
-    "Upgrade to Schulte Table Pro for exclusive features like detailed analytics, custom challenges, dark mode, and ad-free gameplay. Sharpen your mind with more control.",
+    "Upgrade to Schulte Table Pro for exclusive features like detailed analytics, custom challenges, dark mode, and ad-free gameplay.",
   keywords: [
     "Schulte Table Pro",
     "upgrade Schulte Table",
@@ -26,6 +26,14 @@ export const metadata = {
     url: "https://www.schultetable.com/get-pro",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

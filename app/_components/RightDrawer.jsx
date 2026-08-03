@@ -15,6 +15,7 @@ import {
   FileText,
   Check,
   BadgeCheck,
+  Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -137,7 +138,12 @@ export default function RightDrawer({
   const handleRandomCombo = () => {
     const randomMode =
       RANDOM_MODES[Math.floor(Math.random() * RANDOM_MODES.length)];
-    const gridPool = randomMode === "alphabet" ? [3, 4, 5] : [3, 4, 5, 6];
+    const gridPool =
+      randomMode === "alphabet"
+        ? [3, 4, 5]
+        : randomMode === "maths"
+          ? [3, 4, 5, 6, 7]
+          : [3, 4, 5, 6, 7, 8, 9];
     const randomGrid = gridPool[Math.floor(Math.random() * gridPool.length)];
     const randomDifficulty =
       RANDOM_DIFFICULTIES[
@@ -239,6 +245,27 @@ export default function RightDrawer({
               </div>
             )}
           </div> */}
+
+          {/* BRAIN TEST CTA — always visible, guest or not */}
+          <div className="px-4">
+            <Link
+              href="/official-brain-test"
+              className="group relative overflow-hidden flex items-center gap-3 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-4 hover:border-primary/60 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+            >
+              <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-primary text-primary-foreground animate-glow">
+                10 GAMES
+              </span>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/20 text-primary shrink-0 group-hover:scale-105 transition-transform">
+                <Brain size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-foreground">Take the Brain Test</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  10 games, ~5 min — unlock your full report
+                </p>
+              </div>
+            </Link>
+          </div>
 
           <div className="px-4">
             <DashedLabel>Brain Report</DashedLabel>

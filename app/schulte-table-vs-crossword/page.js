@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Crossword: Which Trains Focus Better?",
     description: "Compare Schulte Table and crossword puzzles for memory, vocabulary, focus, and speed. See which brain exercise matches your goals.",
     url: "https://www.schultetable.com/schulte-table-vs-crossword",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

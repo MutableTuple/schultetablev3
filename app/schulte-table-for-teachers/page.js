@@ -11,11 +11,10 @@ import {
 } from "react-icons/fa";
 
 export const metadata = {
-  title:
-    "Schulte Table for Teachers | Improve Focus, Attention & Mental Performance",
+  title: { absolute: "Schulte Table for Teachers: Focus & Performance" },
 
   description:
-    "Train concentration, attention control, focus, and mental performance with Schulte Table exercises for teachers. Improve classroom productivity, information processing, and cognitive skills.",
+    "Train concentration, attention control, and mental performance with Schulte Table exercises built for teachers to boost classroom productivity.",
 
   keywords: [
     "schulte table for teachers",
@@ -46,6 +45,14 @@ export const metadata = {
     url: "https://www.schultetable.com/schulte-table-for-teachers",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 
   twitter: {
@@ -397,10 +404,6 @@ export default function SchulteTableForTeachersPage() {
 
             <Link href="/schulte-table-for-readers" className="btn btn-outline">
               Readers
-            </Link>
-
-            <Link href="/schulte-table-for-writers" className="btn btn-outline">
-              Writers
             </Link>
 
             <Link

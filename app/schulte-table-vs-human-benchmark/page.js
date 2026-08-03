@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Human Benchmark: Reflex or Focus?",
     description: "Compare Schulte Table and Human Benchmark for reaction time testing versus visual attention training. See which fits your goals.",
     url: "https://www.schultetable.com/schulte-table-vs-human-benchmark",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

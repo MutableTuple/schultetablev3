@@ -6,9 +6,9 @@ import Navbar from "../_components/Navbar";
 export const metadata = {
   // No manual "| Schulte Table" suffix — the root layout's title.template
   // already appends that. Adding it here would double it up.
-  title: "Monthly Brain Report",
+  title: { absolute: "Monthly Brain Report" },
   description:
-    "Track your reaction time, consistency, and focus trends over time with a personalized Monthly Brain Report. See if your mind is getting sharper — or lost in the scroll.",
+    "Track your reaction time, consistency, and focus trends over time with a personalized Monthly Brain Report.",
   keywords: [
     "monthly brain report",
     "cognitive performance tracker",
@@ -24,10 +24,7 @@ export const metadata = {
     follow: true,
   },
   alternates: {
-    // Relative, resolved against metadataBase in the root layout — same
-    // pattern the root layout itself uses for "/". Will correctly resolve
-    // to the www domain once metadataBase is fixed there (see note below).
-    canonical: "/monthly-brain-report",
+    canonical: "https://www.schultetable.com/monthly-brain-report",
   },
   openGraph: {
     title: "Monthly Brain Report — Track Your Cognitive Performance",

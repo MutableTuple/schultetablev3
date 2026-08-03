@@ -8,9 +8,9 @@ const chakra = Chakra_Petch({
 });
 
 export const metadata = {
-  title: "Schulte Table FAQ - Everything You Need to Know",
+  title: { absolute: "Schulte Table FAQ - Everything You Need to Know" },
   description:
-    "Frequently asked questions about Schulte Tables, focus training, concentration exercises, brain training, world records, benefits, and how to play online for free.",
+    "Frequently asked questions about Schulte Tables, focus training, concentration exercises, brain training, and world records.",
   keywords: [
     "schulte table faq",
     "what is schulte table",
@@ -23,6 +23,22 @@ export const metadata = {
   ],
   alternates: {
     canonical: "https://www.schultetable.com/schulte-table-faq",
+  },
+  openGraph: {
+    title: "Schulte Table FAQ - Everything You Need to Know",
+    description:
+      "Frequently asked questions about Schulte Tables, focus training, concentration exercises, brain training, and world records.",
+    url: "https://www.schultetable.com/schulte-table-faq",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 
@@ -317,6 +333,10 @@ export default function Page() {
             What Is Schulte Table
           </Link>
 
+          <Link href="/shulky-table" className="btn btn-outline h-20">
+            Spelling Guide
+          </Link>
+
           <Link
             href="/how-to-play-schulte-table"
             className="btn btn-outline h-20"
@@ -324,7 +344,7 @@ export default function Page() {
             How To Play
           </Link>
 
-          <Link href="/schulte-table-benefits" className="btn btn-outline h-20">
+          <Link href="/benefits-of-schulte-table" className="btn btn-outline h-20">
             Benefits
           </Link>
 
@@ -354,10 +374,10 @@ export default function Page() {
           </Link>
 
           <Link
-            href="/schulte-table-for-focus"
+            href="/schulte-table-science"
             className="btn btn-outline h-20"
           >
-            Focus Training
+            The Science
           </Link>
         </div>
       </section>

@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Duolingo: Which Daily Habit Wins?",
     description: "Compare Schulte Table and Duolingo for daily habit-building, focus, and language learning. See which fits your goals — or use both.",
     url: "https://www.schultetable.com/schulte-table-vs-duolingo",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

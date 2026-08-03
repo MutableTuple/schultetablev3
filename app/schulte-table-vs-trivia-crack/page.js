@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Trivia Crack: Trivia or Focus Drill?",
     description: "Compare Schulte Table and Trivia Crack for knowledge, social competition, and attention training. See which fits your brain-training goals.",
     url: "https://www.schultetable.com/schulte-table-vs-trivia-crack",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

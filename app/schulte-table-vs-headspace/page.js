@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Headspace: Meditate or Train Focus?",
     description: "Schulte Table vs Headspace compared for calm, mindfulness, and active attention training. See which approach fits your focus goals.",
     url: "https://www.schultetable.com/schulte-table-vs-headspace",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

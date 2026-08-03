@@ -9,6 +9,8 @@ const quickLinks = [
   { href: "/get-pro", label: "Get Pro" },
   { href: "/support", label: "Support" },
   { href: "/schulte-table-faq", label: "FAQ" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/cookies", label: "Cookie Policy" },
 ];
 
 const learnLinks = [

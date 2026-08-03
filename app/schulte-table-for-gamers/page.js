@@ -1,10 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "Schulte Table for Gamers | Focus, Attention & Visual Scanning Training",
+  title: { absolute: "Schulte Table for Gamers: Focus & Visual Scanning" },
   description:
     "Learn how Schulte Tables can help gamers practice focus, attention, visual scanning, concentration, and mental preparation before gaming sessions.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-gamers",
+  },
+  openGraph: {
+    title: "Schulte Table for Gamers: Focus & Visual Scanning",
+    description:
+      "Learn how Schulte Tables can help gamers practice focus, attention, visual scanning, concentration, and mental preparation before gaming sessions.",
+    url: "https://www.schultetable.com/schulte-table-for-gamers",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForGamersPage() {

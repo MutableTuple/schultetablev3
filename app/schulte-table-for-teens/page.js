@@ -1,10 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "Schulte Table for Teens | Improve Focus, Study Performance & Concentration",
+  title: { absolute: "Schulte Table for Teens: Focus & Study Performance" },
   description:
     "Discover how Schulte Tables help teenagers improve concentration, study efficiency, visual attention, reading speed, memory, and cognitive performance.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-teens",
+  },
+  openGraph: {
+    title: "Schulte Table for Teens: Focus & Study Performance",
+    description:
+      "Discover how Schulte Tables help teenagers improve concentration, study efficiency, visual attention, reading speed, memory, and cognitive performance.",
+    url: "https://www.schultetable.com/schulte-table-for-teens",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForTeensPage() {

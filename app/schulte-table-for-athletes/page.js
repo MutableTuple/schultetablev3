@@ -13,9 +13,28 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 export const metadata = {
-  title: "Schulte Table for Athletes | Improve Focus, Reaction Time & Vision",
+  title: { absolute: "Schulte Table for Athletes: Focus & Reaction Time" },
   description:
     "Discover how Schulte Table training can help athletes improve concentration, peripheral vision, reaction speed, mental endurance, and on-field decision making.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-athletes",
+  },
+  openGraph: {
+    title: "Schulte Table for Athletes: Focus & Reaction Time",
+    description:
+      "Discover how Schulte Table training can help athletes improve concentration, peripheral vision, reaction speed, mental endurance, and on-field decision making.",
+    url: "https://www.schultetable.com/schulte-table-for-athletes",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForAthletesPage() {

@@ -23,7 +23,16 @@ export const metadata = {
     title: "Schulte Table vs Sudoku: Which Trains Your Brain Better?",
     description: "Compare Schulte Table and Sudoku for focus, attention, logic, and speed. See which brain exercise fits your goals — or use both.",
     url: "https://www.schultetable.com/schulte-table-vs-sudoku",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

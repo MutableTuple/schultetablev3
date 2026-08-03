@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs BrainHQ: Which Focus Trainer Wins?",
     description: "Schulte Table vs BrainHQ compared for scientific backing, cost, and focus training. Find out which brain exercise is right for you.",
     url: "https://www.schultetable.com/schulte-table-vs-brainhq",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

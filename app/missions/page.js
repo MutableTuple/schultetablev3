@@ -9,7 +9,7 @@ import NotLoggedInModal from "../_components/Modals/NotLoggedInModal";
 import { getCurrentUser } from "../_utils/getCurrentUser";
 
 export const metadata = {
-  title: "Schulte Table Missions",
+  title: { absolute: "Schulte Table Missions" },
   description:
     "Join Schulte Table Missions to improve your cognitive skills and focus. Track progress, earn rewards, and compete globally.",
   keywords: [
@@ -27,6 +27,14 @@ export const metadata = {
     url: "https://www.schultetable.com/missions", // update if route is different
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -54,6 +62,7 @@ export default async function page() {
         showLater={true}
       />
 
+      <h1 className="sr-only">Schulte Table Missions</h1>
       <MissionsHeader
         mission={mission}
         mission_completions={mission_completions}

@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Cambridge Brain Sciences: Compared",
     description: "Compare Schulte Table and Cambridge Brain Sciences for cognitive testing versus everyday attention training. See which fits your needs.",
     url: "https://www.schultetable.com/schulte-table-vs-cambridge-brain-sciences",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

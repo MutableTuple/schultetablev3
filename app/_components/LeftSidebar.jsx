@@ -6,6 +6,7 @@ import { ChevronUp, Settings } from "lucide-react";
 import GridAndDifficultySelector from "./GridAndDifficultySelector";
 import GoToLeaderboard from "./GoToLeaderboard";
 import AnalyticsBtn from "./AnalyticsBtn";
+import BrainTestBtn from "./BrainTestBtn";
 import UserAvatar from "./UserAvatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,6 +93,9 @@ export default function MobileSettingsSheet({
                 />
               </div>
             </Card>
+            <div className="mt-3">
+              <BrainTestBtn />
+            </div>
             <div className="grid grid-cols-2 gap-3 mt-3">
               <GoToLeaderboard />
               <AnalyticsBtn />

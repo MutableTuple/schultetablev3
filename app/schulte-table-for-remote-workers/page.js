@@ -11,11 +11,10 @@ import {
 } from "react-icons/fa";
 
 export const metadata = {
-  title:
-    "Schulte Table for Remote Workers | Improve Focus, Productivity & Deep Work",
+  title: { absolute: "Schulte Table for Remote Workers: Focus & Deep Work" },
 
   description:
-    "Train concentration, attention control, productivity, and deep work skills with Schulte Table exercises for remote workers. Improve focus while working from home and reduce distractions.",
+    "Train concentration, attention control, and deep work skills with Schulte Table exercises built for remote workers and focused home productivity.",
 
   keywords: [
     "schulte table for remote workers",
@@ -37,6 +36,23 @@ export const metadata = {
 
   alternates: {
     canonical: "https://www.schultetable.com/schulte-table-for-remote-workers",
+  },
+
+  openGraph: {
+    title: "Schulte Table for Remote Workers: Focus & Deep Work",
+    description:
+      "Train concentration, attention control, and deep work skills with Schulte Table exercises built for remote workers and focused home productivity.",
+    url: "https://www.schultetable.com/schulte-table-for-remote-workers",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

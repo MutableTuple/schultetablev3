@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Peak: Which Brain Training App Wins?",
     description: "Compare Schulte Table and Peak brain training app for focus, memory, and cognitive skills. See which fits your training goals and budget.",
     url: "https://www.schultetable.com/schulte-table-vs-peak",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

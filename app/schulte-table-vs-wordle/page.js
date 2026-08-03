@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Wordle: Daily Word Game or Focus Trainer?",
     description: "Schulte Table vs Wordle compared — vocabulary and guessing vs visual attention and speed. Find out which fits your daily brain-training goals.",
     url: "https://www.schultetable.com/schulte-table-vs-wordle",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

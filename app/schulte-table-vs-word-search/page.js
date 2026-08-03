@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Word Search: Which Visual Puzzle Is Better?",
     description: "Schulte Table vs Word Search puzzles compared for visual scanning, attention, and speed. See which is the better focus exercise.",
     url: "https://www.schultetable.com/schulte-table-vs-word-search",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

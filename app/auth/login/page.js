@@ -1,7 +1,7 @@
 import React from "react";
 import LoginForm from "@/app/_components/Auth/LoginForm";
 export const metadata = {
-  title: "Login",
+  title: { absolute: "Login" },
   description:
     "Login to your Schulte Table account to track your progress, access game analytics, and unlock personalized features.",
   keywords: [
@@ -18,6 +18,14 @@ export const metadata = {
     url: "https://www.schultetable.com/auth/login",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

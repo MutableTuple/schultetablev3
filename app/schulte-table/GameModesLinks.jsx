@@ -28,18 +28,26 @@ export default function GameModesLinks() {
           </Link>
         </li>
         <li>
-          <Link href="/schulte-table/4x4" className="link link-hover">
-            4x4 Mode
+          <Link
+            href="/schulte-table/3x3/impossible"
+            className="link link-hover"
+          >
+            3x3 Impossible Mode
           </Link>
         </li>
         <li>
-          <Link href="/schulte-table/5x5" className="link link-hover">
-            5x5 Mode
+          <Link href="/" className="link link-hover">
+            4x4–6x6 Grids (Play Now)
           </Link>
         </li>
         <li>
-          <Link href="/schulte-table/printable" className="link link-hover">
-            Printable Schulte Table
+          <Link href="/schulte-table/7x7" className="link link-hover">
+            7x7 Advanced
+          </Link>
+        </li>
+        <li>
+          <Link href="/schulte-table/9x9" className="link link-hover">
+            9x9 Largest Grid
           </Link>
         </li>
       </ul>

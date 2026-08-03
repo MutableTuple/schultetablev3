@@ -9,6 +9,13 @@ import Heatmap from "@/app/_components/PDFReport/Heatmap";
 import StreakCard from "@/app/_components/PDFReport/StreakCard";
 import ComparisonCard from "@/app/_components/PDFReport/ComparisonCard";
 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 const PAGES = [
   CoverPage,
   FocusScore,

@@ -10,10 +10,9 @@ import {
 } from "react-icons/fa";
 
 export const metadata = {
-  title:
-    "Schulte Table for Pilots | Improve Focus, Scanning & Situational Awareness",
+  title: { absolute: "Schulte Table for Pilots: Focus & Awareness" },
   description:
-    "Train like a pilot with Schulte Table exercises. Improve visual scanning speed, concentration, peripheral awareness, cognitive processing, and situational awareness for aviation training and flight operations.",
+    "Train like a pilot with Schulte Table exercises that build visual scanning speed, concentration, and situational awareness for flight training.",
 
   keywords: [
     "schulte table for pilots",
@@ -44,6 +43,14 @@ export const metadata = {
     url: "https://www.schultetable.com/schulte-table-for-pilots",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 
   twitter: {

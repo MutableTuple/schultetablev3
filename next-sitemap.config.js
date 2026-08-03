@@ -11,7 +11,7 @@ module.exports = {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/my-profile", "/api"],
+        disallow: ["/my-profile", "/api", "/report"],
       },
     ],
   },
@@ -36,6 +36,7 @@ module.exports = {
       { loc: "/cookies", priority: 0.3 },
       { loc: "/privacy", priority: 0.3 },
       { loc: "/what-is-schulte-table", priority: 0.7 },
+      { loc: "/shulky-table", priority: 0.6 },
       { loc: "/schulte-table-faq", priority: 0.6 },
       { loc: "/schulte-table-history", priority: 0.5 },
       { loc: "/schulte-table-research", priority: 0.5 },
@@ -111,6 +112,8 @@ module.exports = {
       ...difficulties.map((diff) => `/schulte-table/3x3/${diff}`),
       "/schulte-table/3x3/mode",
       ...modes.map((mode) => `/schulte-table/3x3/mode/${mode}`),
+      "/schulte-table/7x7",
+      "/schulte-table/9x9",
     ].map((path) => ({
       loc: path,
       priority: path.includes("/mode") ? 0.6 : 0.7,

@@ -59,7 +59,7 @@ export default function GridAndDifficultySelector({
   }, []);
 
   const gridOptions = useMemo(() => {
-    const base = isLargeScreen ? [3, 4, 5, 6, 7, 8] : [3, 4, 5];
+    const base = isLargeScreen ? [3, 4, 5, 6, 7, 8, 9] : [3, 4, 5];
     if (mode === "alphabet") return [3, 4, 5];
     if (mode === "maths") return base.filter((g) => g <= 7);
     return base;

@@ -3,7 +3,7 @@ import React from "react";
 import BackButton from "../_components/BackButton";
 
 export const metadata = {
-  title: "Cookies Policy",
+  title: { absolute: "Cookies Policy | Schulte Table" },
   description:
     "Learn how SchulteTable.com uses cookies to improve your experience, analyze traffic patterns, and maintain optimal site functionality.",
   keywords: [
@@ -14,6 +14,9 @@ export const metadata = {
     "user tracking policy",
     "SchulteTable.com",
   ],
+  alternates: {
+    canonical: "https://www.schultetable.com/cookies",
+  },
   openGraph: {
     title: "Cookies Policy - Schulte Table",
     description:
@@ -21,6 +24,14 @@ export const metadata = {
     url: "https://www.schultetable.com/cookies",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

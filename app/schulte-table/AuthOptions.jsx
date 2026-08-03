@@ -9,7 +9,7 @@ export default function AuthOptions({ user }) {
         <>
           <li>
             <Link
-              href="/login"
+              href="/auth/login"
               className="link link-hover flex items-center gap-1"
             >
               <FaSignInAlt /> Login
@@ -17,7 +17,7 @@ export default function AuthOptions({ user }) {
           </li>
           <li>
             <Link
-              href="/register"
+              href="/auth/register"
               className="link link-hover flex items-center gap-1"
             >
               <FaUserPlus /> Register
@@ -28,7 +28,7 @@ export default function AuthOptions({ user }) {
         <>
           <li className="text-green-600 text-sm">Logged in as {user.email}</li>
           <li>
-            <Link href="/dashboard" className="link link-hover">
+            <Link href="/my-profile" className="link link-hover">
               Dashboard
             </Link>
           </li>

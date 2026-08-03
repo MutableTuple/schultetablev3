@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Schulte Table Science: Research, Psychology & Cognitive Training",
+  title: { absolute: "Schulte Table Science: Research & Cognitive Training" },
   description:
     "Explore the science behind Schulte Tables — attention, visual search, concentration, and processing speed research.",
   alternates: {
@@ -30,7 +30,16 @@ export const metadata = {
     description:
       "Explore the psychology and cognitive research behind Schulte Table training.",
     url: "https://www.schultetable.com/schulte-table-science",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

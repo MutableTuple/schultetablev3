@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Chess: Strategy Training or Focus Training?",
     description: "Schulte Table vs Chess.com compared for focus, strategic thinking, and mental training. See which is right for your cognitive goals.",
     url: "https://www.schultetable.com/schulte-table-vs-chess",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

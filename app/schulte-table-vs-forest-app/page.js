@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Forest App: Focus Tool Compared",
     description: "Compare Schulte Table and the Forest app for staying focused. See the difference between blocking distractions and actively training attention.",
     url: "https://www.schultetable.com/schulte-table-vs-forest-app",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Happify: Mood Training or Focus Training?",
     description: "Compare Schulte Table and Happify for mood, stress relief, and attention training. See which fits your mental wellness or focus goals.",
     url: "https://www.schultetable.com/schulte-table-vs-happify",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

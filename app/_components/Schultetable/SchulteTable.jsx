@@ -42,7 +42,7 @@ const LeaderBoardPopup = dynamic(
 
 const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
 
-const GRID_SIZES = [3, 4, 5, 6];
+const GRID_SIZES = [3, 4, 5, 6, 7, 8, 9];
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Extreme", "Impossible"];
 const MODES = ["number", "word", "alphabet", "emoji", "maths"];
 const MODE_LABELS = {
@@ -60,8 +60,12 @@ function clampDifficulty(index) {
   return DIFFICULTIES[Math.min(DIFFICULTIES.length - 1, Math.max(0, index))];
 }
 
-function clampGrid(size, mode, isMobile) {
-  const cap = mode === "alphabet" ? 5 : isMobile ? 4 : 6;
+export function clampGrid(size, mode, isMobile) {
+  let cap;
+  if (mode === "alphabet") cap = 5;
+  else if (isMobile) cap = 4;
+  else if (mode === "maths") cap = 7;
+  else cap = 9;
   return Math.min(cap, Math.max(3, size));
 }
 
@@ -117,6 +121,10 @@ export default function SchulteTable({
   const [showQuickSheet, setShowQuickSheet] = useState(false);
   const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
   const [instantFeedback, setInstantFeedback] = useState(null);
+  // Set right after a completed round, cleared once the next round has
+  // auto-started (or once a modal takes over and the player should drive
+  // manually instead).
+  const [autoAdvance, setAutoAdvance] = useState(false);
   const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
     if (typeof window === "undefined") return 0;
     const saved = localStorage.getItem("games_since_last_report");
@@ -226,7 +234,12 @@ export default function SchulteTable({
         )[0];
   }, [numbers, clickedNumbers]);
 
-  const baseGridOptions = mode === "alphabet" ? [3, 4, 5] : GRID_SIZES;
+  const baseGridOptions =
+    mode === "alphabet"
+      ? [3, 4, 5]
+      : mode === "maths"
+        ? GRID_SIZES.filter((g) => g <= 7)
+        : GRID_SIZES;
   const gridOptions = isMobile
     ? baseGridOptions.filter((g) => g <= 4)
     : baseGridOptions;
@@ -268,7 +281,9 @@ export default function SchulteTable({
       try {
         const generator =
           GAME_MODES[mode]?.generate || GAME_MODES.number.generate;
-        await new Promise((r) => setTimeout(r, 40));
+        // Just enough to let the loading skeleton actually paint a frame
+        // before swapping in the new board — not a deliberate wait.
+        await new Promise((r) => setTimeout(r, 0));
         // A newer generation superseded this one (e.g. adaptive board
         // change immediately followed by another change) — drop it.
         if (token !== generationTokenRef.current) return;
@@ -516,6 +531,17 @@ export default function SchulteTable({
         `${position === 1 ? "🔥 You're #1 globally!" : `You're #${position} globally!`} ⏱ ${timeTaken.toFixed(2)}s`,
       );
     } else {
+      // Every finish deserves a little celebration, not just podium
+      // finishes — lighter burst, same instant trigger.
+      setConfettiConfig({
+        angle: 90,
+        spread: 100,
+        startVelocity: window.innerWidth < 768 ? 18 : 28,
+        elementCount: window.innerWidth < 768 ? 40 : 70,
+        duration: 1400,
+        colors: ["#F3A83C", "#5B8DEF", "#43C6AC"],
+      });
+      setTimeout(() => setConfettiActive(true), 80);
       toast(`Completed in ${timeTaken.toFixed(2)}s 👏`);
     }
 
@@ -587,7 +613,39 @@ export default function SchulteTable({
     setMode(nextMode);
     setDifficulty(nextDifficulty);
     setGridSize(nextGrid);
+
+    // Keep the session moving — the next round starts itself once the new
+    // board is ready, instead of waiting on a manual Start tap. Skipped
+    // below if a modal (results sheet / leaderboard popup) ends up taking
+    // over this round instead.
+    setAutoAdvance(true);
   };
+
+  // Auto-continue into the next round after a completed game. Bails out if
+  // a popup claimed this round instead — that already re-engages the
+  // player, a board silently starting underneath it would just be confusing.
+  useEffect(() => {
+    if (!autoAdvance) return;
+    if (gameStarted || loadingBoard) return;
+    if (showQuickSheet || showLeaderboardPopup || showLargeScreenSummaryModal) {
+      setAutoAdvance(false);
+      return;
+    }
+
+    const t = setTimeout(() => {
+      handleStartGame();
+      setAutoAdvance(false);
+    }, 900);
+
+    return () => clearTimeout(t);
+  }, [
+    autoAdvance,
+    gameStarted,
+    loadingBoard,
+    showQuickSheet,
+    showLeaderboardPopup,
+    showLargeScreenSummaryModal,
+  ]);
 
   useEffect(() => {
     if (!user) return;
@@ -705,7 +763,7 @@ export default function SchulteTable({
         <div className="w-full max-w-[240px] flex flex-col items-center gap-1.5 mt-1">
           <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
             <div
-              className="h-full rounded-full bg-primary transition-all duration-300"
+              className="h-full rounded-full bg-primary transition-all duration-150"
               style={{
                 width: `${Math.min((gamesSincePopup / POPUP_INTERVAL) * 100, 100)}%`,
               }}

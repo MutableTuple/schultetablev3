@@ -1,4 +1,25 @@
 import { evaluate, format } from "mathjs";
+
+// Board completion depends on every tile holding a UNIQUE value — the click
+// handler tracks progress by value, so two tiles sharing a value collapse
+// into a single "next target" and the second tile can never be reached,
+// making the round mathematically unwinnable. Every random generator below
+// must go through this instead of pushing raw Math.random() results.
+function generateUniqueValues(total, generateOne, maxAttempts = total * 200) {
+  const seen = new Set();
+  const result = [];
+  let attempts = 0;
+  while (result.length < total && attempts < maxAttempts) {
+    attempts++;
+    const value = generateOne();
+    if (!seen.has(value)) {
+      seen.add(value);
+      result.push(value);
+    }
+  }
+  return result;
+}
+
 export const GAME_MODES = {
   number: {
     label: "Number Schulte",
@@ -9,15 +30,15 @@ export const GAME_MODES = {
         case "Medium":
           return shuffle(Array.from({ length: total }, (_, i) => i + 1));
         case "Hard":
-          return Array.from({ length: total }, () =>
+          return generateUniqueValues(total, () =>
             Math.floor(Math.random() * 999 + 1),
           );
         case "Extreme":
-          return Array.from({ length: total }, () =>
+          return generateUniqueValues(total, () =>
             Math.floor(Math.random() * 9999 + 1000),
           );
         case "Impossible":
-          return Array.from({ length: total }, () =>
+          return generateUniqueValues(total, () =>
             Math.random().toString(36).substring(2, 6).toUpperCase(),
           );
         default:
@@ -442,16 +463,12 @@ export const GAME_MODES = {
         "🍊",
         "🍋",
       ];
-      const comboEmojis = (count) => {
-        const combos = [];
-        for (let i = 0; i < count; i++) {
-          const mix = shuffle(mediumEmojis)
+      const comboEmojis = (count) =>
+        generateUniqueValues(count, () =>
+          shuffle(mediumEmojis)
             .slice(0, Math.floor(Math.random() * 2) + 2)
-            .join("");
-          combos.push(mix);
-        }
-        return combos;
-      };
+            .join(""),
+        );
 
       switch (difficulty) {
         case "Easy":

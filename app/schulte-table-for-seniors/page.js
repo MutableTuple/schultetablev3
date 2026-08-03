@@ -1,10 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "Schulte Table for Seniors | Brain Exercise for Focus, Attention & Mental Activity",
+  title: { absolute: "Schulte Table for Seniors: Focus & Mental Activity" },
   description:
-    "Learn how Schulte Tables can help seniors stay mentally active by practicing attention, concentration, visual scanning, and cognitive engagement through simple daily exercises.",
+    "Learn how Schulte Tables help seniors stay mentally active by practicing attention, concentration, and visual scanning through simple daily exercises.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-seniors",
+  },
+  openGraph: {
+    title: "Schulte Table for Seniors: Focus & Mental Activity",
+    description:
+      "Learn how Schulte Tables help seniors stay mentally active by practicing attention, concentration, and visual scanning through simple daily exercises.",
+    url: "https://www.schultetable.com/schulte-table-for-seniors",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForSeniorsPage() {

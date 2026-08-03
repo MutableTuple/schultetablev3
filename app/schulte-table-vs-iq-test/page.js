@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Online IQ Tests: Score or Train?",
     description: "Compare Schulte Table and online IQ tests for measuring versus training cognitive ability. See which fits what you're actually trying to do.",
     url: "https://www.schultetable.com/schulte-table-vs-iq-test",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

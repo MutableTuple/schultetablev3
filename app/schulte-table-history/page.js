@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Schulte Table History: Origins, Walter Schulte & Evolution",
+  title: { absolute: "Schulte Table History: Origins & Evolution" },
   description:
     "Discover the history of the Schulte Table, its inventor Walter Schulte, its role in psychology, speed reading, and modern brain training.",
   keywords: [
@@ -11,6 +11,25 @@ export const metadata = {
     "walter schulte",
     "schulte table origin",
   ],
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-history",
+  },
+  openGraph: {
+    title: "Schulte Table History: Origins & Evolution",
+    description:
+      "Discover the history of the Schulte Table, its inventor Walter Schulte, and its role in psychology and modern brain training.",
+    url: "https://www.schultetable.com/schulte-table-history",
+    siteName: "Schulte Table",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function Page() {

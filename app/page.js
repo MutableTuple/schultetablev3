@@ -4,6 +4,7 @@ import { supabase } from "./_lib/supabase";
 import HomeMain from "./_components/HomeMain";
 import ClientShell from "./_components/ClientShell";
 import FloatingMonthlyReportBtnNudge from "./_components/FloatingMontlyReportBtnNudge";
+import FloatingBrainTestNudge from "./_components/FloatingBrainTestNudge";
 
 export const metadata = {
   title: {
@@ -99,6 +100,7 @@ export default async function Home() {
         }
       />
       <ClientShell user={user} />
+      <FloatingBrainTestNudge />
       <FloatingMonthlyReportBtnNudge />
     </>
   );

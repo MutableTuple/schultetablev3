@@ -30,7 +30,7 @@ export default function WhatsNewFeatures() {
     <div className="max-w-2xl mx-auto p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-6 sm:mb-8">
         <div className="w-2 h-6 sm:h-8 bg-primary rounded-full"></div>
-        <h2 className="text-xl sm:text-2xl font-bold">What's New</h2>
+        <h1 className="text-xl sm:text-2xl font-bold">What's New</h1>
       </div>
 
       <div className="space-y-3 sm:space-y-4">

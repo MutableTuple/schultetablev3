@@ -2,9 +2,9 @@ import Link from "next/link";
 import React from "react";
 import BackButton from "../_components/BackButton";
 export const metadata = {
-  title: "Privacy Policy",
+  title: { absolute: "Privacy Policy | Schulte Table" },
   description:
-    "Review SchulteTable.com's privacy policy to understand how we collect, use, and protect your personal data. Stay informed about your rights and our responsibilities.",
+    "Review SchulteTable.com's privacy policy to understand how we collect, use, and protect your personal data and privacy rights.",
   keywords: [
     "Privacy Policy",
     "Schulte Table privacy",
@@ -13,13 +13,24 @@ export const metadata = {
     "data usage",
     "SchulteTable.com",
   ],
+  alternates: {
+    canonical: "https://www.schultetable.com/privacy",
+  },
   openGraph: {
     title: "Privacy Policy - Schulte Table",
     description:
       "Learn how SchulteTable.com collects and protects your data. Read our full privacy policy including cookies and tracking details.",
-    url: "https://www.schultetable.com/privacy-policy",
+    url: "https://www.schultetable.com/privacy",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

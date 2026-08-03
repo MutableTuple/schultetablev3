@@ -1,10 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title:
-    "Schulte Table for Adults | Improve Focus, Concentration & Mental Performance",
+  title: { absolute: "Schulte Table for Adults: Focus & Mental Performance" },
   description:
     "Discover how Schulte Tables can help adults improve focus, concentration, visual attention, mental processing speed, productivity, and cognitive performance.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-adults",
+  },
+  openGraph: {
+    title: "Schulte Table for Adults: Focus & Mental Performance",
+    description:
+      "Discover how Schulte Tables can help adults improve focus, concentration, visual attention, mental processing speed, productivity, and cognitive performance.",
+    url: "https://www.schultetable.com/schulte-table-for-adults",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForAdultsPage() {

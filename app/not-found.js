@@ -85,7 +85,7 @@ export default function NotFound() {
       {/* Secondary links */}
       <div className="flex gap-6 text-sm text-base-content/50">
         <Link
-          href="/dashboard"
+          href="/my-profile"
           className="hover:text-base-content transition-colors"
         >
           Dashboard

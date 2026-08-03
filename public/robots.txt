@@ -1,6 +1,9 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /my-profile
+Disallow: /api
+Disallow: /report
 
 # Host
 Host: https://www.schultetable.com

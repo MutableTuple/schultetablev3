@@ -1,9 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Schulte Table Research: Studies, Evidence & Cognitive Science",
+  title: { absolute: "Schulte Table Research: Studies & Cognitive Science" },
   description:
     "Explore Schulte Table research, psychology studies, attention science, visual search training, concentration development and cognitive performance.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-research",
+  },
+  openGraph: {
+    title: "Schulte Table Research: Studies & Cognitive Science",
+    description:
+      "Explore Schulte Table research, psychology studies, attention science, and visual search training for cognitive performance.",
+    url: "https://www.schultetable.com/schulte-table-research",
+    siteName: "Schulte Table",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function Page() {

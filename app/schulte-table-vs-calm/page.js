@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Calm: Relax App or Focus Trainer?",
     description: "Compare Schulte Table and the Calm app for relaxation, sleep, and active focus training. See which fits your goals right now.",
     url: "https://www.schultetable.com/schulte-table-vs-calm",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

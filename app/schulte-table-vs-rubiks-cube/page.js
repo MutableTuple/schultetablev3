@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Rubik's Cube: Which Trains Focus?",
     description: "Schulte Table vs Rubik's Cube compared for spatial reasoning, muscle memory, and focus training. See which suits your goals.",
     url: "https://www.schultetable.com/schulte-table-vs-rubiks-cube",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

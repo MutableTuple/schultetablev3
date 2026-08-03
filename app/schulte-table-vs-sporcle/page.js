@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Sporcle: Trivia Recall or Focus Training?",
     description: "Schulte Table vs Sporcle compared for knowledge recall, quizzing, and attention training. Find the right brain exercise for your goals.",
     url: "https://www.schultetable.com/schulte-table-vs-sporcle",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

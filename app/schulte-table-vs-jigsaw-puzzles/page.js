@@ -22,7 +22,16 @@ export const metadata = {
     title: "Schulte Table vs Jigsaw Puzzles: Relax or Train?",
     description: "Compare Schulte Table and jigsaw puzzles for relaxation, pattern recognition, and focus training. See which fits your goals.",
     url: "https://www.schultetable.com/schulte-table-vs-jigsaw-puzzles",
+    siteName: "Schulte Table",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 };
 

@@ -11,11 +11,10 @@ import {
 } from "react-icons/fa";
 
 export const metadata = {
-  title:
-    "Schulte Table for Designers | Improve Focus, Visual Attention & Creativity",
+  title: { absolute: "Schulte Table for Designers: Focus & Creativity" },
 
   description:
-    "Train visual attention, concentration, pattern recognition, and creative focus with Schulte Table exercises for designers. Improve attention to detail, visual processing, and design productivity.",
+    "Train visual attention, concentration, and pattern recognition with Schulte Table exercises built for designers to boost creative focus and productivity.",
 
   keywords: [
     "schulte table for designers",
@@ -46,6 +45,14 @@ export const metadata = {
     url: "https://www.schultetable.com/schulte-table-for-designers",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
 
   twitter: {
@@ -387,10 +394,6 @@ export default function SchulteTableForDesignersPage() {
 
             <Link href="/schulte-table-for-readers" className="btn btn-outline">
               Readers
-            </Link>
-
-            <Link href="/schulte-table-for-writers" className="btn btn-outline">
-              Writers
             </Link>
 
             <Link

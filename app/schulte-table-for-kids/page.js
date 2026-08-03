@@ -1,9 +1,28 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Schulte Table for Kids | Improve Focus, Attention & Learning",
+  title: { absolute: "Schulte Table for Kids: Focus, Attention & Learning" },
   description:
-    "Learn how Schulte Tables help children improve concentration, visual perception, reading speed, attention span, memory, and cognitive development through fun brain training exercises.",
+    "Learn how Schulte Tables help children improve concentration, visual perception, reading speed, attention span, and memory through fun exercises.",
+  alternates: {
+    canonical: "https://www.schultetable.com/schulte-table-for-kids",
+  },
+  openGraph: {
+    title: "Schulte Table for Kids: Focus, Attention & Learning",
+    description:
+      "Learn how Schulte Tables help children improve concentration, visual perception, reading speed, attention span, and memory through fun exercises.",
+    url: "https://www.schultetable.com/schulte-table-for-kids",
+    siteName: "Schulte Table",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
+  },
 };
 
 export default function SchulteTableForKidsPage() {

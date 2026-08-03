@@ -3,7 +3,7 @@ import ContactForm from "../_components/Support/ContactForm";
 import Navbar from "../_components/Navbar";
 
 export const metadata = {
-  title: "Contact Us | Schulte Table",
+  title: { absolute: "Contact Us | Schulte Table" },
   description:
     "Get in touch with the Schulte Table team. Have questions, feedback, or need support? Fill out our contact form and we'll get back to you quickly.",
   keywords: [
@@ -20,7 +20,14 @@ export const metadata = {
     url: "https://www.schultetable.com/support",
     siteName: "Schulte Table",
     type: "website",
-    images: [{ url: "https://www.schultetable.com/og-image.jpg" }],
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

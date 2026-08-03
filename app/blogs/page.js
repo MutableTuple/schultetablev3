@@ -17,9 +17,17 @@ export const metadata = {
     title: "Blogs - Schulte Table",
     description:
       "Explore expert articles on brain training, focus, and cognitive performance. Learn how to stay sharp.",
-    url: "https://www.schultetable.com/blog",
+    url: "https://www.schultetable.com/blogs",
     siteName: "Schulte Table",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Schulte Table Training Interface",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
