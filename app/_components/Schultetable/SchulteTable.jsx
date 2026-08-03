@@ -121,10 +121,6 @@ export default function SchulteTable({
   const [showQuickSheet, setShowQuickSheet] = useState(false);
   const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
   const [instantFeedback, setInstantFeedback] = useState(null);
-  // Set right after a completed round, cleared once the next round has
-  // auto-started (or once a modal takes over and the player should drive
-  // manually instead).
-  const [autoAdvance, setAutoAdvance] = useState(false);
   const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
     if (typeof window === "undefined") return 0;
     const saved = localStorage.getItem("games_since_last_report");
@@ -613,39 +609,7 @@ export default function SchulteTable({
     setMode(nextMode);
     setDifficulty(nextDifficulty);
     setGridSize(nextGrid);
-
-    // Keep the session moving — the next round starts itself once the new
-    // board is ready, instead of waiting on a manual Start tap. Skipped
-    // below if a modal (results sheet / leaderboard popup) ends up taking
-    // over this round instead.
-    setAutoAdvance(true);
   };
-
-  // Auto-continue into the next round after a completed game. Bails out if
-  // a popup claimed this round instead — that already re-engages the
-  // player, a board silently starting underneath it would just be confusing.
-  useEffect(() => {
-    if (!autoAdvance) return;
-    if (gameStarted || loadingBoard) return;
-    if (showQuickSheet || showLeaderboardPopup || showLargeScreenSummaryModal) {
-      setAutoAdvance(false);
-      return;
-    }
-
-    const t = setTimeout(() => {
-      handleStartGame();
-      setAutoAdvance(false);
-    }, 900);
-
-    return () => clearTimeout(t);
-  }, [
-    autoAdvance,
-    gameStarted,
-    loadingBoard,
-    showQuickSheet,
-    showLeaderboardPopup,
-    showLargeScreenSummaryModal,
-  ]);
 
   useEffect(() => {
     if (!user) return;

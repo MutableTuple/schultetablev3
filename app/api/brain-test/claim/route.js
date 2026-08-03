@@ -1,6 +1,5 @@
 import { createUserClient } from "@/app/_lib/supabaseServer";
 import { supabaseAdmin } from "@/app/_lib/supabaseAdmin";
-
 // Retroactively attaches a logged-in user's id to Brain Test rounds that
 // were saved anonymously (user_id null) while they were still a guest.
 // Uses the service-role client for the UPDATE since RLS won't generally let
