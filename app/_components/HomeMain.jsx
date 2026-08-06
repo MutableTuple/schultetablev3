@@ -114,6 +114,20 @@ export default function HomeMain({ user, error, header }) {
             />
           </main>
         </div>
+
+        {/* SCROLL CUE — the game area is a full viewport, so without this the
+            guide, progress rail, and FAQ below it are invisible to anyone who
+            doesn't scroll on spec. Only 22% of sessions currently fire a
+            scroll event, which is the number this is aimed at. Hidden once the
+            game is running so it can't distract mid-round. */}
+        {!gameStarted && (
+          <a
+            href="#below-the-game"
+            className="absolute bottom-3 inset-x-0 z-10 mx-auto w-fit rounded-full border border-border bg-background/80 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+          >
+            Your streak, rank &amp; the full guide ↓
+          </a>
+        )}
       </div>
 
       {/* RIGHT DRAWER */}

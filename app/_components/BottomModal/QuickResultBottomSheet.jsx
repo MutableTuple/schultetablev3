@@ -11,12 +11,13 @@ import {
   FaTimes,
   FaShieldAlt,
   FaBullseye,
-  FaStar,
-  FaUser,
+  FaFire,
+  FaShareAlt,
 } from "react-icons/fa";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { HiSparkles } from "react-icons/hi2";
 import { trackEvent } from "@/app/_lib/ga";
+import { recordGameCompleted } from "@/app/_utils/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -28,8 +29,6 @@ import Link from "next/link";
 const GUEST_HISTORY_KEY = "schulte_history_guest";
 const USER_HISTORY_KEY_PREFIX = "schulte_history_user_";
 const BEST_SCORE_KEY = "schulte_best_score";
-const DAILY_GAMES_KEY = "schulte_daily_games";
-const DAILY_GAMES_DATE_KEY = "schulte_daily_games_date";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    History helper (pure fn, no component dependency)
@@ -50,18 +49,10 @@ function loadHistory(userId) {
   }
 }
 
-function incrementDailyGames() {
-  const today = new Date().toISOString().split("T")[0];
-  const storedDate = localStorage.getItem(DAILY_GAMES_DATE_KEY);
-  if (storedDate !== today) {
-    localStorage.setItem(DAILY_GAMES_DATE_KEY, today);
-    localStorage.setItem(DAILY_GAMES_KEY, "1");
-    return 1;
-  }
-  const current = Number(localStorage.getItem(DAILY_GAMES_KEY) || 0) + 1;
-  localStorage.setItem(DAILY_GAMES_KEY, current.toString());
-  return current;
-}
+/* Daily-game counting, streaks, and the rank ladder all moved to
+   @/app/_utils/progress so the homepage rail and this sheet read and write the
+   same records. The old local incrementDailyGames() also used a UTC date key,
+   which broke streaks at the wrong hour for anyone not on UTC. */
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Score delta vs. recent average
@@ -383,6 +374,69 @@ function Last5Insights({ history, isProUser }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   AchievementStrip — the "I got somewhere" line.
+
+   The sheet already reported *performance* (score, accuracy, percentile) but
+   nothing about *progression*, so a player who improved slightly on game 14 saw
+   essentially the same screen as on game 1. Streak and rank are the two things
+   that accumulate, which makes them the two things worth protecting — and a
+   streak someone is protecting is a reason to come back tomorrow.
+───────────────────────────────────────────────────────────────────────────── */
+function AchievementStrip({ progress }) {
+  if (!progress) return null;
+  const { streak, rank, rankedUp, streakExtended, lifetimeGames } = progress;
+
+  return (
+    <div className="mb-3 rounded-none border border-border bg-card px-4 py-3">
+      {rankedUp && (
+        <div className="mb-2.5 flex items-center gap-1.5 text-xs font-black text-primary">
+          <HiSparkles size={13} /> Rank up — you&apos;re now {rank.name}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1.5">
+          <FaFire size={13} className="text-primary" />
+          <span className="text-sm font-black tabular-nums text-foreground">
+            {streak}
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+            day streak
+          </span>
+        </div>
+
+        <div className="h-3 w-px shrink-0 bg-border" />
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-baseline justify-between gap-2">
+            <span className="truncate text-[11px] font-bold text-foreground">
+              {rank.name}
+            </span>
+            <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
+              {rank.isMax
+                ? `${lifetimeGames} games`
+                : `${rank.gamesToNext} to ${rank.next}`}
+            </span>
+          </div>
+          <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-[width] duration-700"
+              style={{ width: `${rank.progressPct}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {streakExtended && streak > 1 && (
+        <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+          Streak extended. Come back tomorrow to make it {streak + 1}.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    UpgradeCard — the single monetization surface. Deliberately dark (ink
    block) so it contrasts against the light hero/insights above it instead of
    blending into another same-toned box. Tap anywhere opens the full pitch.
@@ -540,45 +594,42 @@ function FullUpgradeModal({ onUpgrade, onClose, copy, history, isDesktop }) {
         {gameCount > 1 && <Last5Insights history={history} isProUser={false} />}
 
         {/*
-          TODO — VERIFY BEFORE SHIPPING: the user count, avg-improvement %,
-          and star rating below are placeholder values from the design
-          mockup, not measured data. This project has a standing rule
-          against shipping fabricated stats/testimonials — replace these
-          with real, verified figures (or delete this block) before launch.
+          Replaced the mockup's placeholder social proof — "1,000+ users",
+          "+124% avg improvement", a five-star rating — none of which were
+          measured. Fabricated stats are both against this project's rules and
+          a live FTC exposure on a paid product.
+
+          What's here instead is verifiable from the user's own session: the
+          number of games we actually hold for them, and a plain statement of
+          what the payment is. That's weaker social proof and stronger
+          honest proof, and it's the version that survives someone checking.
         */}
-        <div className="rounded-2xl border border-border bg-card px-4 py-3.5 mb-4 flex items-center gap-3">
-          <div className="flex -space-x-2 shrink-0">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className="w-7 h-7 rounded-full bg-muted border-2 border-card flex items-center justify-center"
-              >
-                <FaUser size={10} className="text-muted-foreground" />
-              </span>
-            ))}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-0.5 mb-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <FaStar key={i} size={10} className="text-warning" />
-              ))}
+        <div className="rounded-2xl border border-border bg-card px-4 py-3.5 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="shrink-0 w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+              <FaArrowTrendUp size={13} className="text-primary" />
             </div>
-            <p className="text-[10px] text-muted-foreground leading-tight">
-              1,000+ users unlocked their reports and improved their focus &amp;
-              productivity.
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              {gameCount > 1 ? (
+                <>
+                  We&apos;re already holding{" "}
+                  <span className="font-bold text-foreground">
+                    {gameCount} of your games
+                  </span>
+                  . Pro reads all of them — free shows you the last five.
+                </>
+              ) : (
+                <>
+                  Every game you play is recorded. Pro reads your whole history;
+                  free shows you the last five.
+                </>
+              )}
             </p>
           </div>
-          <div className="text-right shrink-0">
-            <div className="flex items-center justify-end gap-1 text-success font-bold text-sm">
-              <FaArrowTrendUp size={11} />
-              +124%
-            </div>
-            <div className="text-[9px] text-muted-foreground leading-tight">
-              avg improvement
-              <br />
-              in 30 days
-            </div>
-          </div>
+          <p className="text-[10px] text-muted-foreground/70 leading-snug mt-2.5 pt-2.5 border-t border-border">
+            One payment, no subscription, no card stored. Also removes the
+            sponsored blocks from the homepage.
+          </p>
         </div>
 
         {/* Price */}
@@ -672,6 +723,8 @@ export default function QuickResultBottomSheet({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isPersonalBest, setIsPersonalBest] = useState(false);
   const [confettiMode, setConfettiMode] = useState("none");
+  const [progress, setProgress] = useState(null);
+  const [shareLabel, setShareLabel] = useState(null);
 
   const initRef = useRef(false);
   const confettiFiredRef = useRef(false);
@@ -691,7 +744,11 @@ export default function QuickResultBottomSheet({
     if (pb) localStorage.setItem(BEST_SCORE_KEY, score);
     setIsPersonalBest(pb);
 
-    const dailyGamesToday = incrementDailyGames();
+    // Single write per completed game — also the only place streak/rank
+    // advance, so a re-render can't double-count them.
+    const prog = recordGameCompleted();
+    setProgress(prog);
+    const dailyGamesToday = prog.gamesToday;
 
     const delta = computeScoreDelta(gameSummaryData, history);
     setScoreDelta(delta);
@@ -705,7 +762,17 @@ export default function QuickResultBottomSheet({
       is_personal_best: pb,
       games_remaining: gamesRemaining,
       is_pro_user: !!isProUser,
+      streak: prog.streak,
+      rank: prog.rank.name,
+      lifetime_games: prog.lifetimeGames,
     });
+
+    if (prog.rankedUp) {
+      trackEvent("rank_up", {
+        rank: prog.rank.name,
+        lifetime_games: prog.lifetimeGames,
+      });
+    }
 
     if (gamesRemaining === 0) {
       trackEvent("free_report_cta_viewed", {
@@ -732,7 +799,8 @@ export default function QuickResultBottomSheet({
       }
     }
 
-    const shouldConfetti = pb || insightType === "massive_positive";
+    const shouldConfetti =
+      pb || insightType === "massive_positive" || prog.rankedUp;
     if (shouldConfetti && !confettiFiredRef.current) {
       confettiFiredRef.current = true;
       const mode = pb ? "personal_best" : "normal";
@@ -752,6 +820,8 @@ export default function QuickResultBottomSheet({
       setScoreDelta(null);
       setInsightText(null);
       setConfettiMode("none");
+      setProgress(null);
+      setShareLabel(null);
     }
   }, [visible]);
 
@@ -788,6 +858,36 @@ export default function QuickResultBottomSheet({
         ? "text-warning"
         : "text-muted-foreground";
   const reportCtaText = buildReportCta(scoreDelta, accuracy);
+
+  async function handleShare() {
+    const streakLine =
+      progress?.streak > 1 ? ` — ${progress.streak}-day streak` : "";
+    const text = `I scored ${score.toLocaleString()} on Schulte Table (${Math.round(
+      accuracy,
+    )}% accuracy)${streakLine}. Beat it:`;
+    const url = "https://www.schultetable.com/";
+
+    trackEvent("score_shared", {
+      score,
+      method:
+        typeof navigator !== "undefined" && navigator.share
+          ? "web_share"
+          : "clipboard",
+    });
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "Schulte Table", text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      setShareLabel("Copied to clipboard");
+      setTimeout(() => setShareLabel(null), 2200);
+    } catch {
+      // AbortError when the user dismisses the native sheet, or a clipboard
+      // permission denial. Neither is worth surfacing as an error.
+    }
+  }
 
   const bodyContent = (
     <>
@@ -851,6 +951,8 @@ export default function QuickResultBottomSheet({
         </p>
       )}
 
+      <AchievementStrip progress={progress} />
+
       <Last5Insights history={historyRef.current} isProUser={isProUser} />
 
       {gamesRemaining === 0 && (
@@ -873,14 +975,39 @@ export default function QuickResultBottomSheet({
         </Link>
       )}
 
+      {/* Locked state is now a link, not a dead label. Previously the only way
+          to find out what the Brain Report actually contains was to finish ten
+          games first — which is backwards: the explanation is what makes the
+          ten games worth playing. */}
       {gamesRemaining > 0 && (
-        <div className="w-full mb-3 flex items-center gap-2 rounded-none border border-border bg-card px-4 py-3">
-          <FaLock size={11} className="text-muted-foreground shrink-0" />
-          <span className="text-xs font-semibold text-muted-foreground">
-            {gamesRemaining} more game{gamesRemaining === 1 ? "" : "s"} to
-            unlock your free Brain Report
-          </span>
-        </div>
+        <Link
+          href="/monthly-brain-report"
+          onClick={() =>
+            trackEvent("brain_report_clicked", {
+              source: "result_sheet_locked",
+              games_remaining: gamesRemaining,
+            })
+          }
+          className="w-full mb-3 block rounded-none border border-border bg-card px-4 py-3"
+        >
+          <div className="flex items-center gap-2">
+            <FaLock size={11} className="text-muted-foreground shrink-0" />
+            <span className="text-xs font-bold text-foreground">
+              {gamesRemaining} more game{gamesRemaining === 1 ? "" : "s"} to
+              unlock your free Brain Report
+            </span>
+          </div>
+          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-[width] duration-700"
+              style={{ width: `${((10 - gamesRemaining) / 10) * 100}%` }}
+            />
+          </div>
+          <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+            Focus score, reaction breakdown and your best time of day — free, no
+            card. See what&apos;s in it →
+          </p>
+        </Link>
       )}
 
       {!isProUser && upgradeCopy && (
@@ -904,6 +1031,17 @@ export default function QuickResultBottomSheet({
         Play Again
       </Button>
 
+      {/* Share — the only organic acquisition loop in the post-game flow.
+          Uses the native share sheet where it exists (that's most of the
+          mobile traffic) and silently falls back to clipboard on desktop. */}
+      <button
+        onClick={() => handleShare()}
+        className="w-full mt-2 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <FaShareAlt size={10} />
+        {shareLabel ?? "Share this score"}
+      </button>
+
       {recommendation && (
         <button
           onClick={() => {
@@ -913,7 +1051,7 @@ export default function QuickResultBottomSheet({
             });
             onTryRecommendation?.(recommendation);
           }}
-          className="w-full mt-2 text-xs text-center text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full mt-1 text-xs text-center text-muted-foreground hover:text-foreground transition-colors"
         >
           or try {recommendation.grid}×{recommendation.grid}{" "}
           {recommendation.mode} next →

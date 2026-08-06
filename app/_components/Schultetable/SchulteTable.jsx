@@ -561,15 +561,24 @@ export default function SchulteTable({
       return isMilestone ? 10 : newCount;
     });
 
-    // Results sheet — only show it every 5 games, not after every round.
-    setGamesSincePopup((prev) => {
-      const newCount = prev + 1;
-      if (newCount >= POPUP_INTERVAL) {
-        setShowQuickSheet(true);
-        return 0;
-      }
-      return newCount;
-    });
+    // Results sheet — now after every round.
+    //
+    // It used to fire only every 5th game, which meant 80% of completed games
+    // ended with no acknowledgement at all: no score, no streak, no percentile,
+    // no mention of the Brain Report. That's visible in the analytics —
+    // result_sheet_viewed reached only 34 users across the whole period despite
+    // thousands of gameplay events, and free_report_cta_viewed reached 17.
+    //
+    // Showing it every time is safe because the sheet is not itself the upsell.
+    // The paid pitch inside it is separately throttled by getUpgradeMode() in
+    // QuickResultBottomSheet — mini card every 5th game, full modal only on a
+    // personal best, a flow-state run, or every 10th game. So this raises the
+    // frequency of the reward without raising the frequency of the ask.
+    //
+    // gamesSincePopup is still tracked because the pre-game progress bar below
+    // uses it to signal when the 5-game rolling average refreshes.
+    setShowQuickSheet(true);
+    setGamesSincePopup((prev) => (prev + 1 >= POPUP_INTERVAL ? 0 : prev + 1));
 
     maybeShowLeaderboardPopup();
     window.dispatchEvent(new Event("game-finished"));
