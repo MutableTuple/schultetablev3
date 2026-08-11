@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Check, X, ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ALTERNATIVES } from "@/app/_data/alternatives";
+import { getRichContent } from "@/app/_data/alternativesRich";
 
 function verdictIcon(text) {
   if (text.startsWith("✅")) return <Check size={14} className="text-success shrink-0" />;
@@ -35,10 +36,20 @@ function RelatedAlternatives({ currentSlug }) {
 }
 
 export default function VsCompetitorPage({ data }) {
+  // Present only for the handful of comparisons worth ranking; null for the
+  // rest, in which case every rich block below is skipped and the page renders
+  // exactly as it did before.
+  const rich = getRichContent(data.slug);
+
+  // Extra FAQs are merged into both the visible list and the JSON-LD from one
+  // array — structured data that doesn't match the rendered page is a
+  // structured-data violation, so they can't be allowed to diverge.
+  const faqs = [...data.faqs, ...(rich?.extraFaqs ?? [])];
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: data.faqs.map((f) => ({
+    mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -120,6 +131,68 @@ export default function VsCompetitorPage({ data }) {
           <p className="text-muted-foreground leading-relaxed">{data.whatIsCompetitor}</p>
         </section>
 
+        {/* DEEP DIVE — long-form analysis, rich pages only. Sits after the
+            "what is X" primer so a reader who already knows the competitor can
+            skip straight past it, and before the scannable cards below. */}
+        {rich?.sections?.map((s) => (
+          <section key={s.h2}>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
+              {s.h2}
+            </h2>
+            <div className="space-y-4">
+              {s.body.map((p, i) => (
+                <p
+                  key={i}
+                  className="text-muted-foreground leading-relaxed text-sm sm:text-base"
+                >
+                  {p}
+                </p>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* USING BOTH — a concrete weekly routine. The generic `canUseBoth`
+            paragraph below says both are compatible; this says exactly how,
+            which is the part readers actually came for. */}
+        {rich?.routine && (
+          <section>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+              A routine that uses both
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mb-5 text-sm sm:text-base">
+              {rich.routine.intro}
+            </p>
+            <div className="overflow-x-auto rounded-2xl border border-border">
+              <table className="w-full min-w-[420px] text-sm text-left">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="px-4 py-3 font-bold text-foreground">When</th>
+                    <th className="px-4 py-3 font-bold text-foreground">What</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rich.routine.rows.map((r, i) => (
+                    <tr key={r.when} className={i % 2 ? "bg-muted/40" : undefined}>
+                      <td className="border-t border-border px-4 py-3 font-medium text-foreground whitespace-nowrap">
+                        {r.when}
+                      </td>
+                      <td className="border-t border-border px-4 py-3 text-muted-foreground">
+                        {r.what}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {rich.routine.note && (
+              <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+                {rich.routine.note}
+              </p>
+            )}
+          </section>
+        )}
+
         {/* DIFFERENCES */}
         <section>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center mb-8">
@@ -174,7 +247,7 @@ export default function VsCompetitorPage({ data }) {
             Frequently Asked Questions
           </h2>
           <div className="space-y-3">
-            {data.faqs.map((faq) => (
+            {faqs.map((faq) => (
               <div key={faq.q} className="bg-card border border-border rounded-2xl p-5">
                 <p className="font-bold text-foreground mb-1.5">{faq.q}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>

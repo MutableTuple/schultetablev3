@@ -13,7 +13,15 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import InstantFeedback from "../InstantFeedback";
-import { recordGameCompleted } from "@/app/_utils/progress";
+import { recordGameCompleted, readProgress } from "@/app/_utils/progress";
+import {
+  applyOnboardingLimits,
+  isOnboarding,
+  onboardingGamesLeft,
+  ONBOARDING_DIFFICULTIES,
+  ONBOARDING_MODES,
+  onboardingGridCap,
+} from "@/app/_utils/onboarding";
 
 const GameDataSummaryModalAdvanced = dynamic(
   () => import("../GameDataSummaryModalAdvanced"),
@@ -139,6 +147,14 @@ export default function SchulteTable({
   const [showMilestoneModal, setShowMilestoneModal] = useState(false);
   const [sessionServerStats, setSessionServerStats] = useState(null);
   const [sessionProgress, setSessionProgress] = useState(null);
+  // Lifetime completed games, used only to decide whether the onboarding ramp
+  // is still active. Seeded from localStorage after mount (SSR-safe: starts at
+  // a value that keeps the ramp ON, so a first-time visitor never sees a hard
+  // board during the hydration gap) and kept current by finishGame.
+  const [lifetimeGames, setLifetimeGames] = useState(0);
+  useEffect(() => {
+    setLifetimeGames(readProgress().lifetimeGames);
+  }, []);
   // Describes the board the adaptive engine picked for the next round, so the
   // Start button can name it. null until at least one game has been played.
   const [nextChallenge, setNextChallenge] = useState(null);
@@ -287,10 +303,29 @@ export default function SchulteTable({
     return options[Math.floor(Math.random() * options.length)] ?? arr[0];
   };
 
-  const randomizeGrid = () => setGridSize(pickRandom(gridOptions, gridSize));
+  /* The three quick pills reshuffle grid / difficulty / mode. During the ramp
+     they're restricted to the same pool the adaptive engine is — otherwise a
+     new player could tap "Medium" once and land on Impossible maths, which is
+     exactly the exit this ramp exists to prevent. The pills stay tappable
+     (they're the main way to vary a session); they just can't hand out a board
+     the engine itself wouldn't give yet. */
+  const onboarding = isOnboarding(lifetimeGames);
+
+  const randomizeGrid = () =>
+    setGridSize(
+      pickRandom(
+        onboarding
+          ? gridOptions.filter((g) => g <= onboardingGridCap(isMobile))
+          : gridOptions,
+        gridSize,
+      ),
+    );
   const randomizeDifficulty = () =>
-    setDifficulty(pickRandom(DIFFICULTIES, difficulty));
-  const randomizeMode = () => setMode(pickRandom(MODES, mode));
+    setDifficulty(
+      pickRandom(onboarding ? ONBOARDING_DIFFICULTIES : DIFFICULTIES, difficulty),
+    );
+  const randomizeMode = () =>
+    setMode(pickRandom(onboarding ? ONBOARDING_MODES : MODES, mode));
 
   const randomPillClass =
     "px-3 py-1 text-[11px] font-bold rounded-full border bg-muted text-foreground border-border hover:border-primary hover:text-primary transition-colors";
@@ -520,6 +555,7 @@ export default function SchulteTable({
     saveGameToLocalHistory(gameSummary);
     const progressAfterGame = recordGameCompleted();
     setSessionProgress(progressAfterGame);
+    setLifetimeGames(progressAfterGame.lifetimeGames);
     setGameSummaryData(gameSummary);
 
     // ── SESSION RHYTHM ───────────────────────────────────────────────────
@@ -674,6 +710,18 @@ export default function SchulteTable({
       nextMode = Math.random() < 0.35 ? pickRandom(MODES, mode) : mode;
       nextGrid = clampGrid(gridSize, nextMode, isMobile);
     }
+
+    // Hold the first N games on rails — Easy, simple modes, small grid.
+    // `progressAfterGame.lifetimeGames` is the post-increment count, so the
+    // ramp covers games 1–10 and releases on the 11th.
+    ({
+      grid: nextGrid,
+      difficulty: nextDifficulty,
+      mode: nextMode,
+    } = applyOnboardingLimits(
+      { grid: nextGrid, difficulty: nextDifficulty, mode: nextMode },
+      { lifetimeGames: progressAfterGame.lifetimeGames, isMobile },
+    ));
 
     setMode(nextMode);
     setDifficulty(nextDifficulty);
@@ -836,6 +884,17 @@ export default function SchulteTable({
                   POPUP_INTERVAL - gamesSincePopup === 1 ? "" : "s"
                 } → your session report`}
           </p>
+
+          {/* Naming the ramp turns a silent restriction into a visible plan.
+              Without this, an experienced player who clears their storage just
+              sees difficulty options that won't move and assumes it's broken. */}
+          {onboarding && (
+            <p className="text-[10px] text-muted-foreground/70 text-center">
+              Warm-up mode · {onboardingGamesLeft(lifetimeGames)} game
+              {onboardingGamesLeft(lifetimeGames) === 1 ? "" : "s"} until harder
+              boards unlock
+            </p>
+          )}
         </div>
       )}
       {gameStarted && <GameTimer />}

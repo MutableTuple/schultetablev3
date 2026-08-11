@@ -17,7 +17,11 @@ const SchulteTable = dynamic(() => import("./Schultetable/SchulteTable"), {
 
 export default function HomeMain({ user, error, header }) {
   const [gridSize, setGridSize] = useState(3);
-  const [difficulty, setDifficulty] = useState("Medium");
+  // Easy, not Medium. This is the very first board a new visitor sees and the
+  // adaptive engine holds everyone on Easy for their first 10 games anyway —
+  // opening on Medium just meant game one was the single hardest board of the
+  // ramp.
+  const [difficulty, setDifficulty] = useState("Easy");
   const [gameStarted, setGameStarted] = useState(false);
   const [mode, setMode] = useState("number");
 

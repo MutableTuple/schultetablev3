@@ -11,13 +11,16 @@
 <url><loc>https://www.schultetable.com/get-pro</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 <url><loc>https://www.schultetable.com/missions</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 <url><loc>https://www.schultetable.com/duels</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-<url><loc>https://www.schultetable.com/faq</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table-for-adhd</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.schultetable.com/monthly-brain-report</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 <url><loc>https://www.schultetable.com/features</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://www.schultetable.com/official-brain-test</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://www.schultetable.com/support</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
 <url><loc>https://www.schultetable.com/cookies</loc><changefreq>weekly</changefreq><priority>0.3</priority></url>
 <url><loc>https://www.schultetable.com/privacy</loc><changefreq>weekly</changefreq><priority>0.3</priority></url>
 <url><loc>https://www.schultetable.com/what-is-schulte-table</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.schultetable.com/shulky-table</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 <url><loc>https://www.schultetable.com/schulte-table-faq</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 <url><loc>https://www.schultetable.com/schulte-table-history</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
 <url><loc>https://www.schultetable.com/schulte-table-research</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -75,4 +78,9 @@
 <url><loc>https://www.schultetable.com/schulte-table/3x3/mode/alphabet/easy</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 <url><loc>https://www.schultetable.com/schulte-table/3x3/mode/alphabet/medium</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 <url><loc>https://www.schultetable.com/schulte-table/3x3/mode/alphabet/hard</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table/4x4</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table/5x5</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table/6x6</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table/7x7</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://www.schultetable.com/schulte-table/9x9</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>

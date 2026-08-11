@@ -33,6 +33,13 @@ module.exports = {
       // FAQ pages cannibalising each other). Listing a redirecting URL in a
       // sitemap is a Search Console warning and wastes crawl budget.
       { loc: "/schulte-table-for-adhd", priority: 0.8 },
+      // Both were missing entirely. /monthly-brain-report is the destination
+      // every in-game CTA funnels to (home progress rail, session milestone
+      // modal, result sheet) — it had inbound internal links from the highest-
+      // traffic surfaces on the site and no sitemap entry. /schulte-table is
+      // the hub above the six per-size grid pages.
+      { loc: "/monthly-brain-report", priority: 0.8 },
+      { loc: "/schulte-table", priority: 0.8 },
       { loc: "/features", priority: 0.7 },
       { loc: "/official-brain-test", priority: 0.7 },
       { loc: "/support", priority: 0.5 },
