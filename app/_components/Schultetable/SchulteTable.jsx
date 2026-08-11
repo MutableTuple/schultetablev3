@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import InstantFeedback from "../InstantFeedback";
+import { recordGameCompleted } from "@/app/_utils/progress";
 
 const GameDataSummaryModalAdvanced = dynamic(
   () => import("../GameDataSummaryModalAdvanced"),
@@ -21,6 +22,19 @@ const GameDataSummaryModalAdvanced = dynamic(
     loading: () => null,
   },
 );
+
+// Deliberately a static import, unlike the code-split modals below.
+//
+// The requirement is that this paints on the same frame the 5th game ends. A
+// dynamic() chunk fetch adds a network round-trip at exactly that moment, and
+// `loading: () => null` means the screen shows *nothing* until it lands — the
+// player reads that gap as the game hanging. Static import costs a few KB on
+// first load and buys a guaranteed instant open.
+//
+// The modal itself then handles the second-order latency: it computes its
+// averages synchronously from localStorage, and shimmers only the one cell
+// that needs the server (global percentile).
+import SessionMilestoneModal from "../BottomModal/SessionMilestoneModal";
 
 // Only needed after a game finishes — code-split so they don't bloat the
 // initial bundle every visitor downloads on page load.
@@ -119,6 +133,25 @@ export default function SchulteTable({
     useState(false);
   const [pendingStart, setPendingStart] = useState(null);
   const [showQuickSheet, setShowQuickSheet] = useState(false);
+  // End-of-set modal (every 5th game) + the one server-derived number it
+  // shows. Kept separate from gameSummaryData so the modal can paint before
+  // the save round-trip resolves.
+  const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+  const [sessionServerStats, setSessionServerStats] = useState(null);
+  const [sessionProgress, setSessionProgress] = useState(null);
+  // Describes the board the adaptive engine picked for the next round, so the
+  // Start button can name it. null until at least one game has been played.
+  const [nextChallenge, setNextChallenge] = useState(null);
+
+  // Memoised so StartBtn (memo'd) keeps referentially-stable props across the
+  // re-render that fires on every tile tap during a round.
+  const startLabel = useMemo(
+    () =>
+      nextChallenge
+        ? `Start ${nextChallenge.grid}×${nextChallenge.grid} ${nextChallenge.difficulty}`
+        : "Start game",
+    [nextChallenge],
+  );
   const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
   const [instantFeedback, setInstantFeedback] = useState(null);
   const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
@@ -471,6 +504,41 @@ export default function SchulteTable({
       clicks: allCorrect,
     };
 
+    /* ── OPEN THE END-OF-SET MODAL BEFORE THE NETWORK CALL ──────────────
+       Everything the modal shows on first paint (the 5-game averages, streak,
+       rank, Brain Report progress) comes from localStorage, so none of it
+       needs the save below to have finished.
+
+       This block used to sit after the `await` on saveGame, which meant the
+       modal waited on a server round-trip — measured at 1133ms locally, and
+       worse on real mobile networks. A second of blank screen after the last
+       tile reads as the game freezing.
+
+       Now: history is written, progression is recorded, the modal opens, and
+       the save runs afterwards. `fasterThanPct` arrives later and populates
+       the one line that needs it. */
+    saveGameToLocalHistory(gameSummary);
+    const progressAfterGame = recordGameCompleted();
+    setSessionProgress(progressAfterGame);
+    setGameSummaryData(gameSummary);
+
+    // ── SESSION RHYTHM ───────────────────────────────────────────────────
+    // Games 1–4 of a set finish completely uninterrupted: confetti, the inline
+    // InstantFeedback line, and a Start button that names the next board. No
+    // modal, no sheet, no leaderboard popup. Interrupting a player mid-flow
+    // with a dialog they have to dismiss is what was costing us the session.
+    //
+    // The 5th game closes the set and opens SessionMilestoneModal, where the
+    // averages, Brain Report progress and Pro offer live. Earning attention
+    // across five rounds and asking once converts better than asking five
+    // times.
+    const isSetComplete = gamesSincePopup + 1 >= POPUP_INTERVAL;
+    setGamesSincePopup((prev) => (prev + 1 >= POPUP_INTERVAL ? 0 : prev + 1));
+    if (isSetComplete) {
+      setSessionServerStats(null); // local-only view until/unless rank lands
+      setShowMilestoneModal(true);
+    }
+
     /* SAVE RESULTS — position/percentile now come from a single server call,
        no separate client-side rank check (that used to fire a second,
        redundant Supabase query and a duplicate toast). */
@@ -538,14 +606,22 @@ export default function SchulteTable({
         colors: ["#F3A83C", "#5B8DEF", "#43C6AC"],
       });
       setTimeout(() => setConfettiActive(true), 80);
-      toast(`Completed in ${timeTaken.toFixed(2)}s 👏`);
+      // No toast for an ordinary finish. Confetti fires, and InstantFeedback
+      // already renders the time, score and delta inline above the Start
+      // button — a toast on top of both was a third notification for one
+      // event. Podium finishes above keep their toast: rare and worth
+      // interrupting for.
     }
 
-    // save FIRST
-    saveGameToLocalHistory(gameSummary);
+    // The local write, progression record, and modal open all happened before
+    // the await above — see the block above the save. Only the things that
+    // genuinely depend on the server response are left down here.
 
-    // THEN update state
-    setGameSummaryData(gameSummary);
+    // `fasterThanPct` resolved from the save — feed it to the already-open
+    // modal so its global-rank line appears without having delayed the paint.
+    if (gameSummary.fasterThanPct != null) {
+      setSessionServerStats({ fasterThanPct: gameSummary.fasterThanPct });
+    }
 
     // Report-unlock tracking — still counts every game toward 10, unrelated
     // to how often the results sheet itself pops up.
@@ -561,26 +637,10 @@ export default function SchulteTable({
       return isMilestone ? 10 : newCount;
     });
 
-    // Results sheet — now after every round.
-    //
-    // It used to fire only every 5th game, which meant 80% of completed games
-    // ended with no acknowledgement at all: no score, no streak, no percentile,
-    // no mention of the Brain Report. That's visible in the analytics —
-    // result_sheet_viewed reached only 34 users across the whole period despite
-    // thousands of gameplay events, and free_report_cta_viewed reached 17.
-    //
-    // Showing it every time is safe because the sheet is not itself the upsell.
-    // The paid pitch inside it is separately throttled by getUpgradeMode() in
-    // QuickResultBottomSheet — mini card every 5th game, full modal only on a
-    // personal best, a flow-state run, or every 10th game. So this raises the
-    // frequency of the reward without raising the frequency of the ask.
-    //
-    // gamesSincePopup is still tracked because the pre-game progress bar below
-    // uses it to signal when the 5-game rolling average refreshes.
-    setShowQuickSheet(true);
-    setGamesSincePopup((prev) => (prev + 1 >= POPUP_INTERVAL ? 0 : prev + 1));
+    // Leaderboard popup only mid-set — never stacked on top of the milestone
+    // modal, which has already opened above if this game closed the set.
+    if (!isSetComplete) maybeShowLeaderboardPopup();
 
-    maybeShowLeaderboardPopup();
     window.dispatchEvent(new Event("game-finished"));
 
     // Adapt the NEXT board to how this one went. A rough game (low
@@ -618,6 +678,29 @@ export default function SchulteTable({
     setMode(nextMode);
     setDifficulty(nextDifficulty);
     setGridSize(nextGrid);
+
+    // Publish the pick so StartBtn can name it. `reason` is what turns a
+    // silent difficulty bump into something the player reads as a response to
+    // how they just did — the step down in particular needs saying out loud,
+    // otherwise an easier board after a bad round feels like the game
+    // glitched rather than like it adapted.
+    const changed =
+      nextGrid !== gridSize ||
+      nextDifficulty !== difficulty ||
+      nextMode !== mode;
+    setNextChallenge({
+      grid: nextGrid,
+      difficulty: nextDifficulty,
+      mode: nextMode,
+      reason:
+        performance === "excelled"
+          ? "You earned the step up"
+          : performance === "struggled"
+            ? "Dialled back — rebuild the rhythm"
+            : changed
+              ? "New board, same pace"
+              : "Beat your last run",
+    });
   };
 
   useEffect(() => {
@@ -695,14 +778,14 @@ export default function SchulteTable({
           onClick={loadingBoard ? undefined : handleStartGame}
           aria-disabled={loadingBoard}
         >
-          {loadingBoard ? (
-            <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-muted-foreground text-sm font-bold">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Preparing board...
-            </div>
-          ) : (
-            <StartBtn />
-          )}
+          {/* One element in both states — the spinner lives inside StartBtn,
+              so the button keeps its size, position and label while the board
+              generates instead of being swapped for a differently-shaped pill. */}
+          <StartBtn
+            label={startLabel}
+            sub={nextChallenge?.reason ?? null}
+            loading={loadingBoard}
+          />
         </div>
       )}
 
@@ -742,12 +825,16 @@ export default function SchulteTable({
               }}
             />
           </div>
+          {/* Names the payoff at the end of the set. "See your stats" was
+              vague enough to be ignorable; the player needs to know a real
+              summary is waiting, otherwise there's no reason to finish the
+              five. */}
           <p className="text-[11px] text-muted-foreground text-center">
-            {gamesSincePopup >= POPUP_INTERVAL
-              ? "Average results ready — check your last summary"
-              : `Play ${POPUP_INTERVAL - gamesSincePopup} more game${
+            {gamesSincePopup === 0
+              ? `${POPUP_INTERVAL} games → your session report`
+              : `${POPUP_INTERVAL - gamesSincePopup} more game${
                   POPUP_INTERVAL - gamesSincePopup === 1 ? "" : "s"
-                } to see your stats`}
+                } → your session report`}
           </p>
         </div>
       )}
@@ -821,8 +908,47 @@ export default function SchulteTable({
         user={user}
         mode={mode}
       />
+      {/* END-OF-SET MODAL — every 5th game. This is now the only scheduled
+          interruption in the loop.
+
+          Mount-gated, not just visibility-gated: the import is static (so the
+          module is parsed and ready for an instant open), but there's no
+          reason for its hooks, memos and effects to run on every page load for
+          a component that appears once per five games. Static import + mount
+          gate gives instant open AND zero cost while closed. */}
+      {showMilestoneModal && (
+      <SessionMilestoneModal
+        visible={showMilestoneModal}
+        user={user || null}
+        isProUser={user?.is_pro_user || user?.purchase_plan ? true : false}
+        gamesRemaining={
+          reportUnlocked ? 0 : Math.max(0, 10 - gamesSinceLastReport)
+        }
+        serverStats={sessionServerStats}
+        sessionProgress={sessionProgress}
+        isMobile={isMobile}
+        gamesInSet={POPUP_INTERVAL}
+        onClose={() => setShowMilestoneModal(false)}
+        onPlayAgain={() => {
+          if (loadingBoard) return;
+          setShowMilestoneModal(false);
+          handleStartGame();
+        }}
+        onUpgrade={() => router.push("/get-pro")}
+        onLogin={() => router.push("/auth/register")}
+      />
+      )}
+
+      {/* Per-round sheet. No longer part of the default loop — the session
+          rhythm above routes every 5th game to SessionMilestoneModal instead
+          and leaves rounds 1–4 uninterrupted. Kept mounted only when actually
+          shown so its dynamic chunk isn't fetched for a component that can't
+          appear; still wired up so a per-round sheet can be switched back on
+          by setting showQuickSheet. */}
+      {showQuickSheet && (
       <QuickResultBottomSheet
         visible={showQuickSheet}
+        sessionProgress={sessionProgress}
         gameSummaryData={gameSummaryData}
         gamesRemaining={
           reportUnlocked ? 0 : Math.max(0, 10 - gamesSinceLastReport)
@@ -847,6 +973,7 @@ export default function SchulteTable({
           setShowLargeScreenSummaryModal(true);
         }}
       />
+      )}
     </div>
   );
 }

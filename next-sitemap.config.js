@@ -29,7 +29,10 @@ module.exports = {
       { loc: "/get-pro", priority: 0.6 },
       { loc: "/missions", priority: 0.6 },
       { loc: "/duels", priority: 0.6 },
-      { loc: "/faq", priority: 0.6 },
+      // /faq removed — it now 308s to /schulte-table-faq (they were duplicate
+      // FAQ pages cannibalising each other). Listing a redirecting URL in a
+      // sitemap is a Search Console warning and wastes crawl budget.
+      { loc: "/schulte-table-for-adhd", priority: 0.8 },
       { loc: "/features", priority: 0.7 },
       { loc: "/official-brain-test", priority: 0.7 },
       { loc: "/support", priority: 0.5 },
@@ -112,11 +115,17 @@ module.exports = {
       ...difficulties.map((diff) => `/schulte-table/3x3/${diff}`),
       "/schulte-table/3x3/mode",
       ...modes.map((mode) => `/schulte-table/3x3/mode/${mode}`),
+      "/schulte-table/4x4",
+      "/schulte-table/5x5",
+      "/schulte-table/6x6",
       "/schulte-table/7x7",
       "/schulte-table/9x9",
     ].map((path) => ({
       loc: path,
-      priority: path.includes("/mode") ? 0.6 : 0.7,
+      // 5x5 is the benchmark size and the highest-volume grid query in this
+      // niche — competitors rank dedicated 5x5 pages independently of their
+      // homepages — so it gets homepage-adjacent priority.
+      priority: path.endsWith("/5x5") ? 0.9 : path.includes("/mode") ? 0.6 : 0.7,
     }));
 
     // NOTE: /my-profile/* deliberately removed — private, per-user content,

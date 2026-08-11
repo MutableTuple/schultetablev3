@@ -43,12 +43,11 @@ export const HOME_STEPS = [
 ];
 
 /**
- * `href: null` means the size is playable from the grid selector on this page
- * but has no dedicated route yet. Only 3x3, 7x7 and 9x9 exist under
- * app/schulte-table/ — the 4x4 folder is named `_4x4`, which Next treats as a
- * private (non-routable) directory, so linking /schulte-table/4x4 would 404.
- * Broken internal links are worse for SEO than fewer links, so those rows
- * render as plain text until the routes are built.
+ * Every row now links to a real route. 4x4/5x5/6x6 previously had no page —
+ * the 4x4 folder was named `_4x4` (a Next private directory, unroutable) and
+ * imported a component directory that had been deleted — so those rows
+ * rendered as plain text to avoid shipping 404s. All six sizes now exist under
+ * app/schulte-table/, each with its own copy, FAQ and structured data.
  */
 export const GRID_GUIDE = [
   {
@@ -61,7 +60,7 @@ export const GRID_GUIDE = [
   },
   {
     size: "4×4",
-    href: null,
+    href: "/schulte-table/4x4",
     cells: "16 cells",
     who: "Warm-ups and daily reps",
     typical: "8–15 seconds",
@@ -69,7 +68,7 @@ export const GRID_GUIDE = [
   },
   {
     size: "5×5",
-    href: null,
+    href: "/schulte-table/5x5",
     cells: "25 cells",
     who: "The standard benchmark",
     typical: "20–40 seconds",
@@ -77,7 +76,7 @@ export const GRID_GUIDE = [
   },
   {
     size: "6×6",
-    href: null,
+    href: "/schulte-table/6x6",
     cells: "36 cells",
     who: "Experienced players",
     typical: "45–80 seconds",

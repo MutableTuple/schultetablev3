@@ -17,7 +17,7 @@ import {
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { HiSparkles } from "react-icons/hi2";
 import { trackEvent } from "@/app/_lib/ga";
-import { recordGameCompleted } from "@/app/_utils/progress";
+import { readProgress, getRank } from "@/app/_utils/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -714,6 +714,9 @@ export default function QuickResultBottomSheet({
   isProUser,
   onUpgrade,
   onLogin,
+  // Result of the single recordGameCompleted() call SchulteTable makes per
+  // game. Optional — falls back to a read below if absent.
+  sessionProgress,
 }) {
   const [isDesktop, setIsDesktop] = useState(false);
   const [insightText, setInsightText] = useState(null);
@@ -744,9 +747,21 @@ export default function QuickResultBottomSheet({
     if (pb) localStorage.setItem(BEST_SCORE_KEY, score);
     setIsPersonalBest(pb);
 
-    // Single write per completed game — also the only place streak/rank
-    // advance, so a re-render can't double-count them.
-    const prog = recordGameCompleted();
+    // Read-only. SchulteTable owns the write (recordGameCompleted) because
+    // it's on the path every game takes; this sheet only opens on some of
+    // them, so writing here would either double-count or miss games depending
+    // on which modal happened to show.
+    //
+    // readProgress() returns the stored counters but no derived rank fields,
+    // so the fallback fills them in — otherwise prog.rank.name below throws
+    // whenever this renders without a sessionProgress prop.
+    const stored = readProgress();
+    const prog = sessionProgress ?? {
+      ...stored,
+      rank: getRank(stored.lifetimeGames),
+      rankedUp: false,
+      streakExtended: false,
+    };
     setProgress(prog);
     const dailyGamesToday = prog.gamesToday;
 
