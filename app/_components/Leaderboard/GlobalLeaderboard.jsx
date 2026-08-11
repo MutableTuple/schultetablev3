@@ -10,6 +10,7 @@ import { AlertCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UpgradeToProOnLeaderboardButton from "./UpgradeToProOnLeaderboardButton";
 import LastGameChallenge from "../LastGameChallenge/LastGameChallenge";
+import { isProUser } from "@/app/_utils/isPro";
 
 const difficulties = ["Easy", "Medium", "Hard"];
 const gridSizes = [3, 4, 5];
@@ -46,16 +47,42 @@ const rankMeta = {
 };
 
 export default function GlobalLeaderboard({ user }) {
-  const [players, setPlayers] = useState([]);
+  // Full result set for the current filters; `players` below is the visible
+  // slice. See the fetch comment for why paging happens here, not in the query.
+  const [allPlayers, setAllPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [gridSize, setGridSize] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [gameMode, setGameMode] = useState("");
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+  // True once the RPC returns `total_count`, i.e. the fixed SQL function is
+  // live and has already applied LIMIT/OFFSET for us.
+  const [serverPaginated, setServerPaginated] = useState(false);
+  const [totalRows, setTotalRows] = useState(0);
   const abortRef = useRef(null);
 
+  /**
+   * WORKS AGAINST BOTH THE OLD AND FIXED RPC.
+   *
+   * The original `get_simple_leaderboard_v2` ignored both pagination
+   * arguments — verified against production, where p_limit:11 at p_offset 0,
+   * 10 and 20 each returned the same 1000 rows. The no-filter branch had no
+   * LIMIT at all, so it returned everything (capped only by PostgREST's
+   * max-rows default). Every page therefore rendered the identical ten
+   * players.
+   *
+   * supabase/get_simple_leaderboard_v2.sql fixes that and adds a `total_count`
+   * column. Until that migration is applied, this component has to keep
+   * working — so it detects which version it's talking to:
+   *
+   *   · `total_count` present  → the function paginated correctly. Use the
+   *                              rows as-is and trust the count.
+   *   · `total_count` absent   → legacy function; it ignored our arguments and
+   *                              returned the whole set. Slice locally.
+   *
+   * Once the migration is live the legacy branch is dead code and can go.
+   */
   const fetchLeaderboard = useCallback(async () => {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
@@ -72,7 +99,9 @@ export default function GlobalLeaderboard({ user }) {
           p_difficulty: difficulty || null,
           p_game_mode: gameMode || null,
           p_date_filter: null,
-          p_limit: LIMIT + 1,
+          // Correct arguments for the fixed function. The legacy one ignores
+          // them, which the branch below handles.
+          p_limit: LIMIT,
           p_offset: (page - 1) * LIMIT,
         },
         { signal: controller.signal },
@@ -81,13 +110,19 @@ export default function GlobalLeaderboard({ user }) {
       if (controller.signal.aborted) return;
       if (fetchError) throw fetchError;
 
-      const results = data || [];
-      setHasMore(results.length > LIMIT);
-      setPlayers(results.slice(0, LIMIT));
+      const rows = data || [];
+      const paginatedByServer = rows.length > 0 && rows[0].total_count != null;
+
+      setServerPaginated(paginatedByServer);
+      setAllPlayers(rows);
+      setTotalRows(
+        paginatedByServer ? Number(rows[0].total_count) : rows.length,
+      );
     } catch (err) {
       if (err?.name === "AbortError") return;
       setError("Failed to load leaderboard. Please try again.");
-      setPlayers([]);
+      setAllPlayers([]);
+      setTotalRows(0);
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
@@ -101,7 +136,25 @@ export default function GlobalLeaderboard({ user }) {
     return () => abortRef.current?.abort();
   }, [fetchLeaderboard]);
 
-  const isPro = user && user[0]?.is_pro_user;
+  const totalPages = Math.max(1, Math.ceil(totalRows / LIMIT));
+  // Guards against sitting on a page that no longer exists — e.g. paging to 9
+  // and then applying a filter that only returns 12 results.
+  const safePage = Math.min(page, totalPages);
+  // Server-paginated responses are already the right page; legacy ones are the
+  // whole set and need slicing here.
+  const players = serverPaginated
+    ? allPlayers
+    : allPlayers.slice((safePage - 1) * LIMIT, safePage * LIMIT);
+  const hasMore = safePage < totalPages;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  // `user` is a row object from fetchUserFromDB (.maybeSingle()), not an array.
+  // `user[0]?.is_pro_user` was always undefined, so paying members were still
+  // shown the upgrade prompt on this page.
+  const isPro = isProUser(user);
   const hasFilters = gridSize || difficulty || gameMode;
 
   return (
@@ -220,7 +273,7 @@ export default function GlobalLeaderboard({ user }) {
         ) : (
           <ul className="space-y-2.5">
             {players.map((player, index) => {
-              const rank = index + 1 + (page - 1) * LIMIT;
+              const rank = index + 1 + (safePage - 1) * LIMIT;
               const meta = rankMeta[rank];
               const isCurrentUser = user && user[0]?.id === player.user_id;
 
@@ -327,18 +380,18 @@ export default function GlobalLeaderboard({ user }) {
         )}
 
         {/* Pagination */}
-        {!loading && !error && (page > 1 || hasMore) && (
+        {!loading && !error && totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 pt-1">
             <Button
               variant="outline"
               size="sm"
-              disabled={page === 1}
+              disabled={safePage === 1}
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
             >
               «
             </Button>
             <span className="flex items-center justify-center rounded-xl border border-border bg-muted px-3 h-9 text-sm font-medium text-foreground">
-              Page {page}
+              Page {safePage} of {totalPages}
             </span>
             <Button
               variant="outline"
