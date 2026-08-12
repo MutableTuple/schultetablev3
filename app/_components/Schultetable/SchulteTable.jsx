@@ -15,7 +15,6 @@ import { Badge } from "@/components/ui/badge";
 import InstantFeedback from "../InstantFeedback";
 import { recordGameCompleted, readProgress } from "@/app/_utils/progress";
 import {
-  applyOnboardingLimits,
   isOnboarding,
   onboardingGamesLeft,
   ONBOARDING_DIFFICULTIES,
@@ -62,7 +61,6 @@ const LeaderBoardPopup = dynamic(
   },
 );
 
-const Confetti = dynamic(() => import("react-dom-confetti"), { ssr: false });
 
 const GRID_SIZES = [3, 4, 5, 6, 7, 8, 9];
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Extreme", "Impossible"];
@@ -76,12 +74,13 @@ const MODE_LABELS = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Adaptive next-board helpers — pure functions, no component state needed.
-───────────────────────────────────────────────────────────────────────────── */
-function clampDifficulty(index) {
-  return DIFFICULTIES[Math.min(DIFFICULTIES.length - 1, Math.max(0, index))];
-}
+   Board-bounds helpers — pure functions, no component state needed.
 
+   clampDifficulty() was removed alongside the auto-advance logic; stepping a
+   difficulty index up or down only made sense when the game was choosing for
+   the player. clampGrid stays: it's exported and roundPlan.js relies on it to
+   keep the official test's boards inside legal sizes.
+───────────────────────────────────────────────────────────────────────────── */
 export function clampGrid(size, mode, isMobile) {
   let cap;
   if (mode === "alphabet") cap = 5;
@@ -94,21 +93,12 @@ export function clampGrid(size, mode, isMobile) {
 // Was the player struggling, cruising, or somewhere in between? Drives the
 // next board's size/difficulty so a rough game is followed by something
 // easier, not a bigger, harder one.
-function assessPerformance({
-  accuracy,
-  avgReactionTimeMs,
-  mistakes,
-  totalTiles,
-}) {
-  const mistakeRatio = totalTiles > 0 ? mistakes / totalTiles : 0;
-  if (accuracy < 75 || avgReactionTimeMs > 1500 || mistakeRatio > 0.25) {
-    return "struggled";
-  }
-  if (accuracy >= 92 && avgReactionTimeMs < 900 && mistakes === 0) {
-    return "excelled";
-  }
-  return "steady";
-}
+/* assessPerformance() lived here and classified a round as struggled /
+   steady / excelled. Its only consumer was the auto-advance logic that used
+   to rewrite the player's grid, difficulty and mode after every game. Board
+   selection is manual now, so it had no callers left. Removed rather than
+   left dangling — recoverable from git if adaptive suggestions come back as
+   an opt-in hint. */
 
 /* ===========================================
    COMPONENT
@@ -135,8 +125,6 @@ export default function SchulteTable({
   const [clickData, setClickData] = useState([]);
   const [mistakes, setMistakes] = useState(0);
   const [gameSummaryData, setGameSummaryData] = useState(null);
-  const [confettiConfig, setConfettiConfig] = useState({});
-  const [confettiActive, setConfettiActive] = useState(false);
   const [showLargeScreenSummaryModal, setShowLargeScreenSummaryModal] =
     useState(false);
   const [pendingStart, setPendingStart] = useState(null);
@@ -155,19 +143,21 @@ export default function SchulteTable({
   useEffect(() => {
     setLifetimeGames(readProgress().lifetimeGames);
   }, []);
-  // Describes the board the adaptive engine picked for the next round, so the
-  // Start button can name it. null until at least one game has been played.
-  const [nextChallenge, setNextChallenge] = useState(null);
-
-  // Memoised so StartBtn (memo'd) keeps referentially-stable props across the
-  // re-render that fires on every tile tap during a round.
+  /* The Start button states the board the player has selected — it does not
+     announce a board chosen for them. Settings persist between rounds now, so
+     this is a readout of the current pills rather than a suggestion.
+     Memoised because StartBtn is memo'd and SchulteTable re-renders on every
+     tile tap during a round. */
   const startLabel = useMemo(
-    () =>
-      nextChallenge
-        ? `Start ${nextChallenge.grid}×${nextChallenge.grid} ${nextChallenge.difficulty}`
-        : "Start game",
-    [nextChallenge],
+    () => `Start ${gridSize}×${gridSize} ${difficulty}`,
+    [gridSize, difficulty],
   );
+  const startSub = useMemo(() => `${MODE_LABELS[mode]} mode`, [mode]);
+
+  /* The board is only coherent when the tile count matches the grid it's being
+     laid out in. `numbers.length === 0` is the normal pre-generation state and
+     is handled by the loading flag instead. */
+  const boardMismatched = numbers.length > 0 && numbers.length !== totalTiles;
   const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
   const [instantFeedback, setInstantFeedback] = useState(null);
   const [gamesSinceLastReport, setGamesSinceLastReport] = useState(() => {
@@ -198,6 +188,47 @@ export default function SchulteTable({
   // faster than the 40ms generation delay can resolve (e.g. adaptive
   // board-change immediately followed by a rapid Play Again tap).
   const generationTokenRef = useRef(0);
+  /* True from the moment a new board is queued until it has actually been
+     built. A ref, not state, and that distinction is the whole point:
+     handleStartGame runs from a click handler whose closure was captured on
+     the last render, so `loadingBoard` read inside it can be stale by exactly
+     the window we need to guard. Refs are read synchronously and always
+     current. Getting this wrong produced a 5-column grid rendering 16 tiles —
+     gridSize had advanced, `numbers` had not. */
+  const boardRebuildingRef = useRef(false);
+  // A Start tap that arrived while the board was still being dealt. Held until
+  // the board is coherent, then fired automatically. See handleStartGame.
+  const [startQueued, setStartQueued] = useState(false);
+  /* A proposed board for the next round. Purely advisory — it is rendered as a
+     tappable chip and is never applied on its own. Cleared the moment a round
+     starts so it can't linger over a game. */
+  const [suggestion, setSuggestion] = useState(null);
+  // Scroll position captured just before the end-of-set sheet opens, so
+  // closing it can put the player back on the board instead of at the bottom
+  // of the page. See the capture site in finishGame.
+  const scrollBeforeModalRef = useRef(0);
+
+  /* Closing the milestone sheet always returns the player to the board.
+   *
+   * Uses the two-argument window.scrollTo(x, y) rather than the options form:
+   * `behavior: "instant"` isn't reliably supported and an unrecognised value
+   * can cause the whole call to be ignored — which is exactly what happened in
+   * testing (the page stayed at 8503px).
+   *
+   * Restored across several frames because the sheet's own unmount and
+   * scroll-lock release run after ours; a single requestAnimationFrame gets
+   * overwritten by that cleanup. Re-asserting at 0ms/60ms/180ms is cheap and
+   * survives whatever the popup library does on the way out.
+   */
+  const closeMilestoneModal = () => {
+    setShowMilestoneModal(false);
+    if (typeof window === "undefined") return;
+    const y = scrollBeforeModalRef.current || 0;
+    const restore = () => window.scrollTo(0, y);
+    requestAnimationFrame(restore);
+    setTimeout(restore, 60);
+    setTimeout(restore, 180);
+  };
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -229,18 +260,25 @@ export default function SchulteTable({
   // Alphabet mode can't fill a 6×6 board (only 26 letters) — clamp down to
   // a supported size if someone quick-switches into it from a larger grid.
   useEffect(() => {
+    // Never resize mid-round. gridSize feeds totalTiles, which feeds the CSS
+    // column count — changing it during a game reflows the board under the
+    // player even when the tiles themselves are untouched.
+    if (gameStarted) return;
     if (mode === "alphabet" && gridSize > 5) {
       setGridSize(5);
     }
-  }, [mode, gridSize, setGridSize]);
+  }, [mode, gridSize, setGridSize, gameStarted]);
 
   useEffect(() => {
     if (!pendingStart) return;
+    // A queued "try this board instead" must wait for the current round to
+    // finish rather than swapping grid and mode out from under it.
+    if (gameStarted) return;
 
     // Apply new settings
     setGridSize(pendingStart.grid);
     setMode(pendingStart.mode);
-  }, [pendingStart]);
+  }, [pendingStart, gameStarted]);
   useEffect(() => {
     if (!pendingStart) return;
 
@@ -293,10 +331,15 @@ export default function SchulteTable({
   // drop it to 4×4 the moment the viewport crosses into mobile width (e.g.
   // resizing, or rotating a tablet).
   useEffect(() => {
+    // Same reason as the alphabet clamp: no resizing while a round is live.
+    // This one could fire from an orientation change or the mobile browser's
+    // URL bar collapsing, which is exactly the "it switched on its own with
+    // no input from me" case.
+    if (gameStarted) return;
     if (isMobile && gridSize > 4) {
       setGridSize(4);
     }
-  }, [isMobile, gridSize, setGridSize]);
+  }, [isMobile, gridSize, setGridSize, gameStarted]);
 
   const pickRandom = (arr, exclude) => {
     const options = arr.filter((v) => v !== exclude);
@@ -304,28 +347,42 @@ export default function SchulteTable({
   };
 
   /* The three quick pills reshuffle grid / difficulty / mode. During the ramp
-     they're restricted to the same pool the adaptive engine is — otherwise a
-     new player could tap "Medium" once and land on Impossible maths, which is
-     exactly the exit this ramp exists to prevent. The pills stay tappable
-     (they're the main way to vary a session); they just can't hand out a board
-     the engine itself wouldn't give yet. */
+     they draw from a gentler pool so a brand-new player can't tap their way
+     into 7×7 Impossible Maths on game two.
+
+     `pool()` is the guard against the bug this shipped with: a pool of one
+     makes a shuffle control silently dead, because pickRandom() removes the
+     current value, finds nothing left, and returns the same value. Tapping did
+     nothing and the UI gave no reason. Any constrained pool that can't offer
+     an actual alternative now falls back to the full list — a pill that always
+     responds beats a pill that's quietly inert. */
   const onboarding = isOnboarding(lifetimeGames);
+  const pool = (limited, full) =>
+    limited.filter((v) => v !== undefined).length >= 2 ? limited : full;
 
   const randomizeGrid = () =>
     setGridSize(
       pickRandom(
         onboarding
-          ? gridOptions.filter((g) => g <= onboardingGridCap(isMobile))
+          ? pool(
+              gridOptions.filter((g) => g <= onboardingGridCap(isMobile)),
+              gridOptions,
+            )
           : gridOptions,
         gridSize,
       ),
     );
   const randomizeDifficulty = () =>
     setDifficulty(
-      pickRandom(onboarding ? ONBOARDING_DIFFICULTIES : DIFFICULTIES, difficulty),
+      pickRandom(
+        onboarding ? pool(ONBOARDING_DIFFICULTIES, DIFFICULTIES) : DIFFICULTIES,
+        difficulty,
+      ),
     );
   const randomizeMode = () =>
-    setMode(pickRandom(onboarding ? ONBOARDING_MODES : MODES, mode));
+    setMode(
+      pickRandom(onboarding ? pool(ONBOARDING_MODES, MODES) : MODES, mode),
+    );
 
   const randomPillClass =
     "px-3 py-1 text-[11px] font-bold rounded-full border bg-muted text-foreground border-border hover:border-primary hover:text-primary transition-colors";
@@ -334,6 +391,36 @@ export default function SchulteTable({
      GENERATE NEW GRID WHEN SETTINGS CHANGE
   =========================================== */
   useEffect(() => {
+    /* NEVER REBUILD THE BOARD MID-ROUND.
+     *
+     * This effect wipes numbers/clickedNumbers/clickData/mistakes and deals a
+     * fresh board whenever grid, difficulty or mode changes — and it had no
+     * idea whether a game was in progress. Any settings change that landed
+     * after the player hit Start swapped the board out from under them,
+     * resetting their progress mid-round.
+     *
+     * The generation is also async (it yields a frame before writing), so an
+     * in-flight run queued *before* Start could still land *after* it. Bumping
+     * the token on the way out invalidates that pending run, so it can't
+     * resolve into a live game.
+     *
+     * `gameStarted` is in the dep list so the board regenerates normally the
+     * moment a round ends.
+     */
+    if (gameStarted) {
+      // Invalidate any generation still in flight so it can't land mid-round.
+      generationTokenRef.current += 1;
+      // ...and clear the loading flag ourselves. The orphaned run's `finally`
+      // is gated on `token === generationTokenRef.current`, which the bump
+      // above just falsified — so it will never clear the flag. Without this
+      // line the spinner stays over the board for the entire round while the
+      // timer counts up behind it. handleStartGame() has already built the
+      // board synchronously by this point, so there is nothing left to wait
+      // for.
+      setLoadingBoard(false);
+      return;
+    }
+
     const token = ++generationTokenRef.current;
     const generate = async () => {
       setLoadingBoard(true);
@@ -352,6 +439,8 @@ export default function SchulteTable({
         // change immediately followed by another change) — drop it.
         if (token !== generationTokenRef.current) return;
         setNumbers(generator(totalTiles, difficulty));
+        // Board and gridSize now agree — Start is safe again.
+        boardRebuildingRef.current = false;
       } catch (err) {
         console.error("Grid generation error:", err);
       } finally {
@@ -359,30 +448,62 @@ export default function SchulteTable({
       }
     };
     generate();
-  }, [gridSize, difficulty, totalTiles, mode]);
+  }, [gridSize, difficulty, totalTiles, mode, gameStarted]);
 
   /* ===========================================
      START GAME
   =========================================== */
   const handleStartGame = () => {
-    // Board isn't ready yet — ignore rapid double-taps so a game can't
-    // start against a half-generated grid.
-    if (loadingBoard) return;
+    /* Board isn't ready yet — QUEUE the tap rather than dropping it.
+     *
+     * Dropping it was the old behaviour and it felt broken: you finish a
+     * round, tap Start straight away, and nothing happens. The player has no
+     * way to know the board is still being dealt, so they tap again, and
+     * again. Now the intent is remembered and the round begins the instant the
+     * board is coherent — a fast tap costs you a moment, never a lost press.
+     *
+     * The ref is the real guard; `loadingBoard` is checked too but can be a
+     * render behind. */
+    if (boardRebuildingRef.current || loadingBoard) {
+      setStartQueued(true);
+      return;
+    }
     generationTokenRef.current += 1;
 
-    setConfettiActive(false);
     setClickedNumbers([]);
     setClickData([]);
     setMistakes(0);
 
     const generator = GAME_MODES[mode]?.generate || GAME_MODES.number.generate;
     setNumbers(generator(totalTiles, difficulty));
+    // The board exists as of the line above — generated synchronously, not via
+    // the async effect. Clear the flag here too so the spinner can never
+    // outlive the thing it was waiting for.
+    setLoadingBoard(false);
+    // The suggestion was for *this* round; it has been taken or declined.
+    setSuggestion(null);
 
     setGameStarted(true);
     const now = Date.now();
     lastClickTime.current = now;
     gameStartTime.current = now;
   };
+
+  /* Fires a queued Start once the board is genuinely ready.
+   *
+   * "Ready" means all three of: not flagged as rebuilding, not loading, and
+   * `numbers` actually matching the current grid. That last condition is the
+   * important one — the first two can both read clear for a frame while
+   * `numbers` is still the previous round's array, which is exactly the
+   * mismatch that produced a 5-wide grid holding 16 tiles. */
+  useEffect(() => {
+    if (!startQueued || gameStarted) return;
+    if (boardRebuildingRef.current || loadingBoard) return;
+    if (numbers.length === 0 || numbers.length !== totalTiles) return;
+
+    setStartQueued(false);
+    handleStartGame();
+  }, [startQueued, gameStarted, loadingBoard, numbers, totalTiles]);
 
   /* ===========================================
      TILE CLICK LOGIC
@@ -572,6 +693,14 @@ export default function SchulteTable({
     setGamesSincePopup((prev) => (prev + 1 >= POPUP_INTERVAL ? 0 : prev + 1));
     if (isSetComplete) {
       setSessionServerStats(null); // local-only view until/unless rank lands
+      // Remember where the player was before the sheet mounts. The sheet is
+      // portaled to the end of <body>, and the homepage is now ~9,000px tall
+      // on mobile because of the content below the game — a browser scrolling
+      // that portal into view dumps the player at the very bottom of the page,
+      // with the board off-screen above them. Captured here rather than inside
+      // the modal because by the modal's first effect the scroll has already
+      // moved.
+      scrollBeforeModalRef.current = window.scrollY;
       setShowMilestoneModal(true);
     }
 
@@ -609,44 +738,17 @@ export default function SchulteTable({
 
     const timeTaken = elapsed / 1000;
 
+    // Confetti removed from the end-of-round path entirely. It fired on every
+    // single finish, which meant an animation covering the board between every
+    // round — noise, not celebration, once you're playing in sets of five.
+    // InstantFeedback already reports the time, score and delta inline.
+    //
+    // Podium finishes still get a toast: those are rare and worth interrupting
+    // for.
     if (position) {
-      const colorSets = {
-        1: ["#FFD700", "#FFFACD", "#F5DEB3"],
-        2: ["#00FF00", "#FF0000", "#FFFF00"],
-        3: ["#800080", "#DA70D6", "#BA55D3"],
-      };
-
-      setConfettiConfig({
-        angle: 90,
-        spread: 360,
-        startVelocity: window.innerWidth < 768 ? 30 : 50,
-        elementCount: window.innerWidth < 768 ? 100 : 200,
-        duration: 2500,
-        colors: colorSets[position],
-      });
-
-      setTimeout(() => setConfettiActive(true), 80);
-
       toast.success(
         `${position === 1 ? "🔥 You're #1 globally!" : `You're #${position} globally!`} ⏱ ${timeTaken.toFixed(2)}s`,
       );
-    } else {
-      // Every finish deserves a little celebration, not just podium
-      // finishes — lighter burst, same instant trigger.
-      setConfettiConfig({
-        angle: 90,
-        spread: 100,
-        startVelocity: window.innerWidth < 768 ? 18 : 28,
-        elementCount: window.innerWidth < 768 ? 40 : 70,
-        duration: 1400,
-        colors: ["#F3A83C", "#5B8DEF", "#43C6AC"],
-      });
-      setTimeout(() => setConfettiActive(true), 80);
-      // No toast for an ordinary finish. Confetti fires, and InstantFeedback
-      // already renders the time, score and delta inline above the Start
-      // button — a toast on top of both was a third notification for one
-      // event. Podium finishes above keep their toast: rare and worth
-      // interrupting for.
     }
 
     // The local write, progression record, and modal open all happened before
@@ -679,76 +781,57 @@ export default function SchulteTable({
 
     window.dispatchEvent(new Event("game-finished"));
 
-    // Adapt the NEXT board to how this one went. A rough game (low
-    // accuracy, slow reactions, lots of mistakes) steps difficulty/size
-    // DOWN instead of handing back something bigger and harder — that's
-    // how you overwhelm someone who's already struggling. A clean game
-    // steps up. This only updates state for the next round; it does NOT
-    // start a new game — the player still has to hit Play Again/Start.
-    const difficultyIndex = DIFFICULTIES.indexOf(difficulty);
-    const performance = assessPerformance({
-      accuracy,
-      avgReactionTimeMs: avg,
-      mistakes,
-      totalTiles,
-    });
+    /* SUGGEST A DIFFERENT BOARD — never apply one.
+     *
+     * This used to silently rewrite grid and mode after every round. That is
+     * where every board-switching bug in this file came from: settings moving
+     * on their own meant `gridSize` could advance while `numbers` still held
+     * the previous round, and a Start tap in that window rendered a 5-wide
+     * grid containing 16 tiles.
+     *
+     * Nothing is applied now. We compute a suggestion, surface it as a chip
+     * the player can tap, and leave the pills exactly where they left them.
+     * Manual stays manual — the game proposes, the player disposes.
+     */
+    const gridPool = onboarding
+      ? gridOptions.filter((g) => g <= onboardingGridCap(isMobile))
+      : gridOptions;
+    const modePool = onboarding ? ONBOARDING_MODES : MODES;
+    const pickOther = (arr, current) => {
+      const others = arr.filter((v) => v !== current);
+      return others.length
+        ? others[Math.floor(Math.random() * others.length)]
+        : null;
+    };
 
-    let nextMode = mode;
-    let nextDifficulty = difficulty;
-    let nextGrid = gridSize;
+    // Clean round -> nudge upward in size. Messy round -> keep the size and
+    // offer a change of scenery instead, because handing someone a bigger
+    // board right after they struggled is how you lose them.
+    const cleanRound = accuracy >= 90 && mistakes === 0;
+    const biggerGrids = gridPool.filter((g) => g > gridSize);
+    const suggestGrid =
+      cleanRound && biggerGrids.length ? biggerGrids[0] : null;
+    const suggestMode = suggestGrid ? null : pickOther(modePool, mode);
 
-    if (performance === "struggled") {
-      nextDifficulty = clampDifficulty(difficultyIndex - 1);
-      nextGrid = clampGrid(gridSize - 1, mode, isMobile);
-    } else if (performance === "excelled") {
-      nextDifficulty = clampDifficulty(difficultyIndex + 1);
-      // Only introduce a new symbol set on a clean win — someone already
-      // struggling shouldn't also have to relearn a mode.
-      nextMode = Math.random() < 0.3 ? pickRandom(MODES, mode) : mode;
-      nextGrid = clampGrid(gridSize + 1, nextMode, isMobile);
+    if (suggestGrid) {
+      setSuggestion({
+        kind: "grid",
+        grid: suggestGrid,
+        mode,
+        label: `Try ${suggestGrid}×${suggestGrid}`,
+        why: "Clean run — ready for a bigger board?",
+      });
+    } else if (suggestMode) {
+      setSuggestion({
+        kind: "mode",
+        grid: gridSize,
+        mode: suggestMode,
+        label: `Try ${MODE_LABELS[suggestMode]} mode`,
+        why: cleanRound ? "Nice run — mix it up?" : "Same size, different feel",
+      });
     } else {
-      nextMode = Math.random() < 0.35 ? pickRandom(MODES, mode) : mode;
-      nextGrid = clampGrid(gridSize, nextMode, isMobile);
+      setSuggestion(null);
     }
-
-    // Hold the first N games on rails — Easy, simple modes, small grid.
-    // `progressAfterGame.lifetimeGames` is the post-increment count, so the
-    // ramp covers games 1–10 and releases on the 11th.
-    ({
-      grid: nextGrid,
-      difficulty: nextDifficulty,
-      mode: nextMode,
-    } = applyOnboardingLimits(
-      { grid: nextGrid, difficulty: nextDifficulty, mode: nextMode },
-      { lifetimeGames: progressAfterGame.lifetimeGames, isMobile },
-    ));
-
-    setMode(nextMode);
-    setDifficulty(nextDifficulty);
-    setGridSize(nextGrid);
-
-    // Publish the pick so StartBtn can name it. `reason` is what turns a
-    // silent difficulty bump into something the player reads as a response to
-    // how they just did — the step down in particular needs saying out loud,
-    // otherwise an easier board after a bad round feels like the game
-    // glitched rather than like it adapted.
-    const changed =
-      nextGrid !== gridSize ||
-      nextDifficulty !== difficulty ||
-      nextMode !== mode;
-    setNextChallenge({
-      grid: nextGrid,
-      difficulty: nextDifficulty,
-      mode: nextMode,
-      reason:
-        performance === "excelled"
-          ? "You earned the step up"
-          : performance === "struggled"
-            ? "Dialled back — rebuild the rhythm"
-            : changed
-              ? "New board, same pace"
-              : "Beat your last run",
-    });
   };
 
   useEffect(() => {
@@ -829,21 +912,53 @@ export default function SchulteTable({
           {/* One element in both states — the spinner lives inside StartBtn,
               so the button keeps its size, position and label while the board
               generates instead of being swapped for a differently-shaped pill. */}
+          {/* `loading` covers both the board being dealt and a tap already
+              queued behind it — either way the press has registered and the
+              round is coming, which is what the spinner needs to communicate. */}
           <StartBtn
             label={startLabel}
-            sub={nextChallenge?.reason ?? null}
-            loading={loadingBoard}
+            sub={startQueued ? "Starting…" : startSub}
+            loading={loadingBoard || startQueued}
           />
         </div>
       )}
 
-      {/* QUICK PILLS — grid / difficulty / mode, no dropdown needed */}
+      {/* SUGGESTION — advisory only. Tapping it applies the change; ignoring
+          it leaves everything exactly as the player set it. This replaced the
+          old behaviour of silently rewriting grid/mode after every round,
+          which is what caused boards to swap mid-game. */}
+      {!gameStarted && !showLargeScreenSummaryModal && suggestion && (
+        <button
+          onClick={() => {
+            if (boardRebuildingRef.current || loadingBoard) return;
+            if (suggestion.grid !== gridSize) setGridSize(suggestion.grid);
+            if (suggestion.mode !== mode) setMode(suggestion.mode);
+            setSuggestion(null);
+          }}
+          className="group flex flex-col items-center gap-0.5 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-2 transition-colors hover:bg-primary/20"
+        >
+          <span className="text-[11px] font-bold text-primary">
+            {suggestion.label} →
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            {suggestion.why}
+          </span>
+        </button>
+      )}
+
+      {/* QUICK PILLS — grid / difficulty / mode, no dropdown needed.
+          The pill the suggestion targets gets a ring, so "you can change this"
+          is visible rather than something the player has to already know. */}
       {!gameStarted && !showLargeScreenSummaryModal && (
         <div className="flex items-center justify-center gap-1.5">
           <button
             onClick={randomizeGrid}
             disabled={loadingBoard}
-            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""}`}
+            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""} ${
+              suggestion?.kind === "grid"
+                ? "ring-2 ring-primary/50 border-primary"
+                : ""
+            }`}
           >
             {gridSize}×{gridSize}
           </button>
@@ -857,7 +972,11 @@ export default function SchulteTable({
           <button
             onClick={randomizeMode}
             disabled={loadingBoard}
-            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""}`}
+            className={`${randomPillClass} ${loadingBoard ? "opacity-50 pointer-events-none" : ""} ${
+              suggestion?.kind === "mode"
+                ? "ring-2 ring-primary/50 border-primary"
+                : ""
+            }`}
           >
             {MODE_LABELS[mode]}
           </button>
@@ -899,13 +1018,6 @@ export default function SchulteTable({
       )}
       {gameStarted && <GameTimer />}
 
-      {/* CONFETTI */}
-      <div
-        className="fixed z-50 pointer-events-none"
-        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
-      >
-        <Confetti active={confettiActive} config={confettiConfig} />
-      </div>
 
       {/* NEXT TARGET — fixed inline colors so it's always legible in dark mode,
           regardless of how bg-accent/text-accent-foreground resolve elsewhere */}
@@ -932,8 +1044,14 @@ export default function SchulteTable({
         />
       )}
 
-      {/* BOARD */}
-      {loadingBoard ? (
+      {/* BOARD
+          `boardMismatched` is a render-level invariant, not an optimisation.
+          BoardGrid lays out its columns from `gridSize` but renders whatever
+          is in `numbers` — so if those two ever disagree you get a visibly
+          broken board (a 5-wide grid holding 16 tiles, last row orphaned).
+          The guards above should prevent that state existing at all; this
+          makes it impossible to *draw* even if a path slips through. */}
+      {loadingBoard || boardMismatched ? (
         <div className="flex flex-col items-center justify-center h-[300px] w-full max-w-sm rounded-3xl border border-border bg-card">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="mt-4 text-sm text-muted-foreground">
@@ -986,11 +1104,12 @@ export default function SchulteTable({
         serverStats={sessionServerStats}
         sessionProgress={sessionProgress}
         isMobile={isMobile}
+        restoreScrollY={scrollBeforeModalRef.current}
         gamesInSet={POPUP_INTERVAL}
-        onClose={() => setShowMilestoneModal(false)}
+        onClose={closeMilestoneModal}
         onPlayAgain={() => {
           if (loadingBoard) return;
-          setShowMilestoneModal(false);
+          closeMilestoneModal();
           handleStartGame();
         }}
         onUpgrade={() => router.push("/get-pro")}

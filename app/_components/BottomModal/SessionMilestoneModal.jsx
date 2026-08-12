@@ -133,8 +133,35 @@ export default function SessionMilestoneModal({
   // Reused from the parent's existing breakpoint state rather than duplicating
   // a resize listener here.
   isMobile = false,
+  // Page scroll position captured by the parent *before* this sheet mounted.
+  // Restored on unmount — see the effect below.
+  restoreScrollY = 0,
 }) {
   const trackedRef = useRef(false);
+
+  /* SCROLL RESTORE — runs on unmount, so it covers every way this sheet can
+   * close: the X, "Play 5 more", Escape, a swipe dismiss, or a navigation.
+   * Wiring it to the onClose callback alone was not enough; in testing the
+   * page stayed at 8503px after closing, because not every dismissal path
+   * routes through that handler.
+   *
+   * The problem it solves: this sheet is portaled to the end of <body>, and
+   * the homepage runs ~9,000px tall on mobile now. A browser scrolling that
+   * portal into view leaves the player at the very bottom of the page with the
+   * board far off-screen above them.
+   *
+   * Re-asserted across several frames because the popup library releases its
+   * own scroll lock during exit animation, after our first write.
+   */
+  useEffect(() => {
+    if (!visible || typeof window === "undefined") return;
+    return () => {
+      const restore = () => window.scrollTo(0, restoreScrollY || 0);
+      requestAnimationFrame(restore);
+      setTimeout(restore, 80);
+      setTimeout(restore, 260);
+    };
+  }, [visible, restoreScrollY]);
 
   // isDesktop comes from the parent, which already runs exactly this listener
   // for its own layout. Owning a second one here meant every visitor paid for

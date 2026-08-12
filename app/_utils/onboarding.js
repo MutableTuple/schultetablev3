@@ -26,8 +26,19 @@
 
 export const ONBOARDING_GAMES = 10;
 
-/** Difficulty tiers permitted during the ramp. */
-export const ONBOARDING_DIFFICULTIES = ["Easy"];
+/**
+ * Difficulty tiers permitted during the ramp.
+ *
+ * This was ["Easy"] and that was a mistake. A single-entry pool makes the
+ * difficulty pill a dead control: pickRandom() filters out the current value,
+ * finds nothing left, and falls back to the same value — so tapping "Easy"
+ * for the first ten games did literally nothing, with no explanation. That
+ * reads as broken, not as gentle.
+ *
+ * Two entries is the minimum for a shuffle control to visibly respond, and
+ * Easy+Medium is what the original brief actually asked for.
+ */
+export const ONBOARDING_DIFFICULTIES = ["Easy", "Medium"];
 
 /**
  * Modes permitted during the ramp.

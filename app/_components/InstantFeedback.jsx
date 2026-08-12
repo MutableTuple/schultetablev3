@@ -12,11 +12,19 @@ import {
 export default function InstantFeedback({ feedback }) {
   const [show, setShow] = useState(false);
 
+  /* Stays on screen until the next round starts — it used to self-destruct
+     after 2.8s.
+     That timeout was survivable when a round also produced confetti, a toast,
+     and a results sheet. Those are all gone now (confetti and the per-round
+     toast were removed as noise; the sheet moved to once every five games), so
+     the auto-hide left the player with no evidence a game had happened three
+     seconds after finishing it.
+     The parent only renders this between rounds (`!gameStarted`), so keeping
+     it mounted costs nothing during play and it disappears the moment the next
+     board starts. */
   useEffect(() => {
     if (!feedback) return;
     setShow(true);
-    const t = setTimeout(() => setShow(false), 2800);
-    return () => clearTimeout(t);
   }, [feedback]);
 
   if (!feedback) return null;
